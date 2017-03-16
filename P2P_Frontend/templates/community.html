@@ -1,0 +1,179 @@
+
+{% extends "base.html" %}
+{% block title %}Dashboard{% endblock %}
+
+
+
+
+
+<div class="wrapper">
+
+
+
+		{% block sidebar %}
+
+		<div class="sidebar" data-color="purple" data-image="../assets/img/sidebar-1.jpg">
+			<!--
+				Tip 1: You can change the color of the sidebar using: data-color="purple | blue | green | orange | red"
+
+				Tip 2: you can also add an image using data-image tag
+			-->
+
+			<div class="logo">
+				<a href="" class="simple-text">
+					Lokal Power
+				</a>
+			</div>
+
+				<div class="sidebar-wrapper">
+					<ul class="nav">
+
+						<li>
+							<a href="{{ url_for('home') }}">
+								<i class="material-icons">dashboard</i>
+								<p>Übersicht</p>
+							</a>
+						</li>
+
+						<li >
+							<a href="{{ url_for('maps') }}">
+								<i class="material-icons">location_on</i>
+								<p>Quellen</p>
+							</a>
+						</li>
+
+						<li class="active">
+							<a href="{{ url_for('community') }}">
+								<i class="fa fa-share-alt" aria-hidden="true"></i>
+								<p>Meine Community</p>
+							</a>
+						</li>
+
+
+					</ul>
+				</div>
+			</div>
+
+		{% endblock %}
+
+
+
+
+	<div class="main-panel">
+
+			{% block body %}
+
+			<div class="content">
+				<div class="container-fluid">
+
+					<center><h1> Strombezug nach Quellen für 2016</h1></center>
+					<br>
+
+					<div class="row">
+
+						<div class="col-lg-6 col-md-6 col-sm-6">
+							<div id="container"></div>
+							<br>
+							<div class="alert alert-success">
+
+
+											<center><h1>{{ d }} km</h1>
+											<br>
+											<h3>Durchschnittsdistanz zu Ihren Stromproduzenten</h3>
+											   </center>
+	                                </div>
+						</div>
+
+						<div class="col-lg-6 col-md-6 col-sm-6">
+							<table class="table">
+								  <tr>
+									<th>Lieferant</th>
+									<th>Energie geliefert</th>
+									<th>Distanz</th>
+								  </tr>
+
+								  {% for k in kWh_SharesBySource %}
+
+								  <tr>
+									<td> {{ producerNames[loop.index0] }}</td>
+									<td> {{k * 100}} %</td>
+									<td> {{ dFromUser0[loop.index0] }} km</td>
+								  </tr>
+
+								  {% endfor %}
+
+
+							</table>
+						</div>
+
+
+
+				</div>
+
+
+				<br>
+
+			</div>
+
+			{% endblock %}
+	</div>
+</div>
+
+
+	{% block footer %}
+	<script>
+
+	Highcharts.chart('container', {
+		chart: {
+			plotBackgroundColor: null,
+			plotBorderWidth: null,
+			plotShadow: false,
+			type: 'pie'
+		},
+		title: {
+			text: 'Anteile der LokalPower Supplier:'
+		},
+		tooltip: {
+			pointFormat: '{series.name}: <b>{point.percentage:.1f}%</b>'
+		},
+		plotOptions: {
+			pie: {
+				allowPointSelect: true,
+				cursor: 'pointer',
+				dataLabels: {
+					enabled: true,
+					format: '<b>{point.name}</b>: {point.percentage:.1f} %',
+					style: {
+						color: (Highcharts.theme && Highcharts.theme.contrastTextColor) || 'black'
+					}
+				}
+			}
+		},
+		series: [{
+			name: 'Brands',
+			colorByPoint: true,
+			data: [{
+				name: 'PV 1',
+				y: {{ kWh_SharesBySource[0] }}
+			}, {
+				name: 'PV 2',
+				y: {{ kWh_SharesBySource[1] }},
+				sliced: true,
+				selected: true
+			}, {
+				name: 'PV 3',
+				y: {{ kWh_SharesBySource[2] }}
+			}, {
+				name: 'Hydro 1',
+				y: {{ kWh_SharesBySource[3] }}
+			}, {
+				name: 'Hydro 2',
+				y: {{ kWh_SharesBySource[4] }}
+			}, {
+				name: 'Biogas',
+				y: {{ kWh_SharesBySource[5] }}
+			}]
+		}]
+	});
+	</script>
+	{% endblock %}

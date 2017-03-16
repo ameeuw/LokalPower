@@ -1,0 +1,108 @@
+
+{% extends "base.html" %}
+<!-- {% block title %}Dashboard{% endblock %} -->
+
+{% block header %}
+
+{{"decoupled-map"|googlemap_js(37.4419, -122.1419, markers=[(37.4419, -122.1419)])}}
+{{mymap.js}}
+{{sndmap.js}}
+
+{% endblock %}
+
+
+
+
+
+
+	<div class="wrapper">
+
+		{% block sidebar %}
+		
+		<div class="sidebar" data-color="purple" data-image="../assets/img/sidebar-1.jpg">
+			<!--
+				Tip 1: You can change the color of the sidebar using: data-color="purple | blue | green | orange | red"
+
+				Tip 2: you can also add an image using data-image tag
+			-->
+
+			<div class="logo">
+				<a href="" class="simple-text">
+					Lokal Power
+				</a>
+			</div>
+			
+				<div class="sidebar-wrapper">
+					<ul class="nav">
+						<li>
+							<a href="{{ url_for('home') }}">
+								<i class="material-icons">dashboard</i>
+								<p>Übersicht</p>
+							</a>
+						</li>
+						<!--
+						<li>
+							<a href="table.html">
+								<i class="material-icons">content_paste</i>
+								<p>Table List</p>
+							</a>
+						</li>
+						<li>
+							<a href="typography.html">
+								<i class="material-icons">library_books</i>
+								<p>Typography</p>
+							</a>
+						</li>
+						<li>
+							<a href="icons.html">
+								<i class="material-icons">bubble_chart</i>
+								<p>Icons</p>
+							</a>
+						</li>
+						-->
+						<li class="active">
+							<a href="{{ url_for('maps') }}">
+								<i class="material-icons">location_on</i>
+								<p>Quellen</p>
+							</a>
+						</li>
+						
+						<li >
+							<a href="{{ url_for('community') }}">
+								<i class="fa fa-share-alt" aria-hidden="true"></i>
+								<p>Meine Community</p>
+							</a>
+						</li>
+
+					</ul>
+				</div>
+			</div>
+
+		{% endblock %}
+
+
+
+	    <div class="main-panel">
+			
+			<div class="content">
+				<div class="container-fluid">
+				
+					{% block body %}
+
+					{{sndmap.html}}
+					
+					
+					{% endblock %}
+			
+				</div>
+			</div>
+			
+	    </div>
+	</div>
+
+
+
+
+
+
+

@@ -1,0 +1,142 @@
+
+{% extends "base.html" %}
+{% block title %}Dashboard{% endblock %}
+
+
+
+
+
+<div class="wrapper">
+	
+
+
+	
+	<div class="main-panel">
+
+			{% block body %}
+			
+			<div class="content">
+				<div class="container-fluid">
+			
+					<center><h1> Strombedarf für 2016</h1></center>
+					<br>
+					
+					<div class="row">
+						<div class="col-lg-3 col-md-6 col-sm-6">
+							<div class="card card-stats">
+								<div class="card-header" data-background-color="orange">
+									<i class="fa fa-bolt" aria-hidden="true"></i>
+
+								</div>
+								<div class="card-content">
+									<p class="category">Jahresverbrauch</p>
+									<h3 class="title">{{ user.AnnualDemand }}<small> kWh</small></h3>
+								</div>
+								<div class="card-footer">
+									<div class="stats">
+										<i class="material-icons text-danger">warning</i> <a href="#pablo">Analysieren</a>
+									</div>
+								</div>
+							</div>
+						</div>
+						<div class="col-lg-3 col-md-6 col-sm-6">
+							<div class="card card-stats">
+								<div class="card-header" data-background-color="green">
+									<i class="fa fa-money" aria-hidden="true"></i>
+								</div>
+								<div class="card-content">
+									<p class="category">Kosten Total</p>
+									<h3 class="title">Fr. {{ user.TotalCost }}</h3>
+								</div>
+								<div class="card-footer">
+									<div class="stats">
+										<i class="material-icons">date_range</i> ..
+									</div>
+								</div>
+							</div>
+						</div>
+						<!--
+						<div class="col-lg-3 col-md-6 col-sm-6">
+							<div class="card card-stats">
+								<div class="card-header" data-background-color="red">
+									<i class="material-icons">info_outline</i>
+								</div>
+								<div class="card-content">
+									<p class="category">Netzkosten</p>
+									<h3 class="title">75</h3>
+								</div>
+								<div class="card-footer">
+									<div class="stats">
+										<i class="material-icons">local_offer</i> Tracked from Github
+									</div>
+								</div>
+							</div>
+						</div>
+						-->
+						<div class="col-lg-3 col-md-6 col-sm-6">
+							<div class="card card-stats">
+								<div class="card-header" data-background-color="blue">
+									<i class="fa fa-twitter"></i>
+								</div>
+								<div class="card-content">
+									<p class="category">Followers</p>
+									<h3 class="title">+245</h3>
+								</div>
+								<div class="card-footer">
+									<div class="stats">
+										<i class="material-icons">update</i> Just Updated
+									</div>
+								</div>
+							</div>
+						</div>
+					</div>
+
+
+				</div>
+			
+			
+				<br>
+				<div id="container"></div>
+			</div>
+
+			{% endblock %}
+	</div>
+</div>
+
+
+	{% block footer %}
+	<script>
+	var chart = Highcharts.chart('container', {
+
+    title: {
+        text: 'Verbrauch nach Monat'
+    },
+
+    subtitle: {
+        text: ''
+    },
+
+
+    yAxis: {
+        title: {
+            text: 'Verbrauch in kWh'
+        }
+    },
+
+    xAxis: {
+        categories: ['Jan', 'Feb', 'Mar', 'Apr', 'May', 'Jun', 'Jul', 'Aug', 'Sep', 'Oct', 'Nov', 'Dec']
+    },
+
+    series: [{
+        type: 'column',
+        name: 'Verbrauch',
+        colorByPoint: true,
+        data: {{ user.DemandByMonth|safe}},
+        showInLegend: false
+    }]
+
+	});
+	</script>
+	{% endblock %}
+
+
