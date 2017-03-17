@@ -60,7 +60,7 @@ class User:
     def SetCost(self):
         setattr(self, 'TotalCost', round(self.AnnualDemand * self.Price, 2))
 
-    def SetConnectionList(self, filename):
+    def setUserDict(self, filename):
         setattr(self, 'Connections', pickle.load(open(filename, "rb")))
         pass
 
@@ -72,19 +72,22 @@ class User:
                 if timeSlice in self.Connections.keys():
                     timeSliceConnections = self.Connections[timeSlice]
                     for connection in timeSliceConnections:
-                        if connection['from'] not in aggregatedConnections.keys():
-                            aggregatedConnections[connection['from']] = connection['energy'] * DELTAT
+                        fromId = connection['fromId']
+                        if fromId not in aggregatedConnections.keys():
+                            aggregatedConnections[fromId] = {}
+                            aggregatedConnections[fromId]['energy'] = connection['energy'] * DELTAT
+                            aggregatedConnections[fromId]['location'] = connection['from']
                         else:
-                            aggregatedConnections[connection['from']] += connection['energy'] * DELTAT
+                            aggregatedConnections[fromId]['energy'] += connection['energy'] * DELTAT
         return aggregatedConnections
 
     def getAggregatedPaths(self, aggregatedConnections=None):
         paths = []
         if aggregatedConnections is None:
             aggregatedConnections = self.getAggregatedConnections()
-        for key in aggregatedConnections.keys():
+        for supplierId, supplyDict in aggregatedConnections.iteritems():
             path = []
-            path.append(key)
+            path.append(supplyDict['location'])
             path.append(self.Location)
             paths.append(path)
         return paths

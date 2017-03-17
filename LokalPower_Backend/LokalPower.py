@@ -50,21 +50,38 @@ class LokalPower(object):
     def flowToConsumerDict(self, flowDict, G):
         consumerDict = {}
         n = len(G.nodes())
-        for i in range(n):
-            for j in flowDict[i]:
-                if flowDict[i][j] > 0:
-                    energy = flowDict[i][j]
-                    distance = G.edge[i][j]['distance']
-                    fromId = G.node[i]['id']
-                    toId = G.node[j]['id']
+        for fromIndex in range(n):
+            for toIndex in flowDict[fromIndex]:
+                if flowDict[fromIndex][toIndex] > 0:
+                    energy = flowDict[fromIndex][toIndex]
+                    distance = G.edge[fromIndex][toIndex]['distance']
+                    fromId = G.node[fromIndex]['id']
+                    toId = G.node[toIndex]['id']
 
                     if toId not in consumerDict.keys():
                         consumerDict[toId] = []
-                    consumerDict[toId].append({'from' : i, 'to' : j, 'distance' : distance, 'energy' : energy})
+                    consumerDict[toId].append({'from' : fromIndex, 'to' : toIndex, 'distance' : distance, 'energy' : energy})
         return consumerDict
+
+    def flowToProducerDict(self, flowDict, G):
+        producerDict = {}
+        n = len(G.nodes())
+        for fromIndex in range(n):
+            for toIndex in flowDict[fromIndex]:
+                if flowDict[fromIndex][toIndex] > 0:
+                    energy = flowDict[fromIndex][toIndex]
+                    distance = G.edge[fromIndex][toIndex]['distance']
+                    fromId = G.node[fromIndex]['id']
+                    toId = G.node[toIndex]['id']
+
+                    if fromId not in producerDict.keys():
+                        producerDict[fromId] = []
+                        producerDict[toId].append({'from' : fromIndex, 'to': toIndex, 'distance': distance, 'energy' : energy})
+        return producerDict
 
     def getConsumerDicts(self, start, stop):
         consumerDicts = []
+
         for currentSlice in range(start, stop):
             _demands, _locations, _ids = self.getTimeSliceData(currentSlice)
             G = self.generateGraph(_demands, _locations, _ids)
@@ -74,6 +91,27 @@ class LokalPower(object):
             _consumerDict['flowDict'] = _flowDict
             consumerDicts.append(_consumerDict)
         return consumerDicts
+
+    def getDicts(self, start, stop):
+        consumerDicts = []
+        producerDicts = []
+
+        for currentSlice in range(start, stop):
+            _demands, _locations, _ids = self.getTimeSliceData(currentSlice)
+            G = self.generateGraph(_demands, _locations, _ids)
+            _flowDict = nx.min_cost_flow(G)
+
+            _consumerDict = self.flowToConsumerDict(_flowDict, G)
+            _consumerDict['graph'] = G
+            _consumerDict['flowDict'] = _flowDict
+            consumerDicts.append(_consumerDict)
+
+            _producerDict = self.flowToProducerDict(_flowDict, G)
+            _producerDict['graph'] = G
+            _producerDict['flowDict'] = _flowDict
+            producerDicts.append(_producerDict)
+
+        return consumerDicts, producerDicts
 
     def getUserDicts(self, consumerDicts, consumer):
         userDicts = {}
