@@ -152,27 +152,15 @@
 		series: [{
 			name: 'Brands',
 			colorByPoint: true,
-			data: [{
-				name: 'PV 1',
-				y: {{ kWh_SharesBySource[0] }}
-			}, {
-				name: 'PV 2',
-				y: {{ kWh_SharesBySource[1] }},
-				sliced: true,
-				selected: true
-			}, {
-				name: 'PV 3',
-				y: {{ kWh_SharesBySource[2] }}
-			}, {
-				name: 'Hydro 1',
-				y: {{ kWh_SharesBySource[3] }}
-			}, {
-				name: 'Hydro 2',
-				y: {{ kWh_SharesBySource[4] }}
-			}, {
-				name: 'Biogas',
-				y: {{ kWh_SharesBySource[5] }}
-			}]
+			data: [
+					{name: 'none', y: 0}
+					{% for k in kWh_SharesBySource %}
+					,{
+						name: '{{ producerNames[loop.index0] }}',
+						y: {{k}}
+					}
+					{% endfor %}
+			]
 		}]
 	});
 	</script>
