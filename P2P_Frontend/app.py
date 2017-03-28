@@ -156,7 +156,9 @@ def community():
 def getAggregatedConnections(start=0, end=36136):
     print("Getting aggregated connections from {} to {}".format(start, end))
     user.setAggregatedConnections(start=start, end=end)
-    return render_template('dashboard.html', user=user)
+    supplierIdsOrdered, kWhSharesBySourceOrdered, dFromUserordered = getOrderedItems(getDFromUser(), user.getKWhBySource())
+    return render_template('dashboard.html', user=user, producerNames=supplierIdsOrdered, kWh_SharesBySource=kWhSharesBySourceOrdered.tolist(), descriptions=descriptions)
+
 
 if __name__ == "__main__":
     app.run()
