@@ -63,7 +63,7 @@ class User(object):
         setattr(self, 'DemandByMonth', valsPerMonth)
 
     def SetAnnualDemand(self):
-        setattr(self, 'AnnualDemand', np.round(np.sum(self.demand * DELTAT) / 1000).astype(int))
+        setattr(self, 'AnnualDemand', np.round(np.sum(self.demand * DELTAT) / 1000).astype(int)) # kWh
 
     def SetPeakDemandPerMonth(self):
         setattr(self, 'PeakDemandPerMonth', np.max(self.demand * DELTAT))

@@ -76,7 +76,7 @@ class LokalPower(object):
 
                     if fromId not in producerDict.keys():
                         producerDict[fromId] = []
-                        producerDict[toId].append({'from' : fromIndex, 'to': toIndex, 'distance': distance, 'energy' : energy})
+                        producerDict[fromId].append({'from' : fromIndex, 'to': toIndex, 'distance': distance, 'energy' : energy})
         return producerDict
 
     def getConsumerDicts(self, start, stop):
@@ -113,6 +113,7 @@ class LokalPower(object):
 
         return consumerDicts, producerDicts
 
+    # TODO: check for correctness of timeslices
     def getUserDicts(self, consumerDicts, consumer):
         userDicts = {}
         for timeSlice in range(len(consumerDicts)):
@@ -159,7 +160,7 @@ class LokalPower(object):
 
         demands.append(-sum(demands))
         locations.append((46.966638, 9.555431))
-        ids.append('CHxxxLOADxxxBALANCER')
+        ids.append('GRID')
 
         return demands, locations, ids
 

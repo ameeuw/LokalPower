@@ -4,3 +4,13 @@
 P2P_Frontend/\.DS_Store
 
 \.DS_Store
+
+*.csv
+
+\.idea/
+
+*.zip
+
+*.pickle
+
+*.xlsx

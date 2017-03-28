@@ -84,6 +84,13 @@
 							</a>
 						</li>
 
+						<li>
+							<a href="{{ url_for('sinks') }}">
+								<i class="material-icons">location_off</i>
+								<p>Senken</p>
+							</a>
+						</li>
+
 						<li >
 							<a href="{{ url_for('community') }}">
 								<i class="fa fa-share-alt" aria-hidden="true"></i>
@@ -111,7 +118,22 @@
 							<span class="icon-bar"></span>
 							<span class="icon-bar"></span>
 						</button>
-						<a class="navbar-brand" href="#">Dashboard</a>
+						<div class="btn-group" role="group" aria-label="...">
+							<button type="button" class="btn btn-default"  onclick="location.href='{{ url_for('getAggregatedConnections', start=0, end=8783) }}'">Q1</button>
+							<button type="button" class="btn btn-default" onclick="location.href='{{ url_for('getAggregatedConnections', start=8784, end=17567) }}'">Q2</button>
+							<button type="button" class="btn btn-default" onclick="location.href='{{ url_for('getAggregatedConnections', start=17568, end=26351) }}'">Q3</button>
+							<button type="button" class="btn btn-default" onclick="location.href='{{ url_for('getAggregatedConnections', start=26352, end=35136) }}'">Q4</button>
+							<button type="button" class="btn btn-default" onclick="location.href='{{ url_for('getAggregatedConnections', start=0, end=35136) }}'">Full Year</button>
+							<button type="button" class="btn btn-default" onclick="location.href='{{ url_for('getAggregatedConnections', start=15000, end=15096) }}'">24h</button>
+						</div>
+
+						<div class="btn-group" role="group" aria-label="...">
+							<button type="button" class="btn btn-default"  onclick="location.href='{{ url_for('getAggregatedConnections', start=0, end=8783) }}'">All</button>
+							<button type="button" class="btn btn-default" onclick="location.href='{{ url_for('getAggregatedConnections', start=8784, end=17567) }}'">Week</button>
+							<button type="button" class="btn btn-default" onclick="location.href='{{ url_for('getAggregatedConnections', start=17568, end=26351) }}'">Month</button>
+							<button type="button" class="btn btn-default" onclick="location.href='{{ url_for('getAggregatedConnections', start=26352, end=35136) }}'">Year</button>
+						</div>
+
 					</div>
 					<div class="collapse navbar-collapse">
 						<ul class="nav navbar-nav navbar-right">

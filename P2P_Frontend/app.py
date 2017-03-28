@@ -1,7 +1,7 @@
 import glob
 
 import numpy as np
-from flask import Flask, render_template
+from flask import Flask, render_template, url_for
 from flask_googlemaps import Map, GoogleMaps
 from geopy.distance import vincenty
 import pickle
@@ -11,77 +11,99 @@ import Algos as ag
 # load consumption file
 
 locations = pickle.load(open('../Daten/users/locations.pickle', "rb"))
-producerIds = ['Hydro 1', 'Hydro 2', 'Biogas', 'PV 1', 'PV 2']
+descriptions = pickle.load(open('../Daten/users/descriptions.pickle', "rb"))
 
-#userId = 'CH1099601234500000000000000111040'
-#userId = 'CH1012101234500000000000000113115'
-userId = 'CH1012301234500000000000000027700'
-# userId = 'CH1012101234500000000000000110486' # --> Consumer bekommt irgendwann Strom vom Grid (CHxxxLOADxxxBALANCER)
-# userId = 'CH1012101234500000000000000112764'
-userId = 'CH1012101234500000000000000113353' # --> Prosumer mit 0,79 % Autarkie
-# userId = 'CH1012101234500000000000000104941' # --> Prosumer mit 0,46% Selbstversorgung...
-userId = 'CH1012101234500000000000000038809'
+userId = locations.keys()[13]
 
+user = ag.User('../Daten/users/{}.csv'.format(userId), locations[userId], userId)
+user.setUserDict('../Daten/dicts/{}.pickle'.format(userId))
 
-userId = locations.keys()[11]
+user.setAggregatedConnections()
 
-user0 = ag.User('../Daten/users/{}.csv'.format(userId), locations[userId], userId)
-user0.setUserDict('../Daten/dicts/{}.pickle'.format(userId))
+user.setProducerDict('../Daten/dicts/prod_{}.pickle'.format(userId))
+user.setAggregatedDeliveries()
 
-#aggregatedConnections = user0.getAggregatedConnections(start=0,end=8783)
-#aggregatedConnections = user0.getAggregatedConnections(start=8784,end=17567)
-aggregatedConnections = user0.getAggregatedConnections(start=17568,end=26351)
-#aggregatedConnections = user0.getAggregatedConnections(start=26352,end=35136)
+def getDFromUser():
+    dFromUser = []
+    for supplierId, supplyDict in user.aggregatedConnections.iteritems():
+        dFromUser.append(round(vincenty(user.location, locations[supplierId]).km, 2))
+    return dFromUser
 
-#aggregatedConnections = user0.getAggregatedConnections()
+def getOrderedItems(dFromUser, kWhBySource):
+    order = np.argsort(kWhBySource)[::-1]
+    dFromUserordered = []
+    kWhBySourceOrdered = []
+    supplierIdsOrdered = []
 
-paths = user0.getAggregatedPaths(aggregatedConnections)
+    for idx in order:
+        dFromUserordered.append(dFromUser[idx])
+        supplierIdsOrdered.append(user.aggregatedConnections.keys()[idx])
+        kWhBySourceOrdered.append(kWhBySource[idx])
 
-dFromUser0 = []
-_kWh_SharesBySource = np.array([])
-for supplierId, supplyDict in aggregatedConnections.iteritems():
-    dFromUser0.append(round(vincenty(user0.Location, locations[supplierId]).km, 2))
-    _kWh_SharesBySource = np.append(_kWh_SharesBySource, supplyDict['energy'])
+    kWhSharesBySourceOrdered = np.around(kWhBySourceOrdered / np.sum(kWhBySourceOrdered), 3)
 
-## Sort suppliers
-order = np.argsort(_kWh_SharesBySource)[::-1]
-dFromUser0ordered = []
-_kWh_SharesBySource_ordered = []
-supplierIds_ordered = []
-for idx in order:
-    dFromUser0ordered.append(dFromUser0[idx])
-    supplierIds_ordered.append(aggregatedConnections.keys()[idx])
-    _kWh_SharesBySource_ordered.append(_kWh_SharesBySource[idx])
-dFromUser0 = dFromUser0ordered
-
-_kWh_SharesBySource = _kWh_SharesBySource_ordered
-
-kWh_SharesBySource = np.around(_kWh_SharesBySource / np.sum(_kWh_SharesBySource), 3)
-
-if user0.Index in aggregatedConnections.keys():
-    selfSustain = aggregatedConnections[user0.Index]['energy'] / np.sum(_kWh_SharesBySource)
-else:
-    selfSustain = 0
+    return supplierIdsOrdered, kWhSharesBySourceOrdered, dFromUserordered
 
 # google Maps Object
-markerList = []
 
-markerList.append({
-    'icon': 'static/img/house.png',
-    'lat': user0.Location[0],
-    'lng': user0.Location[1],
-    'infobox': "<b>Das sind Sie!</b><br>Jahresverbrauch: {:.2f} kWh<br>Periodenverbrauch: {:.2f}<br>Selbstversorgung: {:.2f} %".format(user0.AnnualDemand, np.sum(_kWh_SharesBySource) / 1000, selfSustain * 100)
-})
-# for _k in range(len(locations)):
-for supplierId, supplyDict in aggregatedConnections.iteritems():
-    if locations[supplierId] != user0.Location:
-        markerList.append({
-            'icon': 'http://maps.google.com/mapfiles/ms/icons/green-dot.png',
-            'lat': locations[supplierId][0],
-            'lng': locations[supplierId][1],
-            'infobox': "<b>Supplier</b><br>{}<br>Bezogen: {:.2f} kWh<br>Anteil: {:.1f} %".format(supplierId, supplyDict['energy'] / 1000, 100 * (supplyDict['energy'] / 1000.) / (np.sum(_kWh_SharesBySource) / 1000))
+
+def getMarkerList(aggregatedConnections):
+    kWhBySource = user.getKWhBySource()
+    autarky, selfConsumption = user.getAutarkySelfConsumption()
+
+    # Only print values on map with more than 1 % share.
+    filterValue = 0.01
+
+    markerList = []
+    paths = []
+
+    markerList.append({
+        'icon': 'static/img/house.png',
+        'lat': user.location[0],
+        'lng': user.location[1],
+        'infobox': "<b>Das sind Sie, {}</b><br>"
+                   "Jahresverbrauch: {:.2f} kWh<br>"
+                   "Jahreserzeugung: {:.2f}<br>"
+                   "Periodenverbrauch: {:.2f}<br>"
+                   "Eigenverbrauch: {:.2f} %<br>"
+                   "Autarkie: {:.2f} %".format(descriptions[user.index],
+                                               user.annualDemand,
+                                               user.annualProduction,
+                                               np.sum(kWhBySource) / 1000,
+                                               selfConsumption * 100,
+                                               autarky * 100)
     })
 
+    for supplierId, supplyDict in aggregatedConnections.iteritems():
+        if supplierId != 'GRID':
+            if (locations[supplierId] != user.location):
+                iconFile = 'static/img/solar.png'
+
+                if (supplierId == 'Hydro1') or (supplierId == 'Hydro2'):
+                    iconFile = 'static/img/hydro.png'
+
+                if (supplierId == 'Biogas'):
+                    iconFile = 'static/img/biomass.png'
+
+                supplierShare = (supplyDict['energy'] / 1000.) / (np.sum(kWhBySource) / 1000)
+                suppliedEnergy = supplyDict['energy'] / 1000
+
+                if supplierShare > filterValue:
+                    markerList.append({
+                        'icon': iconFile,
+                        'lat': locations[supplierId][0],
+                        'lng': locations[supplierId][1],
+                        'infobox': "<b>Supplier</b><br>"
+                                   "{}<br>"
+                                   "Bezogen: {:.2f} kWh<br>"
+                                   "Anteil: {:.1f} %".format(descriptions[supplierId],
+                                                             suppliedEnergy,
+                                                             supplierShare * 100)
+                        })
+                    paths.append([user.location, locations[supplierId]])
+    return markerList, paths
+
+# TODO: welchen kpi brauchst du? Autarkie oder Eigenverbrauch
 app = Flask(__name__)
 app.config['DEBUG'] = True
 
@@ -90,37 +112,51 @@ app.config['GOOGLEMAPS_KEY'] = "8JZ7i18MjFuM35dJHq70n3Hx4"
 # Initialize the extension
 GoogleMaps(app)
 
-
 @app.route("/")
 def home():
-    return render_template('dashboard.html', user=user0)
+    supplierIdsOrdered, kWhSharesBySourceOrdered, dFromUserordered = getOrderedItems(getDFromUser(), user.getKWhBySource())
+    return render_template('dashboard.html', user=user, producerNames=supplierIdsOrdered, kWh_SharesBySource=kWhSharesBySourceOrdered.tolist(), descriptions=descriptions)
 
 
 @app.route("/maps")
 def maps():
-    mymap = Map(
-        identifier="view-side",
-        lat=37.4419,
-        lng=-122.1419,
-        markers=[(37.4419, -122.1419)],
-        # style="height:300px;width:1000px;margin:0;",
-    )
+    markerList, paths = getMarkerList(user.aggregatedConnections)
     sndmap = Map(
         identifier="sndmap",
-        lat=user0.Location[0],
-        lng=user0.Location[1],
+        lat=user.location[0],
+        lng=user.location[1],
         style="height:750px;width:1500px;margin:0;",
-        markers=markerList,
-        polylines=paths
+        markers = markerList,
+        polylines = paths
     )
-    return render_template('maps.html', mymap=mymap, sndmap=sndmap)
+    return render_template('maps.html', sndmap=sndmap)
 
+@app.route("/sinks")
+def sinks():
+    markerList, paths = getMarkerList(user.aggregatedDeliveries)
+    sndmap = Map(
+        identifier="sndmap",
+        lat=user.location[0],
+        lng=user.location[1],
+        style="height:750px;width:1500px;margin:0;",
+        markers = markerList,
+        polylines = paths,
+        cluster = True
+    )
+    return render_template('maps.html', sndmap=sndmap)
 
 @app.route("/community")
 def community():
-    return render_template('community.html', user=user0, kWh_SharesBySource=kWh_SharesBySource.tolist(),
-                           dFromUser0=dFromUser0, d=np.dot(kWh_SharesBySource, dFromUser0), producerNames=supplierIds_ordered)
+    supplierIdsOrdered, kWhSharesBySourceOrdered, dFromUserordered = getOrderedItems(getDFromUser(), user.getKWhBySource())
+    return render_template('community.html', user=user, kWh_SharesBySource=kWhSharesBySourceOrdered.tolist(),
+                           dFromUser=dFromUserordered, d=np.dot(kWhSharesBySourceOrdered, dFromUserordered), producerNames=supplierIdsOrdered, descriptions=descriptions)
 
+
+@app.route("/getAggregatedConnections/<int:start>/<int:end>/")
+def getAggregatedConnections(start=0, end=36136):
+    print("Getting aggregated connections from {} to {}".format(start, end))
+    user.setAggregatedConnections(start=start, end=end)
+    return render_template('dashboard.html', user=user)
 
 if __name__ == "__main__":
     app.run()

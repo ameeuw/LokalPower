@@ -1,11 +1,9 @@
 
 {% extends "base.html" %}
 <!-- {% block title %}Dashboard{% endblock %} -->
-
 {% block header %}
 
 {{"decoupled-map"|googlemap_js(37.4419, -122.1419, markers=[(37.4419, -122.1419)])}}
-{{mymap.js}}
 {{sndmap.js}}
 
 {% endblock %}
@@ -40,26 +38,7 @@
 								<p>Übersicht</p>
 							</a>
 						</li>
-						<!--
-						<li>
-							<a href="table.html">
-								<i class="material-icons">content_paste</i>
-								<p>Table List</p>
-							</a>
-						</li>
-						<li>
-							<a href="typography.html">
-								<i class="material-icons">library_books</i>
-								<p>Typography</p>
-							</a>
-						</li>
-						<li>
-							<a href="icons.html">
-								<i class="material-icons">bubble_chart</i>
-								<p>Icons</p>
-							</a>
-						</li>
-						-->
+
 						<li class="active">
 							<a href="{{ url_for('maps') }}">
 								<i class="material-icons">location_on</i>
@@ -86,7 +65,7 @@
 			
 			<div class="content">
 				<div class="container-fluid">
-				
+
 					{% block body %}
 
 					{{sndmap.html}}

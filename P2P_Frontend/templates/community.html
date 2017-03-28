@@ -95,9 +95,13 @@
 								  {% for k in kWh_SharesBySource %}
 
 								  <tr>
-									<td> {{ producerNames[loop.index0] }}</td>
+									  {% if producerNames[loop.index0] != user.index %}
+										<td>{{ descriptions[producerNames[loop.index0]] }}</td>
+									  {% else %}
+									  	<td><b>{{ descriptions[producerNames[loop.index0]] }}</b> (Sie)</td>
+									  {% endif %}
 									<td> {{k * 100}} %</td>
-									<td> {{ dFromUser0[loop.index0] }} km</td>
+									<td> {{ dFromUser[loop.index0] }} km</td>
 								  </tr>
 
 								  {% endfor %}
@@ -150,15 +154,14 @@
 			}
 		},
 		series: [{
-			name: 'Brands',
+			name: 'Shares by Source',
 			colorByPoint: true,
 			data: [
-					{name: 'none', y: 0}
 					{% for k in kWh_SharesBySource %}
-					,{
-						name: '{{ producerNames[loop.index0] }}',
+					{
+						name: '{{ descriptions[producerNames[loop.index0]] }}',
 						y: {{k}}
-					}
+					},
 					{% endfor %}
 			]
 		}]
