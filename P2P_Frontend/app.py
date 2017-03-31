@@ -1,7 +1,7 @@
 import glob
 
 import numpy as np
-from flask import Flask, render_template, url_for
+from flask import Flask, render_template, url_for, request
 from flask_googlemaps import Map, GoogleMaps
 from geopy.distance import vincenty
 import pickle
@@ -9,19 +9,25 @@ import pickle
 import Algos as ag
 
 # load consumption file
-
+print('Loading locations...')
 locations = pickle.load(open('../Daten/users/locations.pickle', "rb"))
+print('Loading descriptions...')
 descriptions = pickle.load(open('../Daten/users/descriptions.pickle', "rb"))
 
 userId = locations.keys()[13]
 
+print('Loading user data...')
 user = ag.User('../Daten/users/{}.csv'.format(userId), locations[userId], userId)
 user.setUserDict('../Daten/dicts/{}.pickle'.format(userId))
 
+print('Loading aggregated connections...')
 user.setAggregatedConnections()
-
+print('Loading producer data...')
 user.setProducerDict('../Daten/dicts/prod_{}.pickle'.format(userId))
+print('Loaded producer data.')
 user.setAggregatedDeliveries()
+
+user.setDailyAggregatedConnections()
 
 def getDFromUser():
     dFromUser = []
@@ -77,13 +83,16 @@ def getMarkerList(aggregatedConnections):
     for supplierId, supplyDict in aggregatedConnections.iteritems():
         if supplierId != 'GRID':
             if (locations[supplierId] != user.location):
-                iconFile = 'static/img/solar.png'
+                iconFile = 'static/img/solar_small.png'
 
                 if (supplierId == 'Hydro1') or (supplierId == 'Hydro2'):
-                    iconFile = 'static/img/hydro.png'
+                    iconFile = 'static/img/hydro_small.png'
 
                 if (supplierId == 'Biogas'):
-                    iconFile = 'static/img/biomass.png'
+                    iconFile = 'static/img/biomass_small.png'
+
+                if (supplierId == 'Wind'):
+                    iconFile = 'static/img/wind_small.png'
 
                 supplierShare = (supplyDict['energy'] / 1000.) / (np.sum(kWhBySource) / 1000)
                 suppliedEnergy = supplyDict['energy'] / 1000
@@ -120,16 +129,17 @@ def home():
 
 @app.route("/maps")
 def maps():
+    supplierIdsOrdered, kWhSharesBySourceOrdered, dFromUserordered = getOrderedItems(getDFromUser(), user.getKWhBySource())
     markerList, paths = getMarkerList(user.aggregatedConnections)
     sndmap = Map(
         identifier="sndmap",
         lat=user.location[0],
         lng=user.location[1],
-        style="height:750px;width:1500px;margin:0;",
+        style="",
         markers = markerList,
         polylines = paths
     )
-    return render_template('maps.html', sndmap=sndmap)
+    return render_template('maps.html', sndmap=sndmap, user=user, producerNames=supplierIdsOrdered, kWh_SharesBySource=kWhSharesBySourceOrdered.tolist(), descriptions=descriptions)
 
 @app.route("/sinks")
 def sinks():
@@ -138,12 +148,12 @@ def sinks():
         identifier="sndmap",
         lat=user.location[0],
         lng=user.location[1],
-        style="height:750px;width:1500px;margin:0;",
+        style="",
         markers = markerList,
         polylines = paths,
         cluster = True
     )
-    return render_template('maps.html', sndmap=sndmap)
+    return render_template('maps.html', sndmap=sndmap, user=user)
 
 @app.route("/community")
 def community():
@@ -153,11 +163,28 @@ def community():
 
 
 @app.route("/getAggregatedConnections/<int:start>/<int:end>/")
-def getAggregatedConnections(start=0, end=36136):
-    print("Getting aggregated connections from {} to {}".format(start, end))
+def getAggregatedConnections(start=0, end=36136, ref='dashboard'):
+    print("Getting aggregated connections from {} to {} for {}".format(start, end, ref))
+    print(request.path)
     user.setAggregatedConnections(start=start, end=end)
     supplierIdsOrdered, kWhSharesBySourceOrdered, dFromUserordered = getOrderedItems(getDFromUser(), user.getKWhBySource())
-    return render_template('dashboard.html', user=user, producerNames=supplierIdsOrdered, kWh_SharesBySource=kWhSharesBySourceOrdered.tolist(), descriptions=descriptions)
+
+    if ref=='dashboard':
+        return render_template('dashboard.html', user=user, producerNames=supplierIdsOrdered,
+                               kWh_SharesBySource=kWhSharesBySourceOrdered.tolist(), descriptions=descriptions)
+
+    if ref=='maps':
+        markerList, paths = getMarkerList(user.aggregatedConnections)
+        sndmap = Map(
+            identifier="sndmap",
+            lat=user.location[0],
+            lng=user.location[1],
+            style="",
+            markers=markerList,
+            polylines=paths
+        )
+        return render_template('maps.html', sndmap=sndmap, user=user, producerNames=supplierIdsOrdered,
+                               kWh_SharesBySource=kWhSharesBySourceOrdered.tolist(), descriptions=descriptions)
 
 
 if __name__ == "__main__":

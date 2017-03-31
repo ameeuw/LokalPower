@@ -8,149 +8,15 @@
 	<div class="main-panel">
 
 			{% block body %}
-			
+			<!--
 			<div class="content">
 				<div class="container-fluid">
 					<center><h1> Strombedarf</h1></center>
-					<br>
-
-					<div class="row">
-						{% if user.annualProduction > 0 %}
-						<div class="col-lg-2 col-md-3 col-sm-6">
-							<div class="card card-stats">
-								<div class="card-header" data-background-color="orange">
-									<i class="fa fa-bolt" aria-hidden="true"></i>
-
-								</div>
-								<div class="card-content">
-									<p class="category">Jahresverbrauch</p>
-									<h4 class="title">{{ user.annualDemand }}<small> kWh</small></h4>
-								</div>
-							</div>
-						</div>
-
-						<div class="col-lg-2 col-md-6 col-sm-6">
-							<div class="card card-stats">
-								<div class="card-header" data-background-color="fuchsia">
-									<i class="fa fa-th" aria-hidden="true"></i>
-								</div>
-								<div class="card-content">
-									<p class="category">Strombezug</p>
-									<h4 class="title">89.5 %</h4>
-								</div>
-							</div>
-						</div>
-
-						<div class="col-lg-2 col-md-6 col-sm-6">
-							<div class="card card-stats">
-								<div class="card-header" data-background-color="green">
-									<i class="fa fa-home" aria-hidden="true"></i>
-								</div>
-								<div class="card-content">
-									<large><p class="category">Eigenproduktion</p></large>
-									<h4 class="title">10.5 %</h4>
-								</div>
-							</div>
-						</div>
-
-						<div class="col-lg-2 col-md-6 col-sm-6">
-							<div class="card card-stats">
-								<div class="card-header" data-background-color="blue">
-									<i class="fa fa-bolt" aria-hidden="true"></i>
-								</div>
-								<div class="card-content">
-									<p class="category">Jahreserzeugung</p>
-									<h4 class="title">{{ user.annualProduction }}<small> kWh</small></h4>
-								</div>
-							</div>
-						</div>
-						<div class="col-lg-2 col-md-6 col-sm-6">
-							<div class="card card-stats">
-								<div class="card-header" data-background-color="green">
-									<i class="fa fa-windows" aria-hidden="true"></i>
-								</div>
-								<div class="card-content">
-									<p class="category">Eigenverbrauch</p>
-									<h4 class="title">10.6<small> %</small></h4>
-								</div>
-							</div>
-						</div>
-						<div class="col-lg-2 col-md-6 col-sm-6">
-							<div class="card card-stats">
-								<div class="card-header" data-background-color="purple">
-									<i class="fa fa-users" aria-hidden="true"></i>
-								</div>
-								<div class="card-content">
-									<p class="category">Nachbarabgabe</p>
-									<h4 class="title">89.4<small> %</small></h4>
-								</div>
-							</div>
-						</div>
-
-
-						{% else %}
-
-
-						<div class="col-lg-2 col-md-6 col-sm-6">
-							<div class="card card-stats">
-								<div class="card-header" data-background-color="orange">
-									<i class="fa fa-bolt" aria-hidden="true"></i>
-
-								</div>
-								<div class="card-content">
-									<p class="category">Jahresverbrauch</p>
-									<h4 class="title">{{ user.annualDemand }}<small> kWh</small></h4>
-								</div>
-								<div class="card-footer">
-									<div class="stats">
-										<i class="material-icons text-danger">warning</i> <a href="#pablo">Analysieren</a>
-									</div>
-								</div>
-							</div>
-						</div>
-						<div class="col-lg-2 col-md-6 col-sm-6">
-							<div class="card card-stats">
-								<div class="card-header" data-background-color="green">
-									<i class="fa fa-money" aria-hidden="true"></i>
-								</div>
-								<div class="card-content">
-									<p class="category">Kosten Total</p>
-									<h4 class="title">Fr. {{ user.totalCost }}</h4>
-								</div>
-								<div class="card-footer">
-									<div class="stats">
-										<i class="material-icons">date_range</i> ..
-									</div>
-								</div>
-							</div>
-						</div>
-						<div class="col-lg-2 col-md-6 col-sm-6">
-							<div class="card card-stats">
-								<div class="card-header" data-background-color="green">
-									<i class="fa fa-money" aria-hidden="true"></i>
-								</div>
-								<div class="card-content">
-									<p class="category">Kilometer pro kWh</p>
-									<h4 class="title">{{ user.totalCost }} km/kWh</h4>
-								</div>
-								<div class="card-footer">
-									<div class="stats">
-										<i class="material-icons">date_range</i> ..
-									</div>
-								</div>
-							</div>
-						</div>
-						{% endif %}
-					</div>
-
-
 				</div>
-
-
-				<br>
-				<div id="bar_chart" style="min-width: 78%; height: 400px; display: inline-block"></div>
-				<div id="pie_chart" style="min-width: 18%; height: 400px; display: inline-block"></div>
-			</div>
+			-->
+				<div id="bar_chart" style="min-width: 78%; height: 60%; display: inline-block"></div>
+				<div id="pie_chart" style="min-width: 18%; height: 60%; display: inline-block"></div>
+			<!--</div>-->
 
 			{% endblock %}
 	</div>

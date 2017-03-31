@@ -3,15 +3,9 @@
 <!-- {% block title %}Dashboard{% endblock %} -->
 {% block header %}
 
-{{"decoupled-map"|googlemap_js(37.4419, -122.1419, markers=[(37.4419, -122.1419)])}}
 {{sndmap.js}}
 
 {% endblock %}
-
-
-
-
-
 
 	<div class="wrapper">
 
@@ -42,14 +36,14 @@
 						<li class="active">
 							<a href="{{ url_for('maps') }}">
 								<i class="material-icons">location_on</i>
-								<p>Quellen</p>
+								<p>Maps</p>
 							</a>
 						</li>
 						
 						<li >
 							<a href="{{ url_for('community') }}">
 								<i class="fa fa-share-alt" aria-hidden="true"></i>
-								<p>Meine Community</p>
+								<p>Details</p>
 							</a>
 						</li>
 
@@ -67,9 +61,10 @@
 				<div class="container-fluid">
 
 					{% block body %}
+					<!--{{sndmap.html}}-->
+					<div id="sndmap" class="map" style="height: 60%; width:78%; float: left"></div>
+					<div id="pie_chart" style="height: 60%; min-width: 18%; display: inline-block;"></div>
 
-					{{sndmap.html}}
-					
 					
 					{% endblock %}
 			
@@ -81,6 +76,141 @@
 
 
 
+
+	{% block footer %}
+	<script>
+
+	Highcharts.chart('pie_chart', {
+		chart: {
+			plotBackgroundColor: null,
+			plotBorderWidth: null,
+			plotShadow: false,
+			type: 'pie'
+		},
+		title: {
+			text: 'Anteile der LokalPower Supplier:'
+		},
+		tooltip: {
+			pointFormat: '{series.name}: <b>{point.percentage:.1f}%</b>'
+		},
+		plotOptions: {
+			pie: {
+				allowPointSelect: true,
+				cursor: 'pointer',
+				dataLabels: {
+					enabled: false,
+					name: 'Anteile',
+					format: '<b>{point.name}</b>: {point.percentage:.1f} %',
+					style: {
+						color: (Highcharts.theme && Highcharts.theme.contrastTextColor) || 'black'
+					}
+				}
+			}
+		},
+		series: [{
+			name: 'Shares by Source',
+			colorByPoint: true,
+			data: [
+					{% for k in kWh_SharesBySource %}
+					{
+						name: '{{ descriptions[producerNames[loop.index0]] }}',
+						y: {{k}}
+					},
+					{% endfor %}
+			]
+		}]
+	});
+
+
+	Highcharts.chart('bar_chart', {
+
+    title: {
+    	{% if user.annualProduction > 0 %}
+        	text: 'Verbrauch und Produktion'
+        {% else %}
+        	text: 'Verbrauch'
+        {% endif %}
+    },
+
+    subtitle: {
+        text: ''
+    },
+
+
+    yAxis: {
+        title: {
+            text: 'kWh'
+        }
+    },
+
+    xAxis: {
+        categories: ['J', 'F', 'M', 'A', 'M', 'J', 'J', 'A', 'S', 'O', 'N', 'D'],
+        crosshair: true
+    },
+
+    tooltip: {
+        headerFormat: '<span style="font-size:14px">Monat: {point.key}</span><br><table>',
+        pointFormat: '<tr><td style="color:{series.color};padding:0">{series.name}: </td>' +
+            '<td style="padding:0"><b>{point.y:.0f} kWh</b></td></tr>',
+        footerFormat: '</table>',
+        shared: true,
+        useHTML: true
+    },
+
+    series: [
+
+    {% if user.annualProduction > 0 %}
+    {
+        type: 'column',
+        name: 'Produktion',
+        colorByPoint: false,
+        color: '#12B8CD',
+        data: {{ user.productionByMonth|safe }},
+        showInLegend: false
+    },
+
+
+    {
+        type: 'column',
+        stacking: true,
+        name: 'Stromabgabe',
+        colorByPoint: false,
+        color: '#A53FB8',
+        data: [10, 12, 0, 3, 0, 0, 3, 15, 17, 19, 13, 32],
+        showInLegend: false
+    },
+
+    {
+        type: 'column',
+        stacking: true,
+        name: 'Eigenverbrauch',
+        colorByPoint: false,
+        color: '#5CB360',
+        data: [5, 6, 7, 9, 0, 0, 3, 5, 7, 9, 1, 5],
+        showInLegend: false
+    },
+    {% endif %}
+
+    {
+        type: 'column',
+        stacking: true,
+        name: 'Verbrauch',
+        colorByPoint: false,
+        color: '#FD9710',
+        data: {{ user.demandByMonth|safe }},
+        showInLegend: false
+    }
+
+    ]
+
+
+	});
+
+
+
+
+	</script>
+	{% endblock %}
 
 
 

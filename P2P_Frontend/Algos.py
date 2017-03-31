@@ -102,6 +102,16 @@ class User:
                             aggregatedConnections[fromId]['energy'] += connection['energy'] * DELTAT
         return aggregatedConnections
 
+    def setDailyAggregatedConnections(self):
+        dailyAggregatedConnections = []
+        if hasattr(self, 'connections'):
+            for day in range(sum(MONTHVEC)):
+                dailyAggregatedConnections.append(self.getAggregatedConnections(day * 24*4, (day+1) * 24*4))
+        print(len(dailyAggregatedConnections))
+        print(dailyAggregatedConnections)
+        setattr(self, 'dailyAggregatedConnections', dailyAggregatedConnections)
+
+
     def getDemandBy(self, resolution='month', start=0):
         pass
 
