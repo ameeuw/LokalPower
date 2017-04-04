@@ -158,5 +158,11 @@ def getAggregatedConnections(start=0, end=36136):
     user.setAggregatedConnections(start=start, end=end)
     return render_template('dashboard.html', user=user)
 
+
+@app.route("/batterySim")
+def batterySim():
+    user.prosumerSim(EbatR=3.0)
+    return render_template('batterySim.html', user=user)
+
 if __name__ == "__main__":
     app.run()

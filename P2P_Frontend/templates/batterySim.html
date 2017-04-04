@@ -1,0 +1,305 @@
+
+{% extends "base.html" %}
+{% block title %}Dashboard{% endblock %}
+
+<div class="wrapper">
+
+
+	<div class="main-panel">
+
+			{% block body %}
+			
+			<div class="content">
+				<div class="container-fluid">
+					<center><h1>Batteriesimulator</h1></center>
+					<br>
+					
+					G2L {{ user.annual_PV }}
+					<br>
+					battery size {{ user.EbatR }}
+					<br>
+					autarky: {{ user.autarky }}
+					<br>
+					selfconsumption: {{ user.selfconsumption }}
+					
+					<br>
+					<hr>
+					<div class="row">
+						{% if user.annualProduction > 0 %}
+						<div class="col-lg-2 col-md-3 col-sm-6">
+							<div class="card card-stats">
+								<div class="card-header" data-background-color="orange">
+									<i class="fa fa-bolt" aria-hidden="true"></i>
+
+								</div>
+								<div class="card-content">
+									<p class="category">Jahresverbrauch</p>
+									<h4 class="title">{{ user.annualDemand }}<small> kWh</small></h4>
+								</div>
+							</div>
+						</div>
+
+						<div class="col-lg-2 col-md-6 col-sm-6">
+							<div class="card card-stats">
+								<div class="card-header" data-background-color="fuchsia">
+									<i class="fa fa-th" aria-hidden="true"></i>
+								</div>
+								<div class="card-content">
+									<p class="category">Strombezug</p>
+									<h4 class="title">89.5 %</h4>
+								</div>
+							</div>
+						</div>
+
+						<div class="col-lg-2 col-md-6 col-sm-6">
+							<div class="card card-stats">
+								<div class="card-header" data-background-color="green">
+									<i class="fa fa-home" aria-hidden="true"></i>
+								</div>
+								<div class="card-content">
+									<large><p class="category">Eigenproduktion</p></large>
+									<h4 class="title">10.5 %</h4>
+								</div>
+							</div>
+						</div>
+
+						<div class="col-lg-2 col-md-6 col-sm-6">
+							<div class="card card-stats">
+								<div class="card-header" data-background-color="blue">
+									<i class="fa fa-bolt" aria-hidden="true"></i>
+								</div>
+								<div class="card-content">
+									<p class="category">Jahreserzeugung</p>
+									<h4 class="title">{{ user.annualProduction }}<small> kWh</small></h4>
+								</div>
+							</div>
+						</div>
+						<div class="col-lg-2 col-md-6 col-sm-6">
+							<div class="card card-stats">
+								<div class="card-header" data-background-color="green">
+									<i class="fa fa-windows" aria-hidden="true"></i>
+								</div>
+								<div class="card-content">
+									<p class="category">Eigenverbrauch</p>
+									<h4 class="title">10.6<small> %</small></h4>
+								</div>
+							</div>
+						</div>
+						<div class="col-lg-2 col-md-6 col-sm-6">
+							<div class="card card-stats">
+								<div class="card-header" data-background-color="purple">
+									<i class="fa fa-users" aria-hidden="true"></i>
+								</div>
+								<div class="card-content">
+									<p class="category">Nachbarabgabe</p>
+									<h4 class="title">89.4<small> %</small></h4>
+								</div>
+							</div>
+						</div>
+
+
+						{% else %}
+
+
+						<div class="col-lg-2 col-md-6 col-sm-6">
+							<div class="card card-stats">
+								<div class="card-header" data-background-color="orange">
+									<i class="fa fa-bolt" aria-hidden="true"></i>
+
+								</div>
+								<div class="card-content">
+									<p class="category">Jahresverbrauch</p>
+									<h4 class="title">{{ user.annualDemand }}<small> kWh</small></h4>
+								</div>
+								<div class="card-footer">
+									<div class="stats">
+										<i class="material-icons text-danger">warning</i> <a href="#pablo">Analysieren</a>
+									</div>
+								</div>
+							</div>
+						</div>
+						<div class="col-lg-2 col-md-6 col-sm-6">
+							<div class="card card-stats">
+								<div class="card-header" data-background-color="green">
+									<i class="fa fa-money" aria-hidden="true"></i>
+								</div>
+								<div class="card-content">
+									<p class="category">Kosten Total</p>
+									<h4 class="title">Fr. {{ user.totalCost }}</h4>
+								</div>
+								<div class="card-footer">
+									<div class="stats">
+										<i class="material-icons">date_range</i> ..
+									</div>
+								</div>
+							</div>
+						</div>
+						<div class="col-lg-2 col-md-6 col-sm-6">
+							<div class="card card-stats">
+								<div class="card-header" data-background-color="green">
+									<i class="fa fa-money" aria-hidden="true"></i>
+								</div>
+								<div class="card-content">
+									<p class="category">Kilometer pro kWh</p>
+									<h4 class="title">{{ user.totalCost }} km/kWh</h4>
+								</div>
+								<div class="card-footer">
+									<div class="stats">
+										<i class="material-icons">date_range</i> ..
+									</div>
+								</div>
+							</div>
+						</div>
+						{% endif %}
+					</div>
+
+
+				</div>
+
+
+				<br>
+				<div id="bar_chart" style="min-width: 78%; height: 400px; display: inline-block"></div>
+				<div id="pie_chart" style="min-width: 18%; height: 400px; display: inline-block"></div>
+			</div>
+
+			{% endblock %}
+	</div>
+</div>
+
+
+	{% block footer %}
+	<script>
+
+	Highcharts.chart('pie_chart', {
+		chart: {
+			plotBackgroundColor: null,
+			plotBorderWidth: null,
+			plotShadow: false,
+			type: 'pie'
+		},
+		title: {
+			text: 'Anteile der LokalPower Supplier:'
+		},
+		tooltip: {
+			pointFormat: '{series.name}: <b>{point.percentage:.1f}%</b>'
+		},
+		plotOptions: {
+			pie: {
+				allowPointSelect: true,
+				cursor: 'pointer',
+				dataLabels: {
+					enabled: false,
+					name: 'Anteile',
+					format: '<b>{point.name}</b>: {point.percentage:.1f} %',
+					style: {
+						color: (Highcharts.theme && Highcharts.theme.contrastTextColor) || 'black'
+					}
+				}
+			}
+		},
+		series: [{
+			name: 'Shares by Source',
+			colorByPoint: true,
+			data: [
+					{% for k in kWh_SharesBySource %}
+					{
+						name: '{{ descriptions[producerNames[loop.index0]] }}',
+						y: {{k}}
+					},
+					{% endfor %}
+			]
+		}]
+	});
+
+
+	Highcharts.chart('bar_chart', {
+
+    title: {
+    	{% if user.annualProduction > 0 %}
+        	text: 'Verbrauch und Produktion'
+        {% else %}
+        	text: 'Verbrauch'
+        {% endif %}
+    },
+
+    subtitle: {
+        text: ''
+    },
+
+
+    yAxis: {
+        title: {
+            text: 'kWh'
+        }
+    },
+
+    xAxis: {
+        categories: ['J', 'F', 'M', 'A', 'M', 'J', 'J', 'A', 'S', 'O', 'N', 'D'],
+        crosshair: true
+    },
+
+    tooltip: {
+        headerFormat: '<span style="font-size:14px">Monat: {point.key}</span><br><table>',
+        pointFormat: '<tr><td style="color:{series.color};padding:0">{series.name}: </td>' +
+            '<td style="padding:0"><b>{point.y:.0f} kWh</b></td></tr>',
+        footerFormat: '</table>',
+        shared: true,
+        useHTML: true
+    },
+
+    series: [
+
+    {% if user.annualProduction > 0 %}
+    {
+        type: 'column',
+        name: 'Produktion',
+        colorByPoint: false,
+        color: '#12B8CD',
+        data: {{ user.productionByMonth|safe }},
+        showInLegend: false
+    },
+
+
+    {
+        type: 'column',
+        stacking: true,
+        name: 'Stromabgabe',
+        colorByPoint: false,
+        color: '#A53FB8',
+        data: [10, 12, 0, 3, 0, 0, 3, 15, 17, 19, 13, 32],
+        showInLegend: false
+    },
+
+    {
+        type: 'column',
+        stacking: true,
+        name: 'Eigenverbrauch',
+        colorByPoint: false,
+        color: '#5CB360',
+        data: [5, 6, 7, 9, 0, 0, 3, 5, 7, 9, 1, 5],
+        showInLegend: false
+    },
+    {% endif %}
+
+    {
+        type: 'column',
+        stacking: true,
+        name: 'Verbrauch',
+        colorByPoint: false,
+        color: '#FD9710',
+        data: {{ user.demandByMonth|safe }},
+        showInLegend: false
+    }
+
+    ]
+
+
+	});
+
+
+
+
+	</script>
+	{% endblock %}
+
+

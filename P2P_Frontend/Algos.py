@@ -10,6 +10,79 @@ MONTHVEC = [0, 31, 29, 31, 30, 31, 30, 31, 31, 30, 31, 30, 31]
 cMonthVec = np.cumsum(MONTHVEC) * 24 * 4
 
 
+
+def neg2Zero(x):
+    x[x<0]=0
+    return x
+    
+def pos2Zero(x): 
+    x[x>=0]=0
+    return x
+
+
+## -------------------------------------
+## battery simulation functions
+## -------------------------------------
+
+
+Inputs={
+    'EtaInv': 0.95, # solar string inverter efficiency
+    'EbatR' : 10.0, # rated battery capacity
+    'EtaCh' : 0.95, # Charging efficiency of battery+charger
+    'EtaDCh': 0.95, # discharging efficiency of battery+charger
+    'SigmaCL': 0.9, # degradation factor
+    'dt' : DELTAT, # dt in hour
+    'DoD' : 0.8 # battery depth of discharge
+}
+
+
+def BatteryCalc2(Pload,Pdc,Inputs):
+    # Pload, Pdc in kW within dt
+    # EbatR, rated energy capacity in kWh
+    n=len(Pload)
+
+    EbatMax=Inputs['EbatR']*(1-(1-Inputs['DoD'])/2.)*Inputs['SigmaCL']
+    EbatMin=Inputs['EbatR']*(1-Inputs['DoD'])/2.*Inputs['SigmaCL']
+
+    Ebat=np.zeros(n)
+    Ebat[0]=EbatMin
+
+    AnnualBalance={
+    'W_PV2B' : np.zeros(n),
+    'W_PV2G' : np.zeros(n),
+    'W_B2L' :  np.zeros(n),
+    'W_PV2L' : np.zeros(n),
+    'W_G2L' : np.zeros(n)
+    }
+
+    dt=Inputs['dt']
+
+    dP=Pdc-Pload/Inputs['EtaInv']
+
+
+    for k in range(n)[:-1]:
+        if dP[k]>=0.0:
+            Ebat[k+1]=min(Ebat[k]+dP[k]*dt*Inputs['EtaCh'], EbatMax)
+
+        else: #dP[k]<0.0:
+
+            Ebat[k+1]=max(Ebat[k]+dP[k]*dt/Inputs['EtaDCh'], EbatMin)
+
+
+        AnnualBalance['W_PV2B'][k]=max( Ebat[k+1] - Ebat[k] , 0)
+        AnnualBalance['W_PV2G'][k]=max( dP[k]*dt*Inputs['EtaInv']-AnnualBalance['W_PV2B'][k]*Inputs['EtaInv']/Inputs['EtaCh'],0)
+        AnnualBalance['W_B2L'][k]=max( -(Ebat[k+1] - Ebat[k]) * (Inputs['EtaInv']*Inputs['EtaDCh']) , 0)
+        AnnualBalance['W_PV2L'][k]=Pload[k]*dt+min(dP[k]*dt,0)*Inputs['EtaInv']
+        AnnualBalance['W_G2L'][k]=Pload[k]*dt-AnnualBalance['W_B2L'][k]-AnnualBalance['W_PV2L'][k]
+
+    AnnualBalance['Ebat'] = Ebat
+    AnnualBalance['W_PV'] = Pdc*dt
+    AnnualBalance['W_L'] = Pload*dt
+    
+    return AnnualBalance
+
+
+
 def LoadConsumerData(fname):
     _dat = pd.read_csv(fname, header=None, delimiter=';')
     production = _dat[_dat[_dat.columns[1]].values == 'Wirkenergie A- 15']
@@ -37,6 +110,7 @@ class User:
         self.price = 0.15  # Fr/kWh
         self.priceGrid = 0
         self.setCost()
+        #self.prosumerSim()
 
     def setLoadProfile(self):
         demand, production = LoadConsumerData(self.fileName)
@@ -176,3 +250,36 @@ class User:
             selfConsumption = 0
 
         return autarky, selfConsumption
+        
+
+    def prosumerSim(self, EbatR=0):
+        dLoad=self.demand-self.production
+        
+        if EbatR==0:
+            Inputs['EbatR']=0.001 # computation crashes if EbatR = 0 (div 0)
+            
+        else:
+            Inputs['EbatR']=EbatR
+        
+        # batterySim Runs always
+        Inputs['EbatR'] = EbatR
+        Ab = BatteryCalc2(self.demand, self.production / Inputs['EtaInv'], Inputs)
+        
+        autarky = np.sum( Ab['W_PV2L'] + Ab['W_B2L'] ) / np.sum(Ab['W_L'])
+        selfconsumption = np.sum( Ab['W_PV2L'] + Ab['W_B2L'] ) / np.sum(Ab['W_PV'])
+        
+        setattr(self, 'EbatR', EbatR)
+        setattr(self, 'G2L', Ab['W_G2L']/Inputs['dt'] ) # all in kW
+        setattr(self, 'PV2G', Ab['W_PV2G']/Inputs['dt'] )
+        setattr(self, 'B2L', Ab['W_B2L']/Inputs['dt'] )
+        setattr(self, 'PV2L', Ab['W_PV2L']/Inputs['dt'] )
+        setattr(self, 'PV2B', Ab['W_PV2B']/Inputs['dt'] )
+        setattr(self, 'PV', Ab['W_PV']/Inputs['dt'] )
+        
+        setattr( self, 'autarky', autarky )
+        setattr( self, 'selfconsumption', selfconsumption )
+
+        keyList=['G2L', 'PV2G', 'B2L', 'PV2L', 'PV2B', 'PV']
+        
+        for _k in keyList:
+            setattr(self, 'annual_'+_k, np.sum( getattr(self, _k)*Inputs['dt'] ).astype(int) )
