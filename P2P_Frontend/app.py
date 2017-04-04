@@ -8,26 +8,34 @@ import pickle
 
 import Algos as ag
 
-# load consumption file
-print('Loading locations...')
-locations = pickle.load(open('../Daten/users/locations.pickle', "rb"))
-print('Loading descriptions...')
-descriptions = pickle.load(open('../Daten/users/descriptions.pickle', "rb"))
+def setup_data():
+    # define global variables
+    global locations
+    global descriptions
+    global user
 
-userId = locations.keys()[13]
+    # load consumption file
+    print('Loading data...')
+    print('locations.')
+    locations = pickle.load(open('../Daten/users/locations.pickle', "rb"))
+    print('descriptions.')
+    descriptions = pickle.load(open('../Daten/users/descriptions.pickle', "rb"))
 
-print('Loading user data...')
-user = ag.User('../Daten/users/{}.csv'.format(userId), locations[userId], userId)
-user.setUserDict('../Daten/dicts/{}.pickle'.format(userId))
+    userId = locations.keys()[13]
 
-print('Loading aggregated connections...')
-user.setAggregatedConnections()
-print('Loading producer data...')
-user.setProducerDict('../Daten/dicts/prod_{}.pickle'.format(userId))
-print('Loaded producer data.')
-user.setAggregatedDeliveries()
+    print('user data.')
+    user = ag.User('../Daten/users/{}.csv'.format(userId), locations[userId], userId)
+    user.setUserDict('../Daten/dicts/{}.pickle'.format(userId))
 
-user.setDailyAggregatedConnections()
+    print('aggregated connections.')
+    user.setAggregatedConnections()
+    print('producer data.')
+    user.setProducerDict('../Daten/dicts/prod_{}.pickle'.format(userId))
+    print('aggregated deliveries.')
+    user.setAggregatedDeliveries()
+    #print('daily aggregated connections.')
+    #user.setDailyAggregatedConnections()
+    print('Done.')
 
 def getDFromUser():
     dFromUser = []
@@ -120,6 +128,8 @@ app.config['GOOGLEMAPS_KEY'] = "8JZ7i18MjFuM35dJHq70n3Hx4"
 
 # Initialize the extension
 GoogleMaps(app)
+
+app.before_first_request(setup_data)
 
 @app.route("/")
 def home():

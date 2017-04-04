@@ -11,7 +11,6 @@
     <meta name="viewport" content="width=device-width" />
 
     <!--  High-Charts    -->
-
 	<script src="https://code.jquery.com/jquery-3.1.1.min.js"></script>
 	<script src="https://code.highcharts.com/highcharts.js"></script>
 	<script src="https://code.highcharts.com/highcharts-more.js"></script>
@@ -258,6 +257,13 @@
 							<button type="button" class="btn btn-default" onclick="location.href='{{ url_for('getAggregatedConnections', start=15000, end=15096) }}'">24h</button>
 						</div>
 
+
+						<div id="reportrange" class="pull-right" style="background: #fff; cursor: pointer; padding: 5px 10px; border: 1px solid #ccc; width: 100%">
+							<i class="glyphicon glyphicon-calendar fa fa-calendar"></i>&nbsp;
+							<span></span> <b class="caret"></b>
+						</div>
+
+
 						<div class="btn-group" role="group" aria-label="...">
 							<button type="button" class="btn btn-default"  onclick="location.href='{{ url_for('getAggregatedConnections', start=0, end=8783) }}'">All</button>
 							<button type="button" class="btn btn-default" onclick="location.href='{{ url_for('getAggregatedConnections', start=8784, end=17567) }}'">Week</button>
@@ -268,12 +274,12 @@
 					</div>
 					<div class="collapse navbar-collapse">
 						<ul class="nav navbar-nav navbar-right">
-							<li>
+							<!--<li>
 								<a href="#pablo" class="dropdown-toggle" data-toggle="dropdown">
 									<i class="material-icons">dashboard</i>
 									<p class="hidden-lg hidden-md">Dashboard</p>
 								</a>
-							</li>
+							</li>-->
 							<li class="dropdown">
 								<a href="#" class="dropdown-toggle" data-toggle="dropdown">
 									<i class="material-icons">notifications</i>
@@ -441,6 +447,51 @@
 	<!-- Material Dashboard DEMO methods, don't include it in your project!
 	<script src="../assets/js/demo.js"></script>
 -->
+
+
+	<!-- Include Required Prerequisites -->
+	<script type="text/javascript" src="https://cdn.jsdelivr.net/jquery/1/jquery.min.js"></script>
+	<script type="text/javascript" src="https://cdn.jsdelivr.net/momentjs/latest/moment.min.js"></script>
+	<link rel="stylesheet" type="text/css" href="https://cdn.jsdelivr.net/bootstrap/3/css/bootstrap.css" />
+
+	<!-- Include Date Range Picker -->
+	<script type="text/javascript" src="https://cdn.jsdelivr.net/bootstrap.daterangepicker/2/daterangepicker.js"></script>
+	<link rel="stylesheet" type="text/css" href="https://cdn.jsdelivr.net/bootstrap.daterangepicker/2/daterangepicker.css" />
+
+	<script type="text/javascript">
+	$(function() {
+
+		var start = moment().subtract(29, 'days');
+		var end = moment();
+
+		function cb(start, end) {
+			$('#reportrange span').html(start.format('MMMM D, YYYY') + ' - ' + end.format('MMMM D, YYYY'));
+			
+		}
+
+		$('#reportrange').daterangepicker({
+			startDate: start,
+			endDate: end,
+			autoApply: true,
+			"startDate": "01/01/2016",
+			"endDate": "12/31/2016",
+			"minDate": "01/01/2016",
+			"maxDate": "12/31/2016",
+			ranges: {
+			   'Today': [moment().subtract(1, 'year'), moment().subtract(1, 'year')],
+			   'Yesterday': [moment().subtract(1, 'days').subtract(1, 'year'), moment().subtract(1, 'days').subtract(1, 'year')],
+			   'Last 7 Days': [moment().subtract(6, 'days').subtract(1, 'year'), moment().subtract(1, 'year')],
+			   'Last 30 Days': [moment().subtract(29, 'days').subtract(1, 'year'), moment().subtract(1, 'year')],
+			   'This Month': [moment().startOf('month').subtract(1, 'year'), moment().endOf('month').subtract(1, 'year')],
+			   'Last Month': [moment().subtract(1, 'month').startOf('month').subtract(1, 'year'), moment().subtract(1, 'month').endOf('month').subtract(1, 'year')],
+			   'Last Year': [moment().startOf('year').subtract(1, 'year'), moment().endOf('year').subtract(1, 'year')]
+			}
+		}, cb);
+
+		cb(start, end);
+
+	});
+	</script>
 
 	<!-- Additional Footer Here -->
 	{% block footer %}

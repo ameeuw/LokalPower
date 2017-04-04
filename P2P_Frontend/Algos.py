@@ -51,6 +51,13 @@ class User:
 
         setattr(self, 'demandByMonth', valsPerMonth)
 
+    def demByDay(self): # demand by day
+        valsPerDay = []
+        for _k in range(NDAYS):
+            demDay = self.demand[(day * 24*4):((day+1) * 24*4)]
+            valsPerDay.append(round(np.sum(demDay * DELTAT)))
+        setattr(self, 'demandByDay', valsPerDay)
+
 
     def prodByMonth(self):  # demand by month
         valsPerMonth = []
