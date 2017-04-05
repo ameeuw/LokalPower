@@ -120,15 +120,19 @@
 						<div class="row">
 
 							{% if user.annualProduction > 0 %}
-							<div class="col-lg-2 col-md-3 col-sm-6">
+							<div class="col-lg-2 col-md-6 col-sm-6">
 								<div class="card card-stats">
 									<div class="card-header" data-background-color="orange">
 										<i class="fa fa-bolt" aria-hidden="true"></i>
 
 									</div>
 									<div class="card-content">
-										<p class="category">Jahresverbrauch</p>
+										<p class="category">Verbrauch</p>
+										{% if user.resolution == 'daily' %}
+										<h4 class="title">{{ user.period['kpiConsumption'] }}<small> kWh</small></h4>
+										{% else %}
 										<h4 class="title">{{ user.annualDemand }}<small> kWh</small></h4>
+										{% endif %}
 									</div>
 								</div>
 							</div>
@@ -140,7 +144,11 @@
 									</div>
 									<div class="card-content">
 										<p class="category">Strombezug</p>
-										<h4 class="title">89.5 %</h4>
+										{% if user.resolution == 'daily' %}
+										<h4 class="title">{{ user.period['kpiOutsource'] }}<small> %</small></h4>
+										{% else %}
+										<h4 class="title"><h4 class="title">89.5<small> %</small></h4>
+										{% endif %}
 									</div>
 								</div>
 							</div>
@@ -151,8 +159,12 @@
 										<i class="fa fa-home" aria-hidden="true"></i>
 									</div>
 									<div class="card-content">
-										<large><p class="category">Eigenproduktion</p></large>
-										<h4 class="title">10.5 %</h4>
+										<large><p class="category">Autarkie</p></large>
+										{% if user.resolution == 'daily' %}
+										<h4 class="title">{{ user.period['kpiAutarky'] }}<small> %</small></h4>
+										{% else %}
+										<h4 class="title"><h4 class="title">10.5<small> %</small></h4>
+										{% endif %}
 									</div>
 								</div>
 							</div>
@@ -163,8 +175,12 @@
 										<i class="fa fa-bolt" aria-hidden="true"></i>
 									</div>
 									<div class="card-content">
-										<p class="category">Jahreserzeugung</p>
+										<p class="category">Erzeugung</p>
+										{% if user.resolution == 'daily' %}
+										<h4 class="title">{{ user.period['kpiProduction'] }}<small> kWh</small></h4>
+										{% else %}
 										<h4 class="title">{{ user.annualProduction }}<small> kWh</small></h4>
+										{% endif %}
 									</div>
 								</div>
 							</div>
@@ -175,7 +191,11 @@
 									</div>
 									<div class="card-content">
 										<p class="category">Eigenverbrauch</p>
-										<h4 class="title">10.6<small> %</small></h4>
+										{% if user.resolution == 'daily' %}
+										<h4 class="title">{{ user.period['kpiSelfConsumption'] }}<small> %</small></h4>
+										{% else %}
+										<h4 class="title"><h4 class="title">10.6<small> %</small></h4></h4>
+										{% endif %}
 									</div>
 								</div>
 							</div>
@@ -186,7 +206,11 @@
 									</div>
 									<div class="card-content">
 										<p class="category">Nachbarabgabe</p>
-										<h4 class="title">89.4<small> %</small></h4>
+										{% if user.resolution == 'daily' %}
+										<h4 class="title">{{ user.period['kpiContribution'] }}<small> %</small></h4>
+										{% else %}
+										<h4 class="title"><h4 class="title">89.4<small> %</small></h4></h4>
+										{% endif %}
 									</div>
 								</div>
 							</div>
@@ -247,28 +271,31 @@
 							{% endif %}
 						</div>
 
-
+						<!--
 						<div class="btn-group" role="group" aria-label="...">
-							<button type="button" class="btn btn-default"  onclick="location.href='{{ url_for('getAggregatedConnections', start=0, end=8783) }}'">Q1</button>
-							<button type="button" class="btn btn-default" onclick="location.href='{{ url_for('getAggregatedConnections', start=8784, end=17567) }}'">Q2</button>
-							<button type="button" class="btn btn-default" onclick="location.href='{{ url_for('getAggregatedConnections', start=17568, end=26351) }}'">Q3</button>
-							<button type="button" class="btn btn-default" onclick="location.href='{{ url_for('getAggregatedConnections', start=26352, end=35136) }}'">Q4</button>
-							<button type="button" class="btn btn-default" onclick="location.href='{{ url_for('getAggregatedConnections', start=0, end=35136) }}'">Full Year</button>
-							<button type="button" class="btn btn-default" onclick="location.href='{{ url_for('getAggregatedConnections', start=15000, end=15096) }}'">24h</button>
+							<button type="button" class="btn btn-default" onclick="location.href='{{ url_for('setAggregatedConnections', start=0, end=8783) }}'">Q1</button>
+							<button type="button" class="btn btn-default" onclick="location.href='{{ url_for('setAggregatedConnections', start=8784, end=17567) }}'">Q2</button>
+							<button type="button" class="btn btn-default" onclick="location.href='{{ url_for('setAggregatedConnections', start=17568, end=26351) }}'">Q3</button>
+							<button type="button" class="btn btn-default" onclick="location.href='{{ url_for('setAggregatedConnections', start=26352, end=35136) }}'">Q4</button>
+							<button type="button" class="btn btn-default" onclick="location.href='{{ url_for('setAggregatedConnections', start=0, end=35136) }}'">Full Year</button>
+							<button type="button" class="btn btn-default" onclick="location.href='{{ url_for('setAggregatedConnections', start=15000, end=15096) }}'">24h</button>
 						</div>
+						-->
 
-
+						<!--
 						<div id="reportrange" class="pull-right" style="background: #fff; cursor: pointer; padding: 5px 10px; border: 1px solid #ccc; width: 100%">
 							<i class="glyphicon glyphicon-calendar fa fa-calendar"></i>&nbsp;
 							<span></span> <b class="caret"></b>
 						</div>
+						-->
 
-
-						<div class="btn-group" role="group" aria-label="...">
-							<button type="button" class="btn btn-default"  onclick="location.href='{{ url_for('getAggregatedConnections', start=0, end=8783) }}'">All</button>
-							<button type="button" class="btn btn-default" onclick="location.href='{{ url_for('getAggregatedConnections', start=8784, end=17567) }}'">Week</button>
-							<button type="button" class="btn btn-default" onclick="location.href='{{ url_for('getAggregatedConnections', start=17568, end=26351) }}'">Month</button>
-							<button type="button" class="btn btn-default" onclick="location.href='{{ url_for('getAggregatedConnections', start=26352, end=35136) }}'">Year</button>
+						<div class="btn-group" role="group" aria-label="Resolution">
+							{% if user.resolution == 'daily' %}
+							<button type="button" class="btn btn-lg" onclick="location.href='{{ url_for('setResolution', resolution='monthly') }}'">Monthly</button>
+							{% else %}
+							<!--<button type="button" class="btn btn-default" onclick="location.href='{{ url_for('setResolution', resolution='weekly') }}'">Weekly</button>-->
+							<button type="button" class="btn btn-lg" onclick="location.href='{{ url_for('setResolution', resolution='daily') }}'">Daily</button>
+							{% endif %}
 						</div>
 
 					</div>
@@ -466,7 +493,7 @@
 
 		function cb(start, end) {
 			$('#reportrange span').html(start.format('MMMM D, YYYY') + ' - ' + end.format('MMMM D, YYYY'));
-			
+
 		}
 
 		$('#reportrange').daterangepicker({

@@ -28,10 +28,14 @@ class User:
     def __init__(self, fileName, location, idx):
         self.fileName = fileName
         self.index = idx
+        self.resolution = 'monthly'
+        self.month = 'Jan'
         self.location = location
         self.setLoadProfile()
         self.demByMonth()
+        self.demByDay()
         self.prodByMonth()
+        self.prodByDay()
         self.setAnnualDemand()
         self.setAnnualProduction()
         self.price = 0.15  # Fr/kWh
@@ -53,9 +57,9 @@ class User:
 
     def demByDay(self): # demand by day
         valsPerDay = []
-        for _k in range(NDAYS):
+        for day in range(NDAYS):
             demDay = self.demand[(day * 24*4):((day+1) * 24*4)]
-            valsPerDay.append(round(np.sum(demDay * DELTAT)))
+            valsPerDay.append(round(np.sum(demDay * DELTAT), 2))
         setattr(self, 'demandByDay', valsPerDay)
 
 
@@ -65,6 +69,14 @@ class User:
             Pmonth = self.production[cMonthVec[_k]:cMonthVec[_k + 1]]
             valsPerMonth.append(round(np.sum(Pmonth * DELTAT)))
         setattr(self, 'productionByMonth', valsPerMonth)
+
+
+    def prodByDay(self):
+        valsPerDay = []
+        for day in range(NDAYS):
+            prodDay = self.production[(day * 24*4):((day+1) * 24*4)]
+            valsPerDay.append(round(np.sum(prodDay * DELTAT), 2))
+        setattr(self, 'productionByDay', valsPerDay)
 
     def setAnnualDemand(self):
         setattr(self, 'annualDemand', np.round(np.sum(self.demand * DELTAT), 2))
@@ -118,6 +130,18 @@ class User:
         print(dailyAggregatedConnections)
         setattr(self, 'dailyAggregatedConnections', dailyAggregatedConnections)
 
+    def aggregateDailyConnections(self, dailyConnections):
+        aggregatedConnections = {}
+        for timeSliceConnections in dailyConnections:
+            for fromId, connection in timeSliceConnections.iteritems():
+                if fromId not in aggregatedConnections.keys():
+                    aggregatedConnections[fromId] = {}
+                    aggregatedConnections[fromId]['energy'] = connection['energy'] * DELTAT
+                    aggregatedConnections[fromId]['location'] = connection['location']
+                else:
+                    aggregatedConnections[fromId]['energy'] += connection['energy'] * DELTAT
+        return aggregatedConnections
+
 
     def getDemandBy(self, resolution='month', start=0):
         pass
@@ -138,6 +162,16 @@ class User:
                         else:
                             aggregatedDeliveries[toId]['energy'] += delivery['energy'] * DELTAT
         return aggregatedDeliveries
+
+
+    def setDailyAggregatedDeliveries(self):
+        dailyAggregatedDeliveries = []
+        if hasattr(self, 'deliveries'):
+            for day in range(sum(MONTHVEC)):
+                dailyAggregatedDeliveries.append(self.getAggregatedDeliveries(day * 24*4, (day+1) * 24*4))
+        print(len(dailyAggregatedDeliveries))
+        print(dailyAggregatedDeliveries)
+        setattr(self, 'dailyAggregatedDeliveries', dailyAggregatedDeliveries)
 
     def setPeriodicProduction(self, start=0, end=35136):
         setattr(self, 'periodicProduction', self.getAggregatedConnections(start=start, end=end))
