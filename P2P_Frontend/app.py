@@ -1,7 +1,7 @@
 import glob
 
 import numpy as np
-from flask import Flask, render_template, url_for
+from flask import Flask, render_template, url_for, request
 from flask_googlemaps import Map, GoogleMaps
 from geopy.distance import vincenty
 import pickle
@@ -159,10 +159,20 @@ def getAggregatedConnections(start=0, end=36136):
     return render_template('dashboard.html', user=user)
 
 
-@app.route("/batterySim")
+@app.route("/batterySim", methods=["GET","POST"])
 def batterySim():
-    user.prosumerSim(EbatR=3.0)
-    return render_template('batterySim.html', user=user)
+    
+    EbatR=0.0
+    if request.method=='POST':
+        EbatR=float(request.form['BatteryCapacity'])
+    
+
+    
+    
+    user.prosumerSim(EbatR=EbatR)
+
+
+    return render_template('batterySim.html', user=user, BatterySize=EbatR)
 
 if __name__ == "__main__":
     app.run()

@@ -2,6 +2,8 @@
 {% extends "base.html" %}
 {% block title %}Dashboard{% endblock %}
 
+
+
 <div class="wrapper">
 
 
@@ -13,9 +15,87 @@
 				<div class="container-fluid">
 					<center><h1>Batteriesimulator</h1></center>
 					<br>
+				
 					
+					<div class="row">
+						
+					  
+						  
+							<div class="range range-success">
+								
+								<div class="col-xs-4">
+								
+								<br> <br> <br> 
+								<center><h3>Wählen Sie Ihre Batteriegrösse</h3></center>
+								<br> <br>
+									<form role="form" method="post" action="{{ url_for('batterySim') }}">
+										
+										<input type="range" min="0" max="30" value="{{ BatterySize }}" name="BatteryCapacity" id="BatteryCapacity" 
+										step="1" onchange="showValue(this.value)" />
+								
+								<span id="range"><h3>{{ BatterySize }} kWh</h3></span>
+								<script type="text/javascript">
+								function showValue(newValue)
+								{
+									document.getElementById("range").innerHTML=newValue;
+								}
+								</script>
+										<!--
+										<input type="range"   min="0" max="30"  
+										 onchange="rangeSuccess.value=value"  >
+										 -->
+								
+								<br> <br>
+									<center>
+										<!--
+										<button type="button" name="RunSim" type="submit" class="btn btn-primary">Berechnen</button>
+										-->
+										<input type="submit" class="btn btn-primary" value="Submit" />
+									</center>
+									 
+								</div>
+								
+								
+								
+								<div class="col-xs-1">
+								<br> <br> <br> <br> <br> <br><br>
+										<!--
+										<output name="rangeSuccess" id="rangeSuccess"></output> kWh
+										-->
+								</div>
+								</form>
+							</div>
+							
+					  
+					  <div class="col-xs-6">
+
+					<center>
+						<div id="container" style="min-width: 78%; height: 400px; display: inline-block"></div>
+					</center>
+
+					  </div>
+					  
+					</div>
+					
+					<br>
+					
+
+					<!--
 					G2L {{ user.annual_PV }}
 					<br>
+					<br>
+					PV2L
+					{{ user.annual_PV2L }}
+					<br>
+					<br>
+					
+					G2L {{ user.annual_G2L }}
+					<br>
+					
+					
+					B2L {{ user.annual_B2L }}
+					<br>
+					
 					battery size {{ user.EbatR }}
 					<br>
 					autarky: {{ user.autarky }}
@@ -23,143 +103,14 @@
 					selfconsumption: {{ user.selfconsumption }}
 					
 					<br>
+					
 					<hr>
-					<div class="row">
-						{% if user.annualProduction > 0 %}
-						<div class="col-lg-2 col-md-3 col-sm-6">
-							<div class="card card-stats">
-								<div class="card-header" data-background-color="orange">
-									<i class="fa fa-bolt" aria-hidden="true"></i>
-
-								</div>
-								<div class="card-content">
-									<p class="category">Jahresverbrauch</p>
-									<h4 class="title">{{ user.annualDemand }}<small> kWh</small></h4>
-								</div>
-							</div>
-						</div>
-
-						<div class="col-lg-2 col-md-6 col-sm-6">
-							<div class="card card-stats">
-								<div class="card-header" data-background-color="fuchsia">
-									<i class="fa fa-th" aria-hidden="true"></i>
-								</div>
-								<div class="card-content">
-									<p class="category">Strombezug</p>
-									<h4 class="title">89.5 %</h4>
-								</div>
-							</div>
-						</div>
-
-						<div class="col-lg-2 col-md-6 col-sm-6">
-							<div class="card card-stats">
-								<div class="card-header" data-background-color="green">
-									<i class="fa fa-home" aria-hidden="true"></i>
-								</div>
-								<div class="card-content">
-									<large><p class="category">Eigenproduktion</p></large>
-									<h4 class="title">10.5 %</h4>
-								</div>
-							</div>
-						</div>
-
-						<div class="col-lg-2 col-md-6 col-sm-6">
-							<div class="card card-stats">
-								<div class="card-header" data-background-color="blue">
-									<i class="fa fa-bolt" aria-hidden="true"></i>
-								</div>
-								<div class="card-content">
-									<p class="category">Jahreserzeugung</p>
-									<h4 class="title">{{ user.annualProduction }}<small> kWh</small></h4>
-								</div>
-							</div>
-						</div>
-						<div class="col-lg-2 col-md-6 col-sm-6">
-							<div class="card card-stats">
-								<div class="card-header" data-background-color="green">
-									<i class="fa fa-windows" aria-hidden="true"></i>
-								</div>
-								<div class="card-content">
-									<p class="category">Eigenverbrauch</p>
-									<h4 class="title">10.6<small> %</small></h4>
-								</div>
-							</div>
-						</div>
-						<div class="col-lg-2 col-md-6 col-sm-6">
-							<div class="card card-stats">
-								<div class="card-header" data-background-color="purple">
-									<i class="fa fa-users" aria-hidden="true"></i>
-								</div>
-								<div class="card-content">
-									<p class="category">Nachbarabgabe</p>
-									<h4 class="title">89.4<small> %</small></h4>
-								</div>
-							</div>
-						</div>
-
-
-						{% else %}
-
-
-						<div class="col-lg-2 col-md-6 col-sm-6">
-							<div class="card card-stats">
-								<div class="card-header" data-background-color="orange">
-									<i class="fa fa-bolt" aria-hidden="true"></i>
-
-								</div>
-								<div class="card-content">
-									<p class="category">Jahresverbrauch</p>
-									<h4 class="title">{{ user.annualDemand }}<small> kWh</small></h4>
-								</div>
-								<div class="card-footer">
-									<div class="stats">
-										<i class="material-icons text-danger">warning</i> <a href="#pablo">Analysieren</a>
-									</div>
-								</div>
-							</div>
-						</div>
-						<div class="col-lg-2 col-md-6 col-sm-6">
-							<div class="card card-stats">
-								<div class="card-header" data-background-color="green">
-									<i class="fa fa-money" aria-hidden="true"></i>
-								</div>
-								<div class="card-content">
-									<p class="category">Kosten Total</p>
-									<h4 class="title">Fr. {{ user.totalCost }}</h4>
-								</div>
-								<div class="card-footer">
-									<div class="stats">
-										<i class="material-icons">date_range</i> ..
-									</div>
-								</div>
-							</div>
-						</div>
-						<div class="col-lg-2 col-md-6 col-sm-6">
-							<div class="card card-stats">
-								<div class="card-header" data-background-color="green">
-									<i class="fa fa-money" aria-hidden="true"></i>
-								</div>
-								<div class="card-content">
-									<p class="category">Kilometer pro kWh</p>
-									<h4 class="title">{{ user.totalCost }} km/kWh</h4>
-								</div>
-								<div class="card-footer">
-									<div class="stats">
-										<i class="material-icons">date_range</i> ..
-									</div>
-								</div>
-							</div>
-						</div>
-						{% endif %}
-					</div>
-
-
+					-->
+					
 				</div>
 
 
-				<br>
-				<div id="bar_chart" style="min-width: 78%; height: 400px; display: inline-block"></div>
-				<div id="pie_chart" style="min-width: 18%; height: 400px; display: inline-block"></div>
+
 			</div>
 
 			{% endblock %}
@@ -167,139 +118,73 @@
 </div>
 
 
-	{% block footer %}
-	<script>
 
-	Highcharts.chart('pie_chart', {
-		chart: {
-			plotBackgroundColor: null,
-			plotBorderWidth: null,
-			plotShadow: false,
-			type: 'pie'
-		},
-		title: {
-			text: 'Anteile der LokalPower Supplier:'
-		},
-		tooltip: {
-			pointFormat: '{series.name}: <b>{point.percentage:.1f}%</b>'
-		},
-		plotOptions: {
-			pie: {
-				allowPointSelect: true,
-				cursor: 'pointer',
-				dataLabels: {
-					enabled: false,
-					name: 'Anteile',
-					format: '<b>{point.name}</b>: {point.percentage:.1f} %',
-					style: {
-						color: (Highcharts.theme && Highcharts.theme.contrastTextColor) || 'black'
-					}
-				}
-			}
-		},
-		series: [{
-			name: 'Shares by Source',
-			colorByPoint: true,
-			data: [
-					{% for k in kWh_SharesBySource %}
-					{
-						name: '{{ descriptions[producerNames[loop.index0]] }}',
-						y: {{k}}
-					},
-					{% endfor %}
-			]
-		}]
-	});
+{% block footer %}
+
+<!--
+<script src="https://ajax.googleapis.com/ajax/libs/jquery/3.1.0/jquery.min.js"></script>
+-->
+
+ <script type="text/javascript">
+	
+      var Grid2Load = {{ user.annual_G2L |safe }};
+      var Solar2Load = {{ user.annual_PV2L |safe }};
+      var Battery2Load = {{ user.annual_B2L |safe }};
 
 
-	Highcharts.chart('bar_chart', {
-
+Highcharts.chart('container', {
+    chart: {
+        plotBackgroundColor: null,
+        plotBorderWidth: null,
+        plotShadow: false,
+        type: 'pie'
+    },
     title: {
-    	{% if user.annualProduction > 0 %}
-        	text: 'Verbrauch und Produktion'
-        {% else %}
-        	text: 'Verbrauch'
-        {% endif %}
+        text: 'Deckungsgrad Ihres Verbrauchs'
     },
-
-    subtitle: {
-        text: ''
+    tooltip: {
+        pointFormat: '{series.name}: <b>{point.percentage:.1f}%</b>'
     },
-
-
-    yAxis: {
-        title: {
-            text: 'kWh'
+    plotOptions: {
+        pie: {
+            allowPointSelect: true,
+            cursor: 'pointer',
+            dataLabels: {
+                enabled: true,
+                format: '<b>{point.name}</b>: {point.percentage:.1f} %',
+                style: {
+                    color: (Highcharts.theme && Highcharts.theme.contrastTextColor) || 'black'
+                }
+            }
         }
     },
-
-    xAxis: {
-        categories: ['J', 'F', 'M', 'A', 'M', 'J', 'J', 'A', 'S', 'O', 'N', 'D'],
-        crosshair: true
-    },
-
-    tooltip: {
-        headerFormat: '<span style="font-size:14px">Monat: {point.key}</span><br><table>',
-        pointFormat: '<tr><td style="color:{series.color};padding:0">{series.name}: </td>' +
-            '<td style="padding:0"><b>{point.y:.0f} kWh</b></td></tr>',
-        footerFormat: '</table>',
-        shared: true,
-        useHTML: true
-    },
-
-    series: [
-
-    {% if user.annualProduction > 0 %}
-    {
-        type: 'column',
-        name: 'Produktion',
-        colorByPoint: false,
-        color: '#12B8CD',
-        data: {{ user.productionByMonth|safe }},
-        showInLegend: false
-    },
-
-
-    {
-        type: 'column',
-        stacking: true,
-        name: 'Stromabgabe',
-        colorByPoint: false,
-        color: '#A53FB8',
-        data: [10, 12, 0, 3, 0, 0, 3, 15, 17, 19, 13, 32],
-        showInLegend: false
-    },
-
-    {
-        type: 'column',
-        stacking: true,
-        name: 'Eigenverbrauch',
-        colorByPoint: false,
-        color: '#5CB360',
-        data: [5, 6, 7, 9, 0, 0, 3, 5, 7, 9, 1, 5],
-        showInLegend: false
-    },
-    {% endif %}
-
-    {
-        type: 'column',
-        stacking: true,
-        name: 'Verbrauch',
-        colorByPoint: false,
-        color: '#FD9710',
-        data: {{ user.demandByMonth|safe }},
-        showInLegend: false
-    }
-
-    ]
-
-
-	});
+            series: [{
+                name: 'Brands',
+                colorByPoint: true,
+                data: [{
+                    name: 'Solar (direkt)',
+                    y: Solar2Load
+                }, {
+                    name: 'Batterie',
+                    y: Battery2Load,
+                    sliced: true,
+                    selected: true
+                }, {
+                    name: 'Netz',
+                    y: Grid2Load
+                }]
+            }]
+});
 
 
 
 
-	</script>
+
+
+
+    </script>
+
+	
 	{% endblock %}
 
 

@@ -39,7 +39,8 @@
     <!--     Fonts and icons     -->
     <link href="http://maxcdn.bootstrapcdn.com/font-awesome/latest/css/font-awesome.min.css" rel="stylesheet">
     <link href='http://fonts.googleapis.com/css?family=Roboto:400,700,300|Material+Icons' rel='stylesheet' type='text/css'>
-
+    
+    
    <script src="https://use.fontawesome.com/a0a5a9decc.js"></script>
 
    {% block header %} {% endblock %}
@@ -95,6 +96,13 @@
 							<a href="{{ url_for('community') }}">
 								<i class="fa fa-share-alt" aria-hidden="true"></i>
 								<p>Meine Community</p>
+							</a>
+						</li>
+						
+						<li >
+							<a href="{{ url_for('batterySim') }}">
+								<i class="fa fa-battery-half" aria-hidden="true"></i>
+								<p>PV-Batteriesimulator</p>
 							</a>
 						</li>
 
