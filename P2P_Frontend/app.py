@@ -293,5 +293,21 @@ def getMonthlyGraph(month='Jan'):
                            kWh_SharesBySource=kWhSharesBySourceOrdered.tolist(), descriptions=descriptions)
 
 
+
+@app.route("/batterySim", methods=["GET","POST"])
+def batterySim():
+    
+    EbatR=0.0
+    if request.method=='POST':
+        EbatR=float(request.form['BatteryCapacity'])
+    
+
+    
+    
+    user.prosumerSim(EbatR=EbatR)
+
+
+    return render_template('batterySim.html', user=user, BatterySize=EbatR)
+
 if __name__ == "__main__":
     app.run()
