@@ -32,12 +32,19 @@ def setup_data():
 
     print('producer data.')
     user.setProducerDict('../Daten/dicts/prod_{}.pickle'.format(userId))
-    print('aggregated deliveries.')
-    user.setAggregatedDeliveries()
+
+    # print('aggregated deliveries.')
+    # user.setAggregatedDeliveries()
+
     print('daily aggregated connections.')
     user.setDailyAggregatedConnections()
-    print('aggregated connections.')
+    print('aggregate connections.')
     user.aggregatedConnections = user.aggregateDailyConnections(user.dailyAggregatedConnections)
+
+    print('daily aggregated deliveries.')
+    user.setDailyAggregatedDeliveries()
+    print('aggregate deliveries.')
+    user.aggregatedDeliveries = user.aggregateDailyConnections(user.dailyAggregatedDeliveries)
     print('Done.')
 
 
@@ -220,6 +227,8 @@ def getMonthlyGraph(month='Jan'):
     user.month = month
 
     monthNumbers = {'Jan':1, 'Feb':2, 'Mar':3, 'Apr':4, 'May':5, 'Jun':6, 'Jul':7, 'Aug':8, 'Sep':9, 'Oct':10, 'Nov':11, 'Dec':12}
+    monthNames =  {'Jan':'Januar', 'Feb':'Februar', 'Mar':'Maerz', 'Apr':'April', 'May':'Mai', 'Jun':'Juni',
+                   'Jul':'Juli', 'Aug':'August', 'Sep':'September', 'Oct':'Oktober', 'Nov':'November', 'Dec':'Dezember'}
     MONTHVEC = [0, 31, 29, 31, 30, 31, 30, 31, 31, 30, 31, 30, 31]
     DELTAT = 0.25  # hours
 
@@ -229,6 +238,7 @@ def getMonthlyGraph(month='Jan'):
     print('Getting monthly data for {} (days: {} - {})'.format(month, start, stop))
 
     user.period = {}
+    user.period['name'] = "{} 2016".format(monthNames[month])
     user.period['categories'] = range(1,MONTHVEC[monthNumbers[month]]+1)
     user.period['demand'] = user.demandByDay[start:stop]
     user.period['production'] = user.productionByDay[start:stop]
@@ -262,10 +272,16 @@ def getMonthlyGraph(month='Jan'):
     user.period['kpiProduction'] = round( sum(user.period['production']), 2)
     print('kpiProduction : {}'.format(user.period['kpiProduction']))
 
-    user.period['kpiSelfConsumption'] = round( sum(user.period['selfConsumption']) / sum(user.period['production']) * 100, 2)
+    if (sum(user.period['production']) > 0):
+        user.period['kpiSelfConsumption'] = round( sum(user.period['selfConsumption']) / sum(user.period['production']) * 100, 2)
+    else:
+        user.period['kpiSelfConsumption'] = 0
     print('kpiSelfConsumption : {}'.format(user.period['kpiSelfConsumption']))
 
-    user.period['kpiContribution'] = round( sum(user.period['contribution']) / sum(user.period['production']) * 100, 2)
+    if (sum(user.period['production']) > 0):
+        user.period['kpiContribution'] = round( sum(user.period['contribution']) / sum(user.period['production']) * 100, 2)
+    else:
+        user.period['kpiContribution'] = 0
     print('kpiContribution : {}'.format(user.period['kpiContribution']))
 
 

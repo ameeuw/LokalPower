@@ -160,7 +160,7 @@
     	{% if user.resolution == 'daily' %}
     	data: {{ user.period['contribution']|safe }},
      	{% else %}
-        data: [10, 12, 0, 3, 0, 0, 3, 15, 17, 19, 13, 32],
+        data: [0, 0, 0, 0, 0, 1, 3, 15, 17, 19, 13, 32],
         {% endif %}
         showInLegend: false
     },
@@ -174,7 +174,7 @@
     	{% if user.resolution == 'daily' %}
     		data: {{ user.period['selfConsumption']|safe }},
      	{% else %}
-        	data: [5, 6, 7, 9, 0, 0, 3, 5, 7, 9, 1, 5],
+        	data: [0, 0, 0, 0, 0, 2, 3, 5, 7, 9, 1, 5],
         {% endif %}
         showInLegend: false
     },

@@ -126,8 +126,8 @@ class User:
         if hasattr(self, 'connections'):
             for day in range(sum(MONTHVEC)):
                 dailyAggregatedConnections.append(self.getAggregatedConnections(day * 24*4, (day+1) * 24*4))
-        print(len(dailyAggregatedConnections))
-        print(dailyAggregatedConnections)
+        # print(len(dailyAggregatedConnections))
+        # print(dailyAggregatedConnections)
         setattr(self, 'dailyAggregatedConnections', dailyAggregatedConnections)
 
     def aggregateDailyConnections(self, dailyConnections):
@@ -169,8 +169,8 @@ class User:
         if hasattr(self, 'deliveries'):
             for day in range(sum(MONTHVEC)):
                 dailyAggregatedDeliveries.append(self.getAggregatedDeliveries(day * 24*4, (day+1) * 24*4))
-        print(len(dailyAggregatedDeliveries))
-        print(dailyAggregatedDeliveries)
+        # print(len(dailyAggregatedDeliveries))
+        # print(dailyAggregatedDeliveries)
         setattr(self, 'dailyAggregatedDeliveries', dailyAggregatedDeliveries)
 
     def setPeriodicProduction(self, start=0, end=35136):
