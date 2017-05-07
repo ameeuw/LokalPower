@@ -3,215 +3,255 @@
 <!-- {% block title %}Dashboard{% endblock %} -->
 {% block header %}
 
-{{sndmap.js}}
+
 
 {% endblock %}
 
-	<div class="wrapper">
+<div class="wrapper">
 
-		{% block sidebar %}
-		
-		<div class="sidebar" data-color="purple" data-image="../assets/img/sidebar-1.jpg">
-			<!--
-				Tip 1: You can change the color of the sidebar using: data-color="purple | blue | green | orange | red"
+    {% block sidebar %}
 
-				Tip 2: you can also add an image using data-image tag
-			-->
+    <div class="sidebar" data-color="purple" data-image="../assets/img/sidebar-1.jpg">
+        <!--
+            Tip 1: You can change the color of the sidebar using: data-color="purple | blue | green | orange | red"
 
-			<div class="logo">
-				<a href="" class="simple-text">
-					Lokal Power
-				</a>
-			</div>
-			
-				<div class="sidebar-wrapper">
-					<ul class="nav">
-						<li>
-							<a href="{{ url_for('home') }}">
-								<i class="material-icons">dashboard</i>
-								<p>Übersicht</p>
-							</a>
-						</li>
+            Tip 2: you can also add an image using data-image tag
+        -->
 
-						<li class="active">
-							<a href="{{ url_for('maps') }}">
-								<i class="material-icons">location_on</i>
-								<p>Verbrauch: Karte</p>
-							</a>
-						</li>
-						
-						<li >
-							<a href="{{ url_for('community') }}">
-								<i class="fa fa-share-alt" aria-hidden="true"></i>
-								<p>Verbrauch: Details</p>
-							</a>
-						</li>
+        <div class="logo">
+            <a href="" class="simple-text">
+                Lokal Power
+            </a>
+        </div>
 
-					</ul>
-				</div>
-			</div>
+            <div class="sidebar-wrapper">
+                <ul class="nav">
+                    <li>
+                        <a href="{{ url_for('home') }}">
+                            <i class="material-icons">dashboard</i>
+                            <p>Übersicht</p>
+                        </a>
+                    </li>
 
-		{% endblock %}
+                    <li class="active">
+                        <a href="{{ url_for('osmaps') }}">
+                            <i class="material-icons">location_on</i>
+                            <p>Verbrauch: Karte</p>
+                        </a>
+                    </li>
 
+                    <li >
+                        <a href="{{ url_for('details') }}">
+                            <i class="fa fa-share-alt" aria-hidden="true"></i>
+                            <p>Verbrauch: Details</p>
+                        </a>
+                    </li>
 
+                    <li>
+                        <a href="{{ url_for('batterySim') }}">
+                            <i class="fa fa-battery-half" aria-hidden="true"></i>
+                            <p>PV-Batteriesimulator</p>
+                        </a>
+                    </li>
 
-	    <div class="main-panel">
-			
-			<div class="content">
-				<div class="container-fluid">
+                </ul>
+            </div>
+        </div>
 
-					{% block body %}
-					<!--{{sndmap.html}}-->
-					<div id="sndmap" class="map" style="height: 60%; width:78%; float: left"></div>
-					<div id="pie_chart" style="height: 60%; min-width: 18%; display: inline-block;"></div>
-
-					
-					{% endblock %}
-			
-				</div>
-			</div>
-			
-	    </div>
-	</div>
+    {% endblock %}
 
 
 
+    <div class="main-panel">
 
-	{% block footer %}
-	<script>
+        <div class="content">
+            {% block body %}
 
-	Highcharts.chart('pie_chart', {
-		chart: {
-			plotBackgroundColor: null,
-			plotBorderWidth: null,
-			plotShadow: false,
-			type: 'pie'
-		},
-		title: {
-			text: 'Anteile der LokalPower Supplier:'
-		},
-		tooltip: {
-			pointFormat: '{series.name}: <b>{point.percentage:.1f}%</b>'
-		},
-		plotOptions: {
-			pie: {
-				allowPointSelect: true,
-				cursor: 'pointer',
-				dataLabels: {
-					enabled: false,
-					name: 'Anteile',
-					format: '<b>{point.name}</b>: {point.percentage:.1f} %',
-					style: {
-						color: (Highcharts.theme && Highcharts.theme.contrastTextColor) || 'black'
-					}
-				}
-			}
-		},
-		series: [{
-			name: 'Shares by Source',
-			colorByPoint: true,
-			data: [
-					{% for k in kWh_SharesBySource %}
-					{
-						name: '{{ descriptions[producerNames[loop.index0]] }}',
-						y: {{k}}
-					},
-					{% endfor %}
-			]
-		}]
-	});
+            <div class="container-fluid">
+
+                <div class="row">
+                    <div class="col-md-8">
+                        <div class="well">
+                            <!--<div id="sndmap" class="map" style="height: 450px; width: 720px;"></div>-->
+                            <iframe src="{{ url_for('os_maps') }}" style="height: 450px; width: 720px;"></iframe>
 
 
-	Highcharts.chart('bar_chart', {
+                        </div>
+                    </div>
 
+                    <div class="col-md-4" style="max-height: 450px">
+                        <div class="well">
+                            <div class="container" style="width: 100%;">
+                              <h4>Meine Stromquellen</h4>
+
+                                <div class="panel panel-default">
+                                  <div class="panel-heading"  style="background-color: #4FA953">
+                                    <h4 class="panel-title">
+                                      Eigenverbrauch
+                                    </h4>
+                                    {{ (user.period['kpiProduction'] * user.period['kpiSelfConsumption'] / 100)|round(2) }} kWh / {{ user.period['kpiSelfConsumption'] }} %
+                                  </div>
+                                </div>
+
+                                <div class="panel-group" id="accordion">
+                                    <div class="panel panel-default">
+                                      <div class="panel-heading" style="background-color: #C071D3">
+                                        <h4 class="panel-title">
+                                          <a data-toggle="collapse" data-parent="#accordion" href="#collapse2"><div>Lokal</div></a>
+                                        </h4>
+                                      </div>
+                                      <div id="collapse2" class="panel-collapse collapse">
+                                        <div class="panel-body" style="overflow-y: scroll; max-height: 150px">
+                                            <table class="table">
+
+                                                <tr>
+                                                    <th>Quelle</th>
+                                                    <th>Distanz</th>
+                                                    <th>Anteil</th>
+                                                </tr>
+                                                {% for k in kWh_SharesBySource %}
+
+                                                {% if (dFromUserordered[loop.index0]) < 10 and (producerNames[loop.index0] != user.index)%}
+                                                <tr>
+                                                  {% if producerNames[loop.index0] != user.index %}
+                                                    <td>{{ descriptions[producerNames[loop.index0]]['name'] }}</td>
+                                                  {% else %}
+                                                    <td><b>Eigenverbrauch</b></td>
+                                                  {% endif %}
+                                                    <td> {{ dFromUserordered[loop.index0]|round(2) }} km</td>
+                                                    <td> {{k * 100}} %</td>
+                                                </tr>
+                                                {% endif %}
+
+                                                {% endfor %}
+                                            </table>
+                                        </div>
+                                      </div>
+                                    </div>
+
+                                    <div class="panel panel-default">
+                                      <div class="panel-heading" style="background-color: #0DB5CA">
+                                        <h4 class="panel-title">
+                                          <a data-toggle="collapse" data-parent="#accordion" href="#collapse3">Graubünden</a>
+                                        </h4>
+                                      </div>
+                                      <div id="collapse3" class="panel-collapse collapse">
+                                        <div class="panel-body" style="overflow-y: scroll; max-height: 150px">
+                                            <table class="table">
+
+                                                <tr>
+                                                    <th>Quelle</th>
+                                                    <th>Distanz</th>
+                                                    <th>Anteil</th>
+                                                </tr>
+                                                {% for k in kWh_SharesBySource %}
+
+                                                {% if (dFromUserordered[loop.index0] > 10) and (dFromUserordered[loop.index0] < 50) %}
+                                                <tr>
+                                                    <td>{{ descriptions[producerNames[loop.index0]]['name'] }}</td>
+                                                    <td> {{ dFromUserordered[loop.index0] }} km</td>
+                                                    <td> {{k * 100}} %</td>
+                                                </tr>
+                                                {% endif %}
+
+                                                {% endfor %}
+                                            </table>
+                                        </div>
+                                      </div>
+                                    </div>
+                                </div>
+
+
+                                <div class="panel panel-default">
+                                  <div class="panel-heading" style="background-color: #999999">
+                                    <h4 class="panel-title">
+                                      Sonstige
+                                    </h4>
+                                  </div>
+                                  <div id="collapse4" class="panel-collapse collapse in">
+                                    <div class="panel-body" style="overflow-y: scroll; max-height: 150px">
+                                        <table class="table">
+
+                                            <tr>
+                                                <th>Quelle</th>
+                                                <th>Distanz</th>
+                                                <th>Anteil</th>
+                                            </tr>
+                                            {% for k in kWh_SharesBySource %}
+
+                                            {% if (dFromUserordered[loop.index0] > 50) %}
+                                            <tr>
+                                                <td>{{ descriptions[producerNames[loop.index0]]['name'] }}</td>
+                                                <td> {{ dFromUserordered[loop.index0] }} km</td>
+                                                <td> {{k * 100}} %</td>
+                                            </tr>
+                                            {% endif %}
+
+                                            {% endfor %}
+                                        </table>
+                                    </div>
+                                  </div>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+
+                </div>
+
+
+                {% endblock %}
+
+            </div>
+        </div>
+
+    </div>
+</div>
+
+
+{% block footer %}
+<script>
+// reload the iframe each time
+document.getElementsByTagName('iframe')[0].src=document.getElementsByTagName('iframe')[0].src
+
+Highcharts.chart('pie_chart', {
+    chart: {
+        plotBackgroundColor: null,
+        plotBorderWidth: null,
+        plotShadow: false,
+        type: 'pie'
+    },
     title: {
-    	{% if user.annualProduction > 0 %}
-        	text: 'Verbrauch und Produktion'
-        {% else %}
-        	text: 'Verbrauch'
-        {% endif %}
+        text: 'Anteile der LokalPower Supplier:'
     },
-
-    subtitle: {
-        text: ''
+    tooltip: {
+        pointFormat: '{series.name}: <b>{point.percentage:.1f}%</b>'
     },
-
-
-    yAxis: {
-        title: {
-            text: 'kWh'
+    plotOptions: {
+        pie: {
+            allowPointSelect: true,
+            cursor: 'pointer',
+            dataLabels: {
+                enabled: false,
+                name: 'Anteile',
+                format: '<b>{point.name}</b>: {point.percentage:.1f} %',
+                style: {
+                    color: (Highcharts.theme && Highcharts.theme.contrastTextColor) || 'black'
+                }
+            }
         }
     },
-
-    xAxis: {
-        categories: ['J', 'F', 'M', 'A', 'M', 'J', 'J', 'A', 'S', 'O', 'N', 'D'],
-        crosshair: true
-    },
-
-    tooltip: {
-        headerFormat: '<span style="font-size:14px">Monat: {point.key}</span><br><table>',
-        pointFormat: '<tr><td style="color:{series.color};padding:0">{series.name}: </td>' +
-            '<td style="padding:0"><b>{point.y:.0f} kWh</b></td></tr>',
-        footerFormat: '</table>',
-        shared: true,
-        useHTML: true
-    },
-
-    series: [
-
-    {% if user.annualProduction > 0 %}
-    {
-        type: 'column',
-        name: 'Produktion',
-        colorByPoint: false,
-        color: '#12B8CD',
-        data: {{ user.productionByMonth|safe }},
-        showInLegend: false
-    },
-
-
-    {
-        type: 'column',
-        stacking: true,
-        name: 'Stromabgabe',
-        colorByPoint: false,
-        color: '#A53FB8',
-        data: [10, 12, 0, 3, 0, 0, 3, 15, 17, 19, 13, 32],
-        showInLegend: false
-    },
-
-    {
-        type: 'column',
-        stacking: true,
-        name: 'Eigenverbrauch',
-        colorByPoint: false,
-        color: '#5CB360',
-        data: [5, 6, 7, 9, 0, 0, 3, 5, 7, 9, 1, 5],
-        showInLegend: false
-    },
-    {% endif %}
-
-    {
-        type: 'column',
-        stacking: true,
-        name: 'Verbrauch',
-        colorByPoint: false,
-        color: '#FD9710',
-        data: {{ user.demandByMonth|safe }},
-        showInLegend: false
-    }
-
-    ]
-
-
-	});
-
-
-
-
-	</script>
-	{% endblock %}
-
-
-
-
+    series: [{
+        name: 'Shares by Source',
+        colorByPoint: true,
+        data: [
+                {% for k in kWh_SharesBySource %}
+                {
+                    name: '{{ descriptions[producerNames[loop.index0]]['name'] }}',
+                    y: {{k}}
+                },
+                {% endfor %}
+        ]
+    }]
+});
+</script>
+{% endblock %}

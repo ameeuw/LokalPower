@@ -5,6 +5,55 @@
 
 
 <div class="wrapper">
+	{% block sidebar %}
+
+		<div class="sidebar" data-color="purple" data-image="../assets/img/sidebar-1.jpg">
+			<!--
+				Tip 1: You can change the color of the sidebar using: data-color="purple | blue | green | orange | red"
+
+				Tip 2: you can also add an image using data-image tag
+			-->
+
+			<div class="logo">
+				<a href="" class="simple-text">
+					Lokal Power
+				</a>
+			</div>
+
+				<div class="sidebar-wrapper">
+					<ul class="nav">
+						<li>
+							<a href="{{ url_for('home') }}">
+								<i class="material-icons">dashboard</i>
+								<p>Übersicht</p>
+							</a>
+						</li>
+
+						<li>
+							<a href="{{ url_for('maps') }}">
+								<i class="material-icons">location_on</i>
+								<p>Verbrauch: Karte</p>
+							</a>
+						</li>
+
+						<li >
+							<a href="{{ url_for('details') }}">
+								<i class="fa fa-share-alt" aria-hidden="true"></i>
+								<p>Verbrauch: Details</p>
+							</a>
+						</li>
+
+						<li class="active">
+							<a href="{{ url_for('batterySim') }}">
+								<i class="fa fa-battery-half" aria-hidden="true"></i>
+								<p>PV-Batteriesimulator</p>
+							</a>
+						</li>
+					</ul>
+				</div>
+			</div>
+
+	{% endblock %}
 
 
 	<div class="main-panel">
@@ -37,7 +86,7 @@
 								<script type="text/javascript">
 								function showValue(newValue)
 								{
-									document.getElementById("range").innerHTML=newValue;
+									document.getElementById("range").innerHTML = "<h3>" + newValue + " kWh</h3>";
 								}
 								</script>
 										<!--

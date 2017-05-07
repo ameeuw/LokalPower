@@ -69,11 +69,11 @@ def BatteryCalc2(Pload,Pdc,Inputs):
             Ebat[k+1]=max(Ebat[k]+dP[k]*dt/Inputs['EtaDCh'], EbatMin)
 
 
-        AnnualBalance['W_PV2B'][k]=max( Ebat[k+1] - Ebat[k] , 0)
-        AnnualBalance['W_PV2G'][k]=max( dP[k]*dt*Inputs['EtaInv']-AnnualBalance['W_PV2B'][k]*Inputs['EtaInv']/Inputs['EtaCh'],0)
-        AnnualBalance['W_B2L'][k]=max( -(Ebat[k+1] - Ebat[k]) * (Inputs['EtaInv']*Inputs['EtaDCh']) , 0)
-        AnnualBalance['W_PV2L'][k]=Pload[k]*dt+min(dP[k]*dt,0)*Inputs['EtaInv']
-        AnnualBalance['W_G2L'][k]=Pload[k]*dt-AnnualBalance['W_B2L'][k]-AnnualBalance['W_PV2L'][k]
+        AnnualBalance['W_PV2B'][k] = max( Ebat[k+1] - Ebat[k] , 0)
+        AnnualBalance['W_PV2G'][k] = max( dP[k]*dt*Inputs['EtaInv']-AnnualBalance['W_PV2B'][k]*Inputs['EtaInv']/Inputs['EtaCh'],0)
+        AnnualBalance['W_B2L'][k] = max( -(Ebat[k+1] - Ebat[k]) * (Inputs['EtaInv']*Inputs['EtaDCh']) , 0)
+        AnnualBalance['W_PV2L'][k] = Pload[k]*dt+min(dP[k]*dt,0)*Inputs['EtaInv']
+        AnnualBalance['W_G2L'][k] = Pload[k]*dt-AnnualBalance['W_B2L'][k]-AnnualBalance['W_PV2L'][k]
 
     AnnualBalance['Ebat'] = Ebat
     AnnualBalance['W_PV'] = Pdc*dt
@@ -101,8 +101,9 @@ class User:
     def __init__(self, fileName, location, idx):
         self.fileName = fileName
         self.index = idx
-        self.resolution = 'monthly'
-        self.month = 'Jan'
+        self.period = {}
+        self.period['resolution'] = 'monthly'
+        self.period['month'] = 'Jan'
         self.location = location
         self.setLoadProfile()
         self.demByMonth()
@@ -304,13 +305,12 @@ class User:
         
 
     def prosumerSim(self, EbatR=0):
-        dLoad=self.demand-self.production
+        dLoad = self.demand - self.production
         
-        if EbatR==0:
-            Inputs['EbatR']=0.001 # computation crashes if EbatR = 0 (div 0)
-            
+        if EbatR == 0:
+            Inputs['EbatR'] = 0.001 # computation crashes if EbatR = 0 (div 0)
         else:
-            Inputs['EbatR']=EbatR
+            Inputs['EbatR'] = EbatR
         
         # batterySim Runs always
         Inputs['EbatR'] = EbatR
@@ -320,12 +320,12 @@ class User:
         selfconsumption = np.sum( Ab['W_PV2L'] + Ab['W_B2L'] ) / np.sum(Ab['W_PV'])
         
         setattr(self, 'EbatR', EbatR)
-        setattr(self, 'G2L', Ab['W_G2L']/Inputs['dt'] ) # all in kW
-        setattr(self, 'PV2G', Ab['W_PV2G']/Inputs['dt'] )
-        setattr(self, 'B2L', Ab['W_B2L']/Inputs['dt'] )
-        setattr(self, 'PV2L', Ab['W_PV2L']/Inputs['dt'] )
-        setattr(self, 'PV2B', Ab['W_PV2B']/Inputs['dt'] )
-        setattr(self, 'PV', Ab['W_PV']/Inputs['dt'] )
+        setattr(self, 'G2L', Ab['W_G2L'] / Inputs['dt'] ) # all in kW
+        setattr(self, 'PV2G', Ab['W_PV2G'] / Inputs['dt'] )
+        setattr(self, 'B2L', Ab['W_B2L'] / Inputs['dt'] )
+        setattr(self, 'PV2L', Ab['W_PV2L'] / Inputs['dt'] )
+        setattr(self, 'PV2B', Ab['W_PV2B'] / Inputs['dt'] )
+        setattr(self, 'PV', Ab['W_PV'] / Inputs['dt'] )
         
         setattr( self, 'autarky', autarky )
         setattr( self, 'selfconsumption', selfconsumption )
@@ -333,4 +333,4 @@ class User:
         keyList=['G2L', 'PV2G', 'B2L', 'PV2L', 'PV2B', 'PV']
         
         for _k in keyList:
-            setattr(self, 'annual_'+_k, np.sum( getattr(self, _k)*Inputs['dt'] ).astype(int) )
+            setattr(self, 'annual_'+_k, np.sum( getattr(self, _k) * Inputs['dt'] ).astype(int) )

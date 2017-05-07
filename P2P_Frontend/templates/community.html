@@ -96,9 +96,9 @@
 
 								  <tr>
 									  {% if producerNames[loop.index0] != user.index %}
-										<td>{{ descriptions[producerNames[loop.index0]] }}</td>
+										<td>{{ descriptions[producerNames[loop.index0]]['name'] }}</td>
 									  {% else %}
-									  	<td><b>{{ descriptions[producerNames[loop.index0]] }}</b> (Sie)</td>
+									  	<td><b>{{ descriptions[producerNames[loop.index0]]['name'] }}</b> (Sie)</td>
 									  {% endif %}
 									<td> {{k * 100}} %</td>
 									<td> {{ dFromUser[loop.index0] }} km</td>
@@ -159,7 +159,7 @@
 			data: [
 					{% for k in kWh_SharesBySource %}
 					{
-						name: '{{ descriptions[producerNames[loop.index0]] }}',
+						name: '{{ descriptions[producerNames[loop.index0]]['name'] }}',
 						y: {{k}}
 					},
 					{% endfor %}

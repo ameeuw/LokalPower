@@ -1,6 +1,9 @@
 <!doctype html>
 <html lang="en">
 <head>
+    <meta http-Equiv="Cache-Control" Content="no-cache" />
+    <meta http-Equiv="Pragma" Content="no-cache" />
+    <meta http-Equiv="Expires" Content="0" />
 	<meta charset="utf-8" />
 	<link rel="apple-touch-icon" sizes="76x76" href="../assets/img/apple-icon.png" />
 	<link rel="icon" type="image/png" href="../assets/img/favicon.png" />
@@ -78,7 +81,7 @@
 						</li>
 
 						<li>
-							<a href="{{ url_for('maps') }}">
+							<a href="{{ url_for('osmaps') }}">
 								<i class="material-icons">location_on</i>
 								<p>Verbrauch: Karte</p>
 							</a>
@@ -92,7 +95,7 @@
 						</li>
 						-->
 						<li >
-							<a href="{{ url_for('community') }}">
+							<a href="{{ url_for('details') }}">
 								<i class="fa fa-share-alt" aria-hidden="true"></i>
 								<p>Verbrauch: Details</p>
 							</a>
@@ -125,10 +128,12 @@
 							<span class="icon-bar"></span>
 							<span class="icon-bar"></span>
 						</button>
+
 						<div class="row">
 
 							{% if user.annualProduction > 0 %}
-							<div class="col-lg-2 col-md-6 col-sm-6">
+                            <!--
+							<div class="col-md-4">
 								<div class="card card-stats">
 									<div class="card-header" data-background-color="orange">
 										<i class="fa fa-bolt" aria-hidden="true"></i>
@@ -136,7 +141,7 @@
 									</div>
 									<div class="card-content">
 										<p class="category">Verbrauch</p>
-										{% if user.resolution == 'daily' %}
+										{% if user.period['resolution'] == 'daily' %}
 										<h4 class="title">{{ user.period['kpiConsumption'] }}<small> kWh</small></h4>
 										{% else %}
 										<h4 class="title">{{ user.annualDemand }}<small> kWh</small></h4>
@@ -145,46 +150,15 @@
 								</div>
 							</div>
 
-							<div class="col-lg-2 col-md-6 col-sm-6">
-								<div class="card card-stats">
-									<div class="card-header" data-background-color="fuchsia">
-										<i class="fa fa-th" aria-hidden="true"></i>
-									</div>
-									<div class="card-content">
-										<p class="category">Strombezug</p>
-										{% if user.resolution == 'daily' %}
-										<h4 class="title">{{ user.period['kpiOutsource'] }}<small> %</small></h4>
-										{% else %}
-										<h4 class="title"><h4 class="title">89.5<small> %</small></h4>
-										{% endif %}
-									</div>
-								</div>
-							</div>
 
-							<div class="col-lg-2 col-md-6 col-sm-6">
-								<div class="card card-stats">
-									<div class="card-header" data-background-color="green">
-										<i class="fa fa-home" aria-hidden="true"></i>
-									</div>
-									<div class="card-content">
-										<large><p class="category">Autarkie</p></large>
-										{% if user.resolution == 'daily' %}
-										<h4 class="title">{{ user.period['kpiAutarky'] }}<small> %</small></h4>
-										{% else %}
-										<h4 class="title"><h4 class="title">10.5<small> %</small></h4>
-										{% endif %}
-									</div>
-								</div>
-							</div>
-
-							<div class="col-lg-2 col-md-6 col-sm-6">
+							<div class="col-md-4">
 								<div class="card card-stats">
 									<div class="card-header" data-background-color="blue">
 										<i class="fa fa-bolt" aria-hidden="true"></i>
 									</div>
 									<div class="card-content">
 										<p class="category">Erzeugung</p>
-										{% if user.resolution == 'daily' %}
+										{% if user.period['resolution'] == 'daily' %}
 										<h4 class="title">{{ user.period['kpiProduction'] }}<small> kWh</small></h4>
 										{% else %}
 										<h4 class="title">{{ user.annualProduction }}<small> kWh</small></h4>
@@ -192,14 +166,16 @@
 									</div>
 								</div>
 							</div>
-							<div class="col-lg-2 col-md-6 col-sm-6">
+
+
+							<div class="col-md-4">
 								<div class="card card-stats">
 									<div class="card-header" data-background-color="green">
 										<i class="fa fa-windows" aria-hidden="true"></i>
 									</div>
 									<div class="card-content">
 										<p class="category">Eigenverbrauch</p>
-										{% if user.resolution == 'daily' %}
+										{% if user.period['resolution'] == 'daily' %}
 										<h4 class="title">{{ user.period['kpiSelfConsumption'] }}<small> %</small></h4>
 										{% else %}
 										<h4 class="title"><h4 class="title">10.6<small> %</small></h4></h4>
@@ -207,6 +183,44 @@
 									</div>
 								</div>
 							</div>
+                            -->
+
+							<!--
+							<div class="col-lg-2 col-md-6 col-sm-6">
+								<div class="card card-stats">
+									<div class="card-header" data-background-color="fuchsia">
+										<i class="fa fa-th" aria-hidden="true"></i>
+									</div>
+									<div class="card-content">
+										<p class="category">Strombezug</p>
+										{% if user.period['resolution'] == 'daily' %}
+										<h4 class="title">{{ user.period['kpiOutsource'] }}<small> %</small></h4>
+										{% else %}
+										<h4 class="title"><h4 class="title">89.5<small> %</small></h4>
+										{% endif %}
+									</div>
+								</div>
+							</div>
+							-->
+							<!--
+							<div class="col-lg-2 col-md-6 col-sm-6">
+								<div class="card card-stats">
+									<div class="card-header" data-background-color="green">
+										<i class="fa fa-home" aria-hidden="true"></i>
+									</div>
+									<div class="card-content">
+										<large><p class="category">Autarkie</p></large>
+										{% if user.period['resolution'] == 'daily' %}
+										<h4 class="title">{{ user.period['kpiAutarky'] }}<small> %</small></h4>
+										{% else %}
+										<h4 class="title"><h4 class="title">10.5<small> %</small></h4>
+										{% endif %}
+									</div>
+								</div>
+							</div>
+							-->
+
+							<!--
 							<div class="col-lg-2 col-md-6 col-sm-6">
 								<div class="card card-stats">
 									<div class="card-header" data-background-color="purple">
@@ -214,7 +228,7 @@
 									</div>
 									<div class="card-content">
 										<p class="category">Nachbarabgabe</p>
-										{% if user.resolution == 'daily' %}
+										{% if user.period['resolution'] == 'daily' %}
 										<h4 class="title">{{ user.period['kpiContribution'] }}<small> %</small></h4>
 										{% else %}
 										<h4 class="title"><h4 class="title">89.4<small> %</small></h4></h4>
@@ -222,6 +236,7 @@
 									</div>
 								</div>
 							</div>
+							-->
 
 
 							{% else %}
@@ -296,34 +311,10 @@
 							<span></span> <b class="caret"></b>
 						</div>
 						-->
-
-						<div class="btn-group" role="group" aria-label="Resolution">
-							{% if user.resolution == 'daily' %}
-							<button type="button" class="btn btn-lg" onclick="location.href='{{ url_for('setResolution', resolution='monthly') }}'">Monthly</button>
-							{% else %}
-							<!--<button type="button" class="btn btn-default" onclick="location.href='{{ url_for('setResolution', resolution='weekly') }}'">Weekly</button>-->
-							<button type="button" class="btn btn-lg" onclick="location.href='{{ url_for('setResolution', resolution='daily') }}'">Daily</button>
-							{% endif %}
-						</div>
-
-						<div style="position: relative; left: 70%;">
-							{% if user.resolution == 'daily' %}
-								<h2>{{ user.period['name'] }}</h2>
-							{% else %}
-								<h2>Jahr 2016</h2>
-							{% endif %}
-						</div>
-
 					</div>
 
 					<div class="collapse navbar-collapse">
 						<ul class="nav navbar-nav navbar-right">
-							<!--<li>
-								<a href="#pablo" class="dropdown-toggle" data-toggle="dropdown">
-									<i class="material-icons">dashboard</i>
-									<p class="hidden-lg hidden-md">Dashboard</p>
-								</a>
-							</li>-->
 							<li class="dropdown">
 								<a href="#" class="dropdown-toggle" data-toggle="dropdown">
 									<i class="material-icons">notifications</i>
@@ -345,100 +336,106 @@
 		 						</a>
 							</li>
 						</ul>
-
-						<!--
-						<form class="navbar-form navbar-right" role="search">
-							<div class="form-group  is-empty">
-								<input type="text" class="form-control" placeholder="Search">
-								<span class="material-input"></span>
-							</div>
-							<button type="submit" class="btn btn-white btn-round btn-just-icon">
-								<i class="material-icons">search</i><div class="ripple-container"></div>
-							</button>
-						</form>
-						-->
 					</div>
 				</div>
 			</nav>
+
+			<div class="container">
+
+                <div class="row">
+                    <div class="col-md-4">
+
+                    </div>
+
+                    <div class="col-md-1">
+                        <h3><</h3>
+                    </div>
+
+                    <div class="col-md-2">
+                        <center>
+                        {% if (user.period['resolution'] == 'daily') or (user.period['resolution'] == 'minimal') %}
+                            <h3>{{ user.period['name'] }}</h3>
+                        {% else %}
+                            <h3>Jahr 2016</h3>
+                        {% endif %}
+                        </center>
+                    </div>
+
+                    <div class="col-md-1">
+                        <h3>></h3>
+                    </div>
+
+                    <div class="col-md-4" style="align: right">
+						<div class="btn-group" role="group" aria-label="Resolution">
+							<button type="button" class="btn btn" onclick="location.href='{{ url_for('getLast24hours', now=17000) }}'">24h</button>
+							<button type="button" class="btn btn" onclick="location.href='{{ url_for('setResolution', resolution='daily') }}'">Monat</button>
+							<button type="button" class="btn btn" onclick="location.href='{{ url_for('setResolution', resolution='monthly') }}'">Jahr</button>
+						</div>
+                    </div>
+                </div>
+
+
+				<div class="row">
+					<div class="row">
+						<div class="col-md-4">
+							<div class="card card-stats">
+								<div class="card-header" data-background-color="orange">
+									<i class="fa fa-bolt" aria-hidden="true"></i>
+
+								</div>
+								<div class="card-content">
+									<p class="category">Verbrauch</p>
+									{% if user.period['resolution'] == 'daily' %}
+									<h4 class="title">{{ user.period['kpiConsumption'] }}<small> kWh</small></h4>
+									{% else %}
+									<h4 class="title">{{ user.annualDemand }}<small> kWh</small></h4>
+									{% endif %}
+								</div>
+							</div>
+						</div>
+
+
+						<div class="col-md-4">
+							<div class="card card-stats">
+								<div class="card-header" data-background-color="blue">
+									<i class="fa fa-bolt" aria-hidden="true"></i>
+								</div>
+								<div class="card-content">
+									<p class="category">Erzeugung</p>
+									{% if user.period['resolution'] == 'daily' %}
+									<h4 class="title">{{ user.period['kpiProduction'] }}<small> kWh</small></h4>
+									{% else %}
+									<h4 class="title">{{ user.annualProduction }}<small> kWh</small></h4>
+									{% endif %}
+								</div>
+							</div>
+						</div>
+
+
+						<div class="col-md-4">
+							<div class="card card-stats">
+								<div class="card-header" data-background-color="green">
+									<i class="fa fa-windows" aria-hidden="true"></i>
+								</div>
+								<div class="card-content">
+									<p class="category">Eigenverbrauch</p>
+									{% if user.period['resolution'] == 'daily' %}
+									<h4 class="title">{{ user.period['kpiSelfConsumption'] }}<small> %</small></h4>
+									{% else %}
+									<h4 class="title"><h4 class="title">10.6<small> %</small></h4></h4>
+									{% endif %}
+								</div>
+							</div>
+						</div>
+					</div>
+				</div>
+			</div>
 
 			{%endblock%}
 
 			{% block body %}
 
 			<div class="content">
-				<div class="container-fluid">
-					<div class="row">
-
-						<div class="col-lg-3 col-md-6 col-sm-6">
-							<div class="card card-stats">
-								<div class="card-header" data-background-color="orange">
-									<i class="material-icons">content_copy</i>
-								</div>
-								<div class="card-content">
-									<p class="category">Used Space</p>
-									<h3 class="title">49/50<small>GB</small></h3>
-								</div>
-								<div class="card-footer">
-									<div class="stats">
-										<i class="material-icons text-danger">warning</i> <a href="#pablo">Get More Space...</a>
-									</div>
-								</div>
-							</div>
-						</div>
-
-						<div class="col-lg-3 col-md-6 col-sm-6">
-							<div class="card card-stats">
-								<div class="card-header" data-background-color="green">
-									<i class="material-icons">store</i>
-								</div>
-								<div class="card-content">
-									<p class="category">Revenue</p>
-									<h3 class="title">$34,245</h3>
-								</div>
-								<div class="card-footer">
-									<div class="stats">
-										<i class="material-icons">date_range</i> Last 24 Hours
-									</div>
-								</div>
-							</div>
-						</div>
-						<div class="col-lg-3 col-md-6 col-sm-6">
-							<div class="card card-stats">
-								<div class="card-header" data-background-color="red">
-									<i class="material-icons">info_outline</i>
-								</div>
-								<div class="card-content">
-									<p class="category">Fixed Issues</p>
-									<h3 class="title">75</h3>
-								</div>
-								<div class="card-footer">
-									<div class="stats">
-										<i class="material-icons">local_offer</i> Tracked from Github
-									</div>
-								</div>
-							</div>
-						</div>
-
-						<div class="col-lg-3 col-md-6 col-sm-6">
-							<div class="card card-stats">
-								<div class="card-header" data-background-color="blue">
-									<i class="fa fa-twitter"></i>
-								</div>
-								<div class="card-content">
-									<p class="category">Followers</p>
-									<h3 class="title">+245</h3>
-								</div>
-								<div class="card-footer">
-									<div class="stats">
-										<i class="material-icons">update</i> Just Updated
-									</div>
-								</div>
-							</div>
-						</div>
-					</div>
-
-
-				</div>
 			</div>
 
 			{% endblock %}

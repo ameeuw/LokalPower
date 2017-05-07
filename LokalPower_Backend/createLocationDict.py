@@ -38,11 +38,11 @@ consumerLocations = [(46.968064, 9.558147),
 
 print('len(consumerLocations) = {}'.format(len(consumerLocations)))
 
-producerLocations = [(47.045076, 9.53354),  # hydro
-                     (46.927656, 9.583668),  # hydro
-                     (47.001958, 9.554126),  # biogas
-                     (46.965493, 9.531499),  # solar
-                     (46.999632, 9.537646)]  # solar
+producerLocations = [(46.912633, 9.779556),  # hydro 1: klosters
+                     (46.8851, 9.878602),  # hydro 2: kueblis
+                     (46.835896, 9.487296),  # biomasse
+                     (47.149092,9.7571782),  # solar: Wehinger Josef
+                     (46.8491408,9.5402532)]  # solar: Pixelmolkerei
 
 print('len(producerLocations) = {}'.format(len(producerLocations)))
 
@@ -75,7 +75,7 @@ for i in range(len(prosumerFiles)):
 for i in range(numProducers):
     locationdict[producerIds[i]] = producerLocations[i]
 
-pickle.dump( locationdict, open( '../Daten/dicts/locations.pickle', "wb" ) )
+pickle.dump( locationdict, open( '../Daten/users/locations.pickle', "wb" ) )
 
 print("Created location dictionary:")
 for key, value in locationdict.iteritems():

@@ -95,8 +95,11 @@ class LokalPower(object):
     def getDicts(self, start, stop):
         consumerDicts = []
         producerDicts = []
-
+        print('Getting dicts from {} to {}'.format(start, stop))
         for currentSlice in range(start, stop):
+            if (currentSlice % 500 == 0):
+                print('{} / {} = {} %'.format(currentSlice, stop, (float(currentSlice)/stop)*100))
+
             _demands, _locations, _ids = self.getTimeSliceData(currentSlice)
             G = self.generateGraph(_demands, _locations, _ids)
             _flowDict = nx.min_cost_flow(G)
@@ -159,7 +162,7 @@ class LokalPower(object):
         #self.addBalanceUser(-sum(demands), 46.966638, 9.555431)
 
         demands.append(-sum(demands))
-        locations.append((46.966638, 9.555431))
+        locations.append((46.746655, 9.841554))
         ids.append('GRID')
 
         return demands, locations, ids
