@@ -73,36 +73,67 @@
                     <div class="col-md-8">
                         <div class="well">
                             <!--<div id="sndmap" class="map" style="height: 450px; width: 720px;"></div>-->
-                            <iframe src="{{ url_for('os_maps') }}" style="height: 450px; width: 720px;"></iframe>
-
+                            <div class="embed-responsive embed-responsive-16by9">
+                                <iframe class="embed-responsive-item" src="{{ url_for('os_maps') }}" style=""></iframe>
+                            </div>
 
                         </div>
                     </div>
 
-                    <div class="col-md-4" style="max-height: 450px">
+                    <div class="col-md-4" style="height: 100%px">
                         <div class="well">
                             <div class="container" style="width: 100%;">
                               <h4>Meine Stromquellen</h4>
+                                <div class="panel-group">
 
-                                <div class="panel panel-default">
-                                  <div class="panel-heading"  style="background-color: #4FA953">
-                                    <h4 class="panel-title">
-                                      Eigenverbrauch
-                                    </h4>
-                                    {{ (user.period['kpiProduction'] * user.period['kpiSelfConsumption'] / 100)|round(2) }} kWh / {{ user.period['kpiSelfConsumption'] }} %
+                                <!-- EIGENVERBRAUCH -->
+                                <div class="panel panel-default" style="max-height: 45px">
+                                  <div class="panel-heading"  style="background-color: #08BB1E;">
+                                          <div class="container">
+                                              <div class="row">
+                                                <h4 class="panel-title">
+                                                  Autarkie
+                                                </h4>
+                                              </div>
+                                              <div class="row">
+                                                  <div class="col-sm-1">
+                                                      {{ (user.period['kpiProduction'] * user.period['kpiSelfConsumption'] / 100)|round(1) }} kWh
+                                                  </div>
+                                                  <div class="col-sm-1">
+                                                      {{ user.period['kpiAutarky']|round(1) }} %
+                                                  </div>
+                                              </div>
+                                          </div>
+                                      </div>
                                   </div>
                                 </div>
 
+
                                 <div class="panel-group" id="accordion">
+
+
+                                    <!-- LOKAL -->
                                     <div class="panel panel-default">
-                                      <div class="panel-heading" style="background-color: #C071D3">
-                                        <h4 class="panel-title">
-                                          <a data-toggle="collapse" data-parent="#accordion" href="#collapse2"><div>Lokal</div></a>
-                                        </h4>
+                                      <div class="panel-heading" style="background-color: #F1750A;">
+                                          <div class="container">
+                                              <div class="row">
+                                                <h4 class="panel-title">
+                                                  <a data-toggle="collapse" data-parent="#accordion" href="#collapse1"><div>Lokal</div></a>
+                                                </h4>
+                                              </div>
+                                              <div class="row">
+                                                  <div class="col-sm-1">
+                                                      {{ user.period['categorized_connections']['local']|round(1)  }} kWh
+                                                  </div>
+                                                  <div class="col-sm-1">
+                                                      {{ (user.period['categorized_connections']['local'] / user.period['kpiConsumption'] * 100)|round(1)  }} %
+                                                  </div>
+                                              </div>
+                                          </div>
                                       </div>
-                                      <div id="collapse2" class="panel-collapse collapse">
-                                        <div class="panel-body" style="overflow-y: scroll; max-height: 150px">
-                                            <table class="table">
+                                      <div id="collapse1" class="panel-collapse collapse in">
+                                        <div class="panel-body" style="overflow-y: scroll; max-height: 40%">
+                                            <table class="table table-sm">
 
                                                 <tr>
                                                     <th>Quelle</th>
@@ -114,7 +145,7 @@
                                                 {% if (dFromUserordered[loop.index0]) < 10 and (producerNames[loop.index0] != user.index)%}
                                                 <tr>
                                                   {% if producerNames[loop.index0] != user.index %}
-                                                    <td>{{ descriptions[producerNames[loop.index0]]['name'] }}</td>
+                                                    <td>{{ descriptions[producerNames[loop.index0]]['NAME'] }}</td>
                                                   {% else %}
                                                     <td><b>Eigenverbrauch</b></td>
                                                   {% endif %}
@@ -129,15 +160,29 @@
                                       </div>
                                     </div>
 
+
+                                    <!-- GRAUBÜNDEN -->
                                     <div class="panel panel-default">
-                                      <div class="panel-heading" style="background-color: #0DB5CA">
-                                        <h4 class="panel-title">
-                                          <a data-toggle="collapse" data-parent="#accordion" href="#collapse3">Graubünden</a>
-                                        </h4>
+                                      <div class="panel-heading" style="background-color: #F1150A">
+                                          <div class="container">
+                                              <div class="row">
+                                                <h4 class="panel-title">
+                                                  <a data-toggle="collapse" data-parent="#accordion" href="#collapse2">Graubünden</a>
+                                                </h4>
+                                              </div>
+                                              <div class="row">
+                                                  <div class="col-sm-1">
+                                                      {{ user.period['categorized_connections']['grisons']|round(1)  }} kWh
+                                                  </div>
+                                                  <div class="col-sm-1">
+                                                      {{ (user.period['categorized_connections']['grisons'] / user.period['kpiConsumption'] * 100)|round(1)  }} %
+                                                  </div>
+                                              </div>
+                                          </div>
                                       </div>
-                                      <div id="collapse3" class="panel-collapse collapse">
-                                        <div class="panel-body" style="overflow-y: scroll; max-height: 150px">
-                                            <table class="table">
+                                      <div id="collapse2" class="panel-collapse collapse">
+                                        <div class="panel-body" style="overflow-y: scroll; max-height: 36%">
+                                            <table class="table table-sm">
 
                                                 <tr>
                                                     <th>Quelle</th>
@@ -148,7 +193,7 @@
 
                                                 {% if (dFromUserordered[loop.index0] > 10) and (dFromUserordered[loop.index0] < 50) %}
                                                 <tr>
-                                                    <td>{{ descriptions[producerNames[loop.index0]]['name'] }}</td>
+                                                    <td>{{ descriptions[producerNames[loop.index0]]['NAME'] }}</td>
                                                     <td> {{ dFromUserordered[loop.index0] }} km</td>
                                                     <td> {{k * 100}} %</td>
                                                 </tr>
@@ -159,37 +204,28 @@
                                         </div>
                                       </div>
                                     </div>
-                                </div>
 
 
-                                <div class="panel panel-default">
-                                  <div class="panel-heading" style="background-color: #999999">
-                                    <h4 class="panel-title">
-                                      Sonstige
-                                    </h4>
+                                <!-- SONSTIGE -->
+                                <div class="panel panel-default" style="max-height: 80px">
+                                  <div class="panel-heading" style="background-color: #078C92;">
+                                      <div class="container">
+                                          <div class="row">
+                                            <h4 class="panel-title">
+                                              Sonstige
+                                            </h4>
+                                          </div>
+                                              <div class="row">
+                                                  <div class="col-sm-1">
+                                                      {{ user.period['categorized_connections']['other']|round(1)  }} kWh
+                                                  </div>
+                                                  <div class="col-sm-1">
+                                                      {{ (user.period['categorized_connections']['other'] / user.period['kpiConsumption'] * 100)|round(1)  }} %
+                                                  </div>
+                                              </div>
+                                      </div>
                                   </div>
-                                  <div id="collapse4" class="panel-collapse collapse in">
-                                    <div class="panel-body" style="overflow-y: scroll; max-height: 150px">
-                                        <table class="table">
-
-                                            <tr>
-                                                <th>Quelle</th>
-                                                <th>Distanz</th>
-                                                <th>Anteil</th>
-                                            </tr>
-                                            {% for k in kWh_SharesBySource %}
-
-                                            {% if (dFromUserordered[loop.index0] > 50) %}
-                                            <tr>
-                                                <td>{{ descriptions[producerNames[loop.index0]]['name'] }}</td>
-                                                <td> {{ dFromUserordered[loop.index0] }} km</td>
-                                                <td> {{k * 100}} %</td>
-                                            </tr>
-                                            {% endif %}
-
-                                            {% endfor %}
-                                        </table>
-                                    </div>
+                                </div>
                                   </div>
                                 </div>
                             </div>
@@ -246,7 +282,7 @@ Highcharts.chart('pie_chart', {
         data: [
                 {% for k in kWh_SharesBySource %}
                 {
-                    name: '{{ descriptions[producerNames[loop.index0]]['name'] }}',
+                    name: '{{ descriptions[producerNames[loop.index0]]['NAME'] }}',
                     y: {{k}}
                 },
                 {% endfor %}

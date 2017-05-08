@@ -1,40 +1,14 @@
 import pickle
+import pandas as pd
+import ast
 
-descriptions = {'CH1099601234500000000000000109538' : {'name': 'Stefan Weisler', 'kind' : 'consumer', 'type': 'solar'},
-                'CH1012301234500000000000000109409' : {'name': 'Familie Temperer', 'kind' : 'consumer', 'type': 'solar'},
-                'CH1012101234500000000000000108681' : {'name': 'Christoph Wahren', 'kind' : 'consumer', 'type': 'solar'},
-                'Biogas' : {'name': 'Biomassekraftwerk Domat/Ems', 'kind' : 'plant', 'type': 'biomass'},
-                'CH1012301234500000000000000028500' : {'name': 'Paul Teller', 'kind' : 'consumer', 'type': 'solar'},
-                'CH1099601234500000000000000113487' : {'name': 'Familie Krause', 'kind' : 'consumer', 'type': 'solar'},
-                'CH1012301234500000000000000015825' : {'name': 'Tilo Dreisiger', 'kind' : 'consumer', 'type': 'solar'},
-                'CH1099601234500000000000000111237' : {'name': 'Charles Delfin', 'kind' : 'consumer', 'type': 'solar'},
-                'CH1012101234500000000000000112764' : {'name': 'Kimeno Salse', 'kind' : 'consumer', 'type': 'solar'},
-                'CH1012301234500000000000000024970' : {'name': 'Maria Cron', 'kind' : 'consumer', 'type': 'solar'},
-                'CH1012301234500000000000000028210' : {'name': 'Volker Racho', 'kind' : 'consumer', 'type': 'solar'},
-                'CH1012301234500000000000000027700' : {'name': 'Familie Bellschick', 'kind' : 'consumer', 'type': 'solar'},
-                'CH1012301234500000000000000016477' : {'name': 'Sophia Schuster', 'kind' : 'consumer', 'type': 'solar'},
-                'CH1012301234500000000000000112183' : {'name': 'Sebastian Schaeffer', 'kind' : 'consumer', 'type': 'solar'},
-                'CH1012301234500000000000000019218' : {'name': 'Familie Wirth', 'kind' : 'consumer', 'type': 'solar'},
-                'PV1' : {'name': 'Bauernhof Josef Wehinger', 'kind' : 'plant', 'type': 'solar'},
-                'PV2' : {'name': 'Pixelmolkerei AG', 'kind' : 'plant', 'type': 'solar'},
-                'CH1012301234500000000000000021758' : {'name': 'Dieter Schmidt', 'kind' : 'consumer', 'type': 'solar'},
-                'CH1012101234500000000000000110486' : {'name': 'Thomas Eichmann', 'kind' : 'consumer', 'type': 'solar'},
-                'CH1012301234500000000000000030304' : {'name': 'Daniela Fruehauf', 'kind' : 'consumer', 'type': 'solar'},
-                'CH1012101234500000000000000104941' : {'name': 'Andreas Schaefer', 'kind' : 'consumer', 'type': 'solar'},
-                'CH1099601234500000000000000112842' : {'name': 'Maria Hoffmann', 'kind' : 'consumer', 'type': 'solar'},
-                'CH1099601234500000000000000111040' : {'name': 'Familie Schroeder', 'kind' : 'consumer', 'type': 'solar'},
-                'CH1012101234500000000000000113115' : {'name': 'Stefan Ebersbach', 'kind' : 'consumer', 'type': 'solar'},
-                'CH1012101234500000000000000113353' : {'name': 'Brigitte Durr', 'kind' : 'consumer', 'type': 'solar'},
-                'CH1012301234500000000000000010721' : {'name': 'Familie Max Brandt', 'kind' : 'consumer', 'type': 'solar'},
-                'CH1012301234500000000000000015674' : {'name': 'Diana Weiss', 'kind' : 'consumer', 'type': 'solar'},
-                'CH1099601234500000000000000111921' : {'name': 'Lena Kappel', 'kind' : 'consumer', 'type': 'solar'},
-                'CH1012301234500000000000000022885' : {'name': 'Sebastian Gersten', 'kind' : 'consumer', 'type': 'solar'},
-                'CH1012301234500000000000000008828' : {'name': 'Stephan Glockner', 'kind' : 'consumer', 'type': 'solar'},
-                'CH1012101234500000000000000038809' : {'name': 'Maik Baecker', 'kind' : 'consumer', 'type': 'solar'},
-                'CH1012101234500000000000000112508' : {'name': 'Christian Baumgaertner', 'kind' : 'consumer', 'type': 'solar'},
-                'Hydro1' : {'name': 'Wasserkraftwerk Kueblis', 'kind' : 'plant', 'type': 'hydro'},
-                'Hydro2' : {'name': 'Wasserkraftwerk Klosters', 'kind' : 'plant', 'type': 'hydro'},
-                'CH1099601234500000000000000113610' : {'name': 'Klaudia Becker', 'kind' : 'plant', 'type': 'solar'}}
+descriptions_df = pd.read_excel('../Daten/users/descriptions.xlsx')
+descriptions_df = descriptions_df.set_index('ID')
 
+descriptions = {}
+for user_index in descriptions_df.index:
+    description_dict = descriptions_df.loc[user_index].to_dict()
+    description_dict['LOCATION'] = ast.literal_eval(description_dict['LOCATION'])
+    descriptions[user_index] = description_dict
 
 pickle.dump( descriptions, open( '../Daten/users/descriptions.pickle', "wb" ) )

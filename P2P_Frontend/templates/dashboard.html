@@ -9,16 +9,16 @@
 		<div class="content">
 		{% block body %}
 
-			<div class="container">
-				<div class="row" style="height: 500px">
+			<div class="container-fluid">
+				<div class="row embed-responsive embed-responsive-16by9" style="">
 
-					<div class="col-md-8" style="height: 100%">
-						<div class="well" style="height: 100%">
-							<div id="bar_chart" style="height: 100%"></div>
+					<div class="col-md-8 embed-responsive-item" style="width: 65%;">
+						<div class="well">
+							<div class="" id="overview_chart" style=""></div>
 						</div>
 					</div>
 
-					<div class="col-md-4" style="height: 100%">
+					<div class="col-md-4 embed-responsive-item" style="left: 65%; max-width: 35%; max-height: 65%">
 						<div class="row" style="height: 50%">
 							<div class="col-md-12" style="height: 100%">
 								<div class="well" style="height: 100%">
@@ -26,10 +26,10 @@
 								</div>
 							</div>
 						</div>
-						<div class="row" style="height: 50%;">
-							<div class="col-md-12" style="height: 100%">
+						<div class="row" style="height: 48%;">
+							<div class="col-md-12" style="height: 100%; top: 5%">
 								<div class="well" style="height: 100%; overflow-y: scroll;">
-									<div id="sup_table" style="height: 100%">
+									<div id="sup_table">
 										<table class="table">
 											  <tr>
 												<th>Lieferant</th>
@@ -38,9 +38,9 @@
 											  {% for k in kWh_SharesBySource %}
 											  <tr>
 												  {% if producerNames[loop.index0] != user.index %}
-													<td>{{ descriptions[producerNames[loop.index0]]['name'] }}</td>
+													<td>{{ descriptions[producerNames[loop.index0]]['NAME'] }}</td>
 												  {% else %}
-													<td><b>{{ descriptions[producerNames[loop.index0]]['name'] }}</b> (Sie)</td>
+													<td><b>Eigenverbrauch</b></td>
 												  {% endif %}
 												<td> {{k * 100}} %</td>
 											  </tr>
@@ -59,8 +59,8 @@
 
 	{% block footer %}
 	<script type="text/javascript" src="https://cdn.jsdelivr.net/momentjs/latest/moment.min.js"></script>
+	<!--<script type="text/javascript" src="{{ url_for('static', filename='charts/overview_chart.js') }}"></script>-->
 	<script>
-
 	Highcharts.chart('pie_chart', {
 		chart: {
 			plotBackgroundColor: null,
@@ -69,7 +69,11 @@
 			type: 'pie'
 		},
 		title: {
-			text: 'Anteile der LokalPower Supplier:'
+			text: 'Meine Stromquellen',
+			align: 'left'
+		},
+		subtitle: {
+			text: {{ user.period['kpiConsumption'] }}
 		},
 		tooltip: {
 			pointFormat: '{series.name}: <b>{point.percentage:.1f}%</b>'
@@ -78,6 +82,7 @@
 			pie: {
 				allowPointSelect: true,
 				cursor: 'pointer',
+				align: 'left',
 				dataLabels: {
 					enabled: false,
 					name: 'Anteile',
@@ -85,162 +90,147 @@
 					style: {
 						color: (Highcharts.theme && Highcharts.theme.contrastTextColor) || 'black'
 					}
-				}
+				},
+			showInLegend: true,
 			}
 		},
 		series: [{
-			name: 'Shares by Source',
+			name: 'Anteil',
 			colorByPoint: true,
+			size: '100%',
+			innerSize: '60%',
 			data: [
-					{% for k in kWh_SharesBySource %}
+
+					{% for category, energy in user.period['categorized_connections'].iteritems() %}
 					{
-						name: '{{ descriptions[producerNames[loop.index0]]['name'] }}',
-						y: {{k}}
+						name: '{{ category | replace("self","Eigenverbrauch") | replace("local","Lokal") | replace("grisons","Graubünden") | replace("other","Sonstige") }}',
+						y: {{ energy }},
+						color: '{{ category | replace("self","#08BB1E") | replace("local","#F1750A") | replace("grisons","#F1150A") | replace("other","#078C92") }}'
 					},
 					{% endfor %}
 			]
-		}]
+		}],
+		legend: {
+			layout: 'vertical',
+			align: 'right',
+			verticalAlign: 'middle',
+        	labelFormatter: function() {
+				return this.name + " (" + this.percentage.toFixed(1) + " %)";
+			}
+		}
 	});
+	{% if user.period['resolution'] == 'minimal' %}
+		Highcharts.Series.prototype.drawPoints = function() { };
+	{% endif %}
+	Highcharts.chart('overview_chart', {
+
+		title: {
+			{% if user.annualProduction > 0 %}
+				text: 'Verbrauch und Produktion'
+			{% else %}
+				text: 'Verbrauch'
+			{% endif %}
+		},
+
+		subtitle: {
+			text: ''
+		},
+
+		{% if user.period['resolution'] == 'monthly' %}
+		plotOptions: {
+			series: {
+				cursor: 'pointer',
+				point: {
+					events: {
+						click: function() {
+							//alert('Month: ' + this.category);
+							location.href='/getMonthlyGraph/' + this.category;
+						}
+					}
+				}
+			}
+		},
+		{% endif %}
+
+		{% if user.period['resolution'] == 'daily' %}
+		plotOptions: {
+			series: {
+				cursor: 'pointer',
+				point: {
+					events: {
+						click: function() {
+							location.href='/getLast24hours/' + {{ user.period['start'] }} + '/' + this.category;
+						}
+					}
+				}
+			}
+		},
+		{% endif %}
+
+		yAxis: {
+			title: {
+				text: 'kWh'
+			}
+		},
+
+		xAxis: {
+			categories: {{ user.period['categories']|safe }},
+			{% if user.period['resolution'] == 'minimal' %}
+			labels: {
+				step: 4,
+				rotation: 45
+			},
+			{% endif %}
+			crosshair: true
+		},
+
+		tooltip: {
+			headerFormat: '<span style="font-size:14px">{{ user.period['resolution'] | replace("daily", "Tag") | replace("monthly", "Monat") }}: {point.key}</span><br><table>',
+			pointFormat: '<tr><td style="color:{series.color};padding:0">{series.name}: </td>' +
+				'<td style="padding:0"><b>{point.y:.2f} kWh</b></td></tr>',
+			footerFormat: '</table>',
+			shared: true,
+			useHTML: true
+		},
+
+		series: [
+
+		{% if user.annualProduction > 0 %}
+		{
+			type: 'spline',
+			name: 'Produktion',
+			colorByPoint: false,
+			color: '#FFA960',
+			data: {{ user.period['production']|safe }},
+			showInLegend: true
+		},
+
+		{
+			type: 'areaspline',
+			fillOpacity: 0.5,
+			stacking: true,
+			name: 'Eigenverbrauch',
+			colorByPoint: false,
+			color: '#08BB1E',
+			data: {{ user.period['selfConsumption']|safe }},
+			showInLegend: true
+		},
+		{% endif %}
+
+		{
+			type: 'spline',
+			stacking: false,
+			name: 'Verbrauch',
+			colorByPoint: false,
+			color: '#FF6860',
+			data: {{ user.period['demand']|safe }},
+			showInLegend: true
+		}
+
+		]
 
 
-	Highcharts.chart('bar_chart', {
-
-    title: {
-    	{% if user.annualProduction > 0 %}
-        	text: 'Verbrauch und Produktion'
-        {% else %}
-        	text: 'Verbrauch'
-        {% endif %}
-    },
-
-    subtitle: {
-        text: ''
-    },
-
-	{% if user.period['resolution'] == 'monthly' %}
-    plotOptions: {
-    	series: {
-    		cursor: 'pointer',
-    		point: {
-    			events: {
-    				click: function() {
-    					//alert('Month: ' + this.category);
-    					location.href='/getMonthlyGraph/' + this.category;
-    				}
-    			}
-    		}
-    	}
-    },
-    {% endif %}
-
-	{% if user.period['resolution'] == 'daily' %}
-    plotOptions: {
-    	series: {
-    		cursor: 'pointer',
-    		point: {
-    			events: {
-    				click: function() {
-    					//alert('Month: ' + this.category);
-    					location.href='/getLast24hours/' + this.category;
-    				}
-    			}
-    		}
-    	}
-    },
-    {% endif %}
-
-
-    yAxis: {
-        title: {
-            text: 'kWh'
-        }
-    },
-
-    xAxis: {
-    	{% if (user.period['resolution'] == 'daily') or (user.period['resolution'] == 'minimal') %}
-    	categories: {{ user.period['categories'] }},
-    	{% else %}
-        categories: ['Jan', 'Feb', 'Mar', 'Apr', 'May', 'Jun', 'Jul', 'Aug', 'Sep', 'Oct', 'Nov', 'Dec'],
-        {% endif %}
-        crosshair: true
-    },
-
-    tooltip: {
-        headerFormat: '<span style="font-size:14px">Monat: {point.key}</span><br><table>',
-        pointFormat: '<tr><td style="color:{series.color};padding:0">{series.name}: </td>' +
-            '<td style="padding:0"><b>{point.y:.2f} kWh</b></td></tr>',
-        footerFormat: '</table>',
-        shared: true,
-        useHTML: true
-    },
-
-    series: [
-
-    {% if user.annualProduction > 0 %}
-    /*{
-        type: 'column',
-        name: 'Produktion',
-        colorByPoint: false,
-        color: '#12B8CD',
-    	{% if (user.period['resolution'] == 'daily') or (user.period['resolution'] == 'minimal') %}
-        data: {{ user.period['production']|safe }},
-        {% else %}
-        data: {{ user.productionByMonth|safe }},
-        {% endif %}
-        showInLegend: false
-    },*/
-
-
-    {
-        type: 'column',
-        stacking: true,
-        name: 'Stromabgabe',
-        colorByPoint: false,
-        color: '#A53FB8',
-    	{% if (user.period['resolution'] == 'daily') or (user.period['resolution'] == 'minimal') %}
-    	data: {{ user.period['contribution']|safe }},
-     	{% else %}
-        data: [0, 0, 0, 0, 0, 1, 3, 15, 17, 19, 13, 32],
-        {% endif %}
-        showInLegend: false
-    },
-
-    {
-        type: 'column',
-        stacking: true,
-        name: 'Eigenverbrauch',
-        colorByPoint: false,
-        color: '#5CB360',
-    	{% if (user.period['resolution'] == 'daily') or (user.period['resolution'] == 'minimal') %}
-    		data: {{ user.period['selfConsumption']|safe }},
-     	{% else %}
-        	data: [0, 0, 0, 0, 0, 2, 3, 5, 7, 9, 1, 5],
-        {% endif %}
-        showInLegend: false
-    },
-    {% endif %}
-
-    {
-        type: 'column',
-        stacking: true,
-        name: 'Fremdbezug',
-        colorByPoint: false,
-        color: '#FD9710',
-    	{% if (user.period['resolution'] == 'daily') or (user.period['resolution'] == 'minimal') %}
-        data: {{ user.period['outsource']|safe }},
-        {% else %}
-        data: {{ user.demandByMonth|safe }},
-        {% endif %}
-        showInLegend: false
-    }
-
-    ]
-
-
-	});
-
-
-
+		});
 
 	</script>
 	{% endblock %}

@@ -117,6 +117,7 @@ class User:
         self.setCost()
         #self.prosumerSim()
 
+
     def setLoadProfile(self):
         demand, production = LoadConsumerData(self.fileName)
         setattr(self, 'demand', demand)
@@ -126,7 +127,7 @@ class User:
         valsPerMonth = []
         for _k in range(len(cMonthVec) - 1):
             Pmonth = self.demand[cMonthVec[_k]:cMonthVec[_k + 1]]
-            valsPerMonth.append(round(np.sum(Pmonth * DELTAT)))
+            valsPerMonth.append(round(np.sum(Pmonth * DELTAT), 2))
 
         setattr(self, 'demandByMonth', valsPerMonth)
 
@@ -142,7 +143,7 @@ class User:
         valsPerMonth = []
         for _k in range(len(cMonthVec) - 1):
             Pmonth = self.production[cMonthVec[_k]:cMonthVec[_k + 1]]
-            valsPerMonth.append(round(np.sum(Pmonth * DELTAT)))
+            valsPerMonth.append(round(np.sum(Pmonth * DELTAT), 2))
         setattr(self, 'productionByMonth', valsPerMonth)
 
 
@@ -204,6 +205,15 @@ class User:
         # print(len(dailyAggregatedConnections))
         # print(dailyAggregatedConnections)
         setattr(self, 'dailyAggregatedConnections', dailyAggregatedConnections)
+
+    def setMonthlyAggregatedConnections(self):
+        monthlyAggregatedConnections = []
+        if hasattr(self, 'connections'):
+            for month in range(12):
+                start = sum(MONTHVEC[0:month + 1])
+                stop = sum(MONTHVEC[0:month + 2])
+                monthlyAggregatedConnections.append(self.aggregateDailyConnections(self.dailyAggregatedConnections[start:stop]))
+        setattr(self, 'monthlyAggregatedConnections', monthlyAggregatedConnections)
 
     def aggregateDailyConnections(self, dailyConnections):
         aggregatedConnections = {}

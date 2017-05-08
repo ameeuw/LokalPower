@@ -54,6 +54,10 @@ class User(object):
         setattr(self, 'demand', demand)
         setattr(self, 'production', production)
 
+        if (len(self.demand) != 35136) or ((len(self.production) != 35136) or (len(self.production) != 0)):
+            print("\nUser: {}\nlen(demand): {}\nlen(production): {}".format(self.Id, len(self.demand), len(self.production)))
+
+
     def DemByMonth(self):  # demand by month
         valsPerMonth = []
         for _k in range(len(cMonthVec) - 1):

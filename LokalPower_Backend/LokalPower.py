@@ -140,6 +140,8 @@ class LokalPower(object):
         ids = []
 
         for i in range(len(self.users)):
+            #if timeSlice > 15000:
+            #    print(self.users[i].Id)
             demand = int(self.users[i].demand[timeSlice])
             # print('USER: {} - DEMAND: {}'.format(self.users[i].Id, demand))
             try:
