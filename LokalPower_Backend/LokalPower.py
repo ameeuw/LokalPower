@@ -27,6 +27,7 @@ class LokalPower(object):
         n = len(demands)
         start_nodes = []
         end_nodes = []
+
         for i in range(n):
             for j in delete(range(n),i):
                 # only production can give energy away
@@ -44,7 +45,7 @@ class LokalPower(object):
             _weight = (self.getGeoDistance(_start, _end, locations))
             _capacity = -G.node[_start]['demand']
             #print(_capacity)
-            G.add_edge(_start, _end, weight = _weight, capacity = _capacity, distance = self.getGeoDistance(_start, _end, locations))
+            G.add_edge(_start, _end, weight=_weight, capacity=_capacity, distance=self.getGeoDistance(_start, _end, locations))
         return G
 
     def flowToConsumerDict(self, flowDict, G):
@@ -76,7 +77,7 @@ class LokalPower(object):
 
                     if fromId not in producerDict.keys():
                         producerDict[fromId] = []
-                        producerDict[fromId].append({'from' : fromIndex, 'to': toIndex, 'distance': distance, 'energy' : energy})
+                    producerDict[fromId].append({'from' : fromIndex, 'to': toIndex, 'distance': distance, 'energy' : energy})
         return producerDict
 
     def getConsumerDicts(self, start, stop):
