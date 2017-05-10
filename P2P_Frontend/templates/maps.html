@@ -97,10 +97,10 @@
                                               </div>
                                               <div class="row">
                                                   <div class="col-sm-1">
-                                                      {{ (user.period['kpiProduction'] * user.period['kpiSelfConsumption'] / 100)|round(1) }} kWh
+                                                      {{ user.period['sum_self_consumption'] | round(1) }} kWh
                                                   </div>
                                                   <div class="col-sm-1">
-                                                      {{ user.period['kpiAutarky']|round(1) }} %
+                                                      {{ user.period['kpi_autarky']|round(1) }} %
                                                   </div>
                                               </div>
                                           </div>
@@ -123,10 +123,10 @@
                                               </div>
                                               <div class="row">
                                                   <div class="col-sm-1">
-                                                      {{ user.period['categorized_connections']['local'] | round(1)  }} kWh
+                                                      {{ user.period['categorized_connections']['local']['sum'] | round(1)  }} kWh
                                                   </div>
                                                   <div class="col-sm-1">
-                                                      {{ (user.period['categorized_connections']['local'] / user.period['kpiConsumption'] * 100) | round(1)  }} %
+                                                      {{ (user.period['categorized_connections']['local']['sum'] / user.period['sum_consumption'] * 100) | round(1)  }} %
                                                   </div>
                                               </div>
                                           </div>
@@ -140,24 +140,16 @@
                                                     <th>Distanz</th>
                                                     <th>Anteil</th>
                                                 </tr>
-                                                {% for k in kWh_SharesBySource %}
-
-                                                {% if (dFromUserordered[loop.index0]) < 10 and (producerNames[loop.index0] != user.index)%}
+                                                {% for entry in user.period['categorized_connections']['local']['list'] %}
                                                 <tr>
-                                                  {% if producerNames[loop.index0] != user.index %}
-                                                    <td>{{ descriptions[producerNames[loop.index0]]['NAME'] }}</td>
-                                                  {% else %}
-                                                    <td><b>Eigenverbrauch</b></td>
-                                                  {% endif %}
-                                                    <td> {{ dFromUserordered[loop.index0]|round(2) }} km</td>
-                                                    {% if k < 0.01 %}
+                                                    <td>{{ descriptions[entry['supplier_id']]['NAME'] }}</td>
+                                                    <td>{{ entry['distance'] }} km</td>
+                                                    {% if (entry['energy'] / user.period['sum_consumption']) < 0.01 %}
                                                     <td> < 1 %</td>
                                                     {% else %}
-                                                    <td> {{ k * 100 }}</td>
+                                                    <td> {{ ((entry['energy'] / user.period['sum_consumption']) * 100) | round(1) }}</td>
                                                     {% endif %}
                                                 </tr>
-                                                {% endif %}
-
                                                 {% endfor %}
                                             </table>
                                         </div>
@@ -176,10 +168,10 @@
                                               </div>
                                               <div class="row">
                                                   <div class="col-sm-1">
-                                                      {{ user.period['categorized_connections']['grisons']|round(1)  }} kWh
+                                                      {{ user.period['categorized_connections']['grisons']['sum'] | round(1)  }} kWh
                                                   </div>
                                                   <div class="col-sm-1">
-                                                      {{ (user.period['categorized_connections']['grisons'] / user.period['kpiConsumption'] * 100)|round(1)  }} %
+                                                      {{ (user.period['categorized_connections']['grisons']['sum'] / user.period['sum_consumption'] * 100)|round(1)  }} %
                                                   </div>
                                               </div>
                                           </div>
@@ -193,16 +185,16 @@
                                                     <th>Distanz</th>
                                                     <th>Anteil</th>
                                                 </tr>
-                                                {% for k in kWh_SharesBySource %}
-
-                                                {% if (dFromUserordered[loop.index0] > 10) and (dFromUserordered[loop.index0] < 50) %}
+                                                {% for entry in user.period['categorized_connections']['grisons']['list'] %}
                                                 <tr>
-                                                    <td>{{ descriptions[producerNames[loop.index0]]['NAME'] }}</td>
-                                                    <td> {{ dFromUserordered[loop.index0] }} km</td>
-                                                    <td> {{k * 100}} %</td>
+                                                    <td>{{ descriptions[entry['supplier_id']]['NAME'] }}</td>
+                                                    <td>{{ entry['distance'] }} km</td>
+                                                    {% if (entry['energy'] / user.period['sum_consumption']) < 0.01 %}
+                                                    <td> < 1 %</td>
+                                                    {% else %}
+                                                    <td> {{ ((entry['energy'] / user.period['sum_consumption']) * 100) | round(1) }}</td>
+                                                    {% endif %}
                                                 </tr>
-                                                {% endif %}
-
                                                 {% endfor %}
                                             </table>
                                         </div>
@@ -221,10 +213,10 @@
                                           </div>
                                               <div class="row">
                                                   <div class="col-sm-1">
-                                                      {{ user.period['categorized_connections']['other']|round(1)  }} kWh
+                                                      {{ user.period['categorized_connections']['other']['sum'] | round(1)  }} kWh
                                                   </div>
                                                   <div class="col-sm-1">
-                                                      {{ (user.period['categorized_connections']['other'] / user.period['kpiConsumption'] * 100)|round(1)  }} %
+                                                      {{ (user.period['categorized_connections']['other']['sum'] / user.period['sum_consumption'] * 100)|round(1)  }} %
                                                   </div>
                                               </div>
                                       </div>

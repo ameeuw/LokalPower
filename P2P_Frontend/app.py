@@ -4,6 +4,7 @@ import os.path
 import pandas as pd
 import ast
 import math
+from operator import itemgetter
 
 import numpy as np
 from flask import Flask, render_template, url_for, request, send_file
@@ -71,7 +72,8 @@ def setup_data():
 
     print('Done.')
 
-    init_period()
+    #init_period()
+    get_period()
 
 
 def get_period(resolution='monthly', month=None, day=None):
@@ -96,25 +98,29 @@ def get_period(resolution='monthly', month=None, day=None):
     timely_aggregated_connections = []
     aggregated_connections = []
     detail_connections = {}
-    categorized_connections = {'self': 0, 'local': 0, 'grisons': 0, 'other': 0}
+    categorized_connections = {'self': {'sum': 0, 'list': []},
+                               'local': {'sum': 0, 'list': []},
+                               'grisons': {'sum': 0, 'list': []},
+                               'other': {'sum': 0, 'list': []}}
 
 
     if resolution == 'daily':
         # View month with data by day
-        if month is not None:
+        if (month is not None) and (month in monthNames.keys()):
             start = sum(MONTHVEC[0:monthNumbers[month]])
             stop = sum(MONTHVEC[0:monthNumbers[month]+1])
         else:
             # Default to January if month is not set
             start = 0
             stop = sum(MONTHVEC[0:2])
+            month = 'Jan'
         name = '{} 2016'.format(monthNames[month])
 
         categories = range(1, MONTHVEC[monthNumbers[month]]+1)
 
         demand = user.demandByDay[start:stop]
         production = user.productionByDay[start:stop]
-        timely_aggregated_connections = user.dailyAggegatedConnections[start:stop]
+        timely_aggregated_connections = user.dailyAggregatedConnections[start:stop]
 
     elif resolution == 'minimal':
         # View 24 hours with data by 15 minutes
@@ -124,7 +130,9 @@ def get_period(resolution='monthly', month=None, day=None):
             stop = now
         else:
             # Default to specific day
-            now = int( (244 + 6) * 24 / DELTAT)
+            month = 244
+            day = 6
+            now = int((month + day) * 24 / DELTAT)
             start = now - int(24 / DELTAT)
             stop = now
 
@@ -134,7 +142,7 @@ def get_period(resolution='monthly', month=None, day=None):
             if month == 0:
                 break
             month_index += 1
-        month_name = monthNames[month_index]
+        month_name = monthNameArray[month_index]
         name = '{}. {} 2016'.format(day, month_name)
 
         categories = []
@@ -169,6 +177,7 @@ def get_period(resolution='monthly', month=None, day=None):
         # Default to full year, data by month
         start = 0
         stop = 35136
+        resolution = 'monthly'
         name = 'Jahr 2016'
         categories = ['Jan', 'Feb', 'Mar', 'Apr', 'Mai', 'Jun', 'Jul', 'Aug', 'Sep', 'Okt', 'Nov', 'Dez']
         demand = user.demandByMonth
@@ -181,32 +190,45 @@ def get_period(resolution='monthly', month=None, day=None):
     for connections in timely_aggregated_connections:
         for supplier_id in connections.keys():
             if supplier_id not in detail_connections.keys():
-                detail_connections['supplier_id'] = []
+                detail_connections[supplier_id] = []
 
     for connections in timely_aggregated_connections:
         for supplier_id, connection in connections.iteritems():
-            detail_connections['supplier_id'].append(connection['energy'] / 1000)
+            detail_connections[supplier_id].append(connection['energy'] / 1000)
 
         for supplier_id in detail_connections.keys():
             if supplier_id not in connections.keys():
-                detail_connections['supplier_id'].append(0)
+                detail_connections[supplier_id].append(0)
 
     # Fill categorized_connections
     for supplier_id, connections in detail_connections.iteritems():
-        supplier_distance = round(vincenty(user.location), locations[supplier_id].km, 2)
+        supplier_distance = round(vincenty(user.location, locations[supplier_id]).km, 2)
+        list_entry = {}
 
+        list_entry['supplier_id'] = supplier_id
+        list_entry['distance'] = supplier_distance
+        list_entry['energy'] = sum(connections)
+
+        supplier_category = 'other'
         if (supplier_id == user.index):
-            categorized_connections['self'] += sum(connections)
+            supplier_category = 'self'
         elif supplier_distance < 10:
-            categorized_connections['local'] += sum(connections)
-        elif (supplier_distance > 10) and (supplier_distance < 30):
-            categorized_connections['grisons'] += sum(connections)
-        elif (supplier_distance > 30) or (supplierId == 'GRID'):
-            categorized_connections['other'] += sum(connections)
+            supplier_category = 'local'
+        elif (supplier_distance > 10) and (supplier_distance < 30) and (supplier_id != 'GRID'):
+            supplier_category = 'grisons'
+        elif (supplier_distance > 30) or (supplier_id == 'GRID'):
+            supplier_category = 'other'
 
+        categorized_connections[supplier_category]['sum'] += sum(connections)
+        categorized_connections[supplier_category]['list'].append(list_entry)
 
-    self_consumption = 0
-    if user.index in detail_connections.keys():
+    # sort lists by distance
+    categorized_connections['local']['list'] = sorted(categorized_connections['local']['list'], key=itemgetter('energy'), reverse=True)
+    categorized_connections['grisons']['list'] = sorted(categorized_connections['grisons']['list'], key=itemgetter('energy'), reverse=True)
+    categorized_connections['other']['list'] = sorted(categorized_connections['other']['list'], key=itemgetter('energy'), reverse=True)
+
+    self_consumption = [0]
+    if user.index in detail_connections:
         self_consumption = detail_connections[user.index]
 
     sum_consumption = round(sum(demand), 2)
@@ -215,13 +237,13 @@ def get_period(resolution='monthly', month=None, day=None):
 
     kpi_self_consumption = 0
     if sum_production > 0:
-        kpi_self_consumption = sum_self_consumption / sum_production
+        kpi_self_consumption = round(sum_self_consumption / sum_production * 100, 2)
 
     kpi_autarky = 0
     if sum_consumption > 0:
-        kpi_autarky = sum_self_consumption / sum_consumption
+        kpi_autarky = round(sum_self_consumption / sum_consumption * 100, 2)
 
-
+    user.period['resolution'] = resolution
     user.period['start'] = start
     user.period['stop'] = stop
     user.period['name'] = name
@@ -238,6 +260,15 @@ def get_period(resolution='monthly', month=None, day=None):
     user.period['sum_self_consumption'] = sum_self_consumption
     user.period['kpi_self_consumption'] = kpi_self_consumption
     user.period['kpi_autarky'] = kpi_autarky
+
+    #print(user.period)
+
+    print('\n\n')
+    print('connections')
+    print(user.dailyAggregatedConnections)
+    print('deliveries')
+    print(user.dailyAggregatedDeliveries)
+    print('\n\n')
 
 
     print('Getting {} data ({} - {})'.format(resolution, start, stop))
@@ -587,46 +618,27 @@ def setAggregatedConnections(start=0, end=36136, ref='dashboard'):
 
 @app.route("/setResolution/<string:resolution>/")
 def setResolution(resolution='monthly'):
+    get_period(resolution = resolution)
 
-    if resolution=='monthly':
-        init_period()
-
-    if resolution=='daily':
-        getMonthlyGraph(month='Jan')
-
-    if hasattr(user, 'period'):
-        if user.period['resolution'] == 'monthly':
-            user.aggregatedConnections = user.aggregateDailyConnections(user.dailyAggregatedConnections)
-
-        user.period['resolution'] = resolution
-        print('Setting user.period[resolution] to {}'.format(resolution))
-
-    #if resolution == 'monthly':
-    #    user.aggregatedConnections = user.aggregateDailyConnections(user.dailyAggregatedConnections)
-
-    user.resolution = resolution
     print('Setting user resolution to {}'.format(resolution))
-
 
     supplierIdsOrdered, kWhSharesBySourceOrdered, dFromUserordered = getOrderedItems(getDFromUser(),
                                                                                      user.getKWhBySource())
     return render_template('dashboard.html', user=user, producerNames=supplierIdsOrdered,
                            kWh_SharesBySource=kWhSharesBySourceOrdered.tolist(), descriptions=descriptions)
 
-@app.route("/setPeriod/<int:start>/<int:stop>/<int:resolution>")
-def setPeriod(start, stop, resolution):
-    if (resolution == 15):
-        user.period["resolution"] = 'minimal'
-        user.period["name"] = "Letzte 24 Stunden"
-    elif ( resolution == 1440):
-        user.period["resolution"] = 'daily'
-    elif (resolution == 10080):
-        user.period["resolution"] = 'weekly'
-    else:
-        user.period["resolution"] = 'monthly'
 
 @app.route("/getLast24hours/<int:month>/<int:day>")
 def getLast24hours(month=244, day=10):
+    get_period('minimal', month=month, day=day)
+
+    supplierIdsOrdered, kWhSharesBySourceOrdered, dFromUserordered = getOrderedItems(getDFromUser(),
+                                                                                     user.getKWhBySource())
+    return render_template('dashboard.html', user=user, producerNames=supplierIdsOrdered,
+                           kWh_SharesBySource=kWhSharesBySourceOrdered.tolist(), descriptions=descriptions, dFromUserordered=dFromUserordered)
+
+
+def _getLast24hours(month=244, day=10):
     DELTAT = 0.25  # hours
     now = int((month + day) * 24 / DELTAT)
 
@@ -781,6 +793,14 @@ def getLast24hours(month=244, day=10):
 
 @app.route("/getMonthlyGraph/<string:month>/")
 def getMonthlyGraph(month='Jan'):
+    get_period('daily', month=month)
+
+    supplierIdsOrdered, kWhSharesBySourceOrdered, dFromUserordered = getOrderedItems(getDFromUser(),
+                                                                                     user.getKWhBySource())
+    return render_template('dashboard.html', user=user, producerNames=supplierIdsOrdered,
+                           kWh_SharesBySource=kWhSharesBySourceOrdered.tolist(), descriptions=descriptions, dFromUserordered=dFromUserordered)
+
+def _getMonthlyGraph(month='Jan'):
     user.resolution = 'daily'
     user.month = month
 

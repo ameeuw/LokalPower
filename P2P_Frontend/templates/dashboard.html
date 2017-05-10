@@ -75,7 +75,7 @@
 			align: 'left'
 		},
 		subtitle: {
-			text: {{ user.period['kpiConsumption'] }}
+			text: '100 % = {{ user.period['sum_consumption'] }} kWh'
 		},
 		tooltip: {
 			pointFormat: '{series.name}: <b>{point.percentage:.1f}%</b>'
@@ -103,10 +103,10 @@
 			innerSize: '60%',
 			data: [
 
-					{% for category, energy in user.period['categorized_connections'].iteritems() %}
+					{% for category, category_dict in user.period['categorized_connections'].iteritems() %}
 					{
 						name: '{{ category | replace("self","Selbstversorgung") | replace("local","Lokal") | replace("grisons","Graubünden") | replace("other","Sonstige") }}',
-						y: {{ energy }},
+						y: {{ category_dict['sum'] }},
 						color: '{{ category | replace("self","#08BB1E") | replace("local","#F1750A") | replace("grisons","#F1150A") | replace("other","#078C92") }}'
 					},
 					{% endfor %}
@@ -115,7 +115,7 @@
 		legend: {
 			layout: 'vertical',
 			align: 'right',
-			verticalAlign: 'middle',
+			verticalAlign: 'bottom',
         	labelFormatter: function() {
 				return this.name + " (" + this.percentage.toFixed(1) + " %)";
 			}
@@ -200,13 +200,13 @@
 
 		series: [
 
-		{% if user.annualProduction > 0 %}
+		{% if user.period['sum_production'] > 0 %}
 		{
 			type: 'spline',
 			name: 'Produktion',
 			colorByPoint: false,
 			color: '#FFA960',
-			data: {{ user.period['production']|safe }},
+			data: {{ user.period['production'] | safe }},
 			showInLegend: true
 		},
 
@@ -217,7 +217,7 @@
 			name: 'Eigenverbrauch',
 			colorByPoint: false,
 			color: '#08BB1E',
-			data: {{ user.period['selfConsumption']|safe }},
+			data: {{ user.period['self_consumption'] | safe }},
 			showInLegend: true
 		},
 		{% endif %}
@@ -228,7 +228,7 @@
 			name: 'Verbrauch',
 			colorByPoint: false,
 			color: '#FF6860',
-			data: {{ user.period['demand']|safe }},
+			data: {{ user.period['demand'] | safe }},
 			showInLegend: true
 		}
 

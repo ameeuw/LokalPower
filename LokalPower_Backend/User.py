@@ -31,10 +31,10 @@ class User(object):
         self.Id = id
         self.SetLoadProfile()
         self.DemByMonth()
-        self.SetAnnualDemand()
-        self.Price = 0.15  # Fr/kWh
-        self.PriceGrid = 0
-        self.SetCost()
+        #self.SetAnnualDemand()
+        #self.Price = 0.15  # Fr/kWh
+        #self.PriceGrid = 0
+        #self.SetCost()
 
     def LoadConsumerData(self, fname):
         _dat = pd.read_csv(fname, header=None, delimiter=';')
@@ -67,7 +67,7 @@ class User(object):
         setattr(self, 'DemandByMonth', valsPerMonth)
 
     def SetAnnualDemand(self):
-        setattr(self, 'AnnualDemand', np.round(np.sum(self.demand * DELTAT) / 1000).astype(int)) # kWh
+        setattr(self, 'AnnualfDemand', np.round(np.sum(self.demand * DELTAT) / 1000).astype(int)) # kWh
 
     def SetPeakDemandPerMonth(self):
         setattr(self, 'PeakDemandPerMonth', np.max(self.demand * DELTAT))

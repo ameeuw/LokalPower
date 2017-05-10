@@ -242,10 +242,10 @@ class User:
                         toId = delivery['toId']
                         if toId not in aggregatedDeliveries.keys():
                             aggregatedDeliveries[toId] = {}
-                            aggregatedDeliveries[toId]['energy'] = delivery['energy'] * DELTAT
+                            aggregatedDeliveries[toId]['energy'] = delivery['energy']
                             aggregatedDeliveries[toId]['location'] = delivery['to']
                         else:
-                            aggregatedDeliveries[toId]['energy'] += delivery['energy'] * DELTAT
+                            aggregatedDeliveries[toId]['energy'] += delivery['energy']
         return aggregatedDeliveries
 
 
