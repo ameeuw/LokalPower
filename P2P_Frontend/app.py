@@ -194,7 +194,11 @@ def get_period(resolution='monthly', month=None, day=None):
 
     for connections in timely_aggregated_connections:
         for supplier_id, connection in connections.iteritems():
-            detail_connections[supplier_id].append(connection['energy'] / 1000)
+            # NOT REALLY SURE WHY?!?!
+            if resolution == 'monthly':
+                detail_connections[supplier_id].append(connection['energy'] / 1000 / DELTAT)
+            else:
+                detail_connections[supplier_id].append(connection['energy'] / 1000)
 
         for supplier_id in detail_connections.keys():
             if supplier_id not in connections.keys():
@@ -261,122 +265,7 @@ def get_period(resolution='monthly', month=None, day=None):
     user.period['kpi_self_consumption'] = kpi_self_consumption
     user.period['kpi_autarky'] = kpi_autarky
 
-    #print(user.period)
-
-    print('\n\n')
-    print('connections')
-    print(user.dailyAggregatedConnections)
-    print('deliveries')
-    print(user.dailyAggregatedDeliveries)
-    print('\n\n')
-
-
     print('Getting {} data ({} - {})'.format(resolution, start, stop))
-
-
-def init_period():
-    DELTAT = 0.25
-    start = 0
-    stop = 35136
-    user.period['start'] = start
-    user.period['stop'] = stop
-
-    user.period['name'] = 'Jahr 2016'
-    user.period['categories'] = ['Jan', 'Feb', 'Mar', 'Apr', 'Mai', 'Jun', 'Jul', 'Aug', 'Sep', 'Okt', 'Nov', 'Dez']
-    user.period['demand'] = user.demandByMonth
-    user.period['production'] = user.productionByMonth
-    user.period['daily_aggregated_connections'] = user.dailyAggregatedConnections
-    user.period['aggregated_connections'] = user.aggregateDailyConnections(user.dailyAggregatedConnections)
-    user.period['start'] = 0
-    user.period['stop'] = 35136
-
-
-    detailConnections = {}
-    for monthConnections in user.monthlyAggregatedConnections:
-        for supplierId in detailConnections.keys():
-            if supplierId not in monthConnections.keys():
-                detailConnections[supplierId].append(0)
-
-        for supplierId, connection in monthConnections.iteritems():
-            if supplierId not in detailConnections.keys():
-                detailConnections[supplierId] = []
-            detailConnections[supplierId].append(connection['energy'] / 1000. / DELTAT)
-
-
-    categorized_connections = {'self': 0, 'local': 0, 'grisons': 0, 'other': 0}
-    for supplierId, connections in detailConnections.iteritems():
-        supplier_distance = round(vincenty(user.location, locations[supplierId]).km, 2)
-        if (supplierId == user.index):
-            categorized_connections['self'] += sum(connections)
-        elif supplier_distance < 10:
-            categorized_connections['local'] += sum(connections)
-        elif (supplier_distance > 10) and (supplier_distance < 30):
-            categorized_connections['grisons'] += sum(connections)
-        elif (supplier_distance > 30) or (supplierId == 'GRID'):
-            categorized_connections['other'] += sum(connections)
-
-    user.period['categorized_connections'] = categorized_connections
-    user.period['detailConnections'] = detailConnections
-    print(categorized_connections)
-    print("Sum: {}".format(sum(categorized_connections.values())))
-
-    if user.index in user.period['detailConnections']:
-        user.period['selfConsumption'] = user.period['detailConnections'][user.index]
-    else:
-        user.period['selfConsumption'] = [0]
-
-    #user.period['outsource'] = np.subtract(user.period['demand'], user.period['selfConsumption']).tolist()
-
-    #user.period['contribution'] = np.subtract(user.period['production'], user.period['selfConsumption']).tolist()
-
-
-    user.period['kpiConsumption'] = round( sum(user.period['demand']) , 2)
-    print('kpiConsumption : {}'.format(user.period['kpiConsumption']))
-
-    #user.period['kpiOutsource'] = round( sum(user.period['outsource']) / sum(user.period['demand']) * 100, 2)
-    #print('kpiOutsource : {}'.format(user.period['kpiOutsource']))
-
-    user.period['kpiAutarky'] = round( sum(user.period['selfConsumption']) / sum(user.period['demand']) * 100, 2)
-    print('kpiAutarky : {}'.format(user.period['kpiAutarky']))
-
-    user.period['kpiProduction'] = round( sum(user.period['production']), 2)
-    print('kpiProduction : {}'.format(user.period['kpiProduction']))
-
-    if (sum(user.period['production']) > 0):
-        user.period['kpiSelfConsumption'] = round( sum(user.period['selfConsumption']) / sum(user.period['production']) * 100, 2)
-    else:
-        user.period['kpiSelfConsumption'] = 0
-    print('kpiSelfConsumption : {}'.format(user.period['kpiSelfConsumption']))
-
-    if (sum(user.period['production']) > 0):
-        # user.period['kpiContribution'] = round( sum(user.period['contribution']) / sum(user.period['production']) * 100, 2)
-        user.period['kpiContribution'] = 0
-    else:
-        user.period['kpiContribution'] = 0
-    print('kpiContribution : {}'.format(user.period['kpiContribution']))
-
-
-
-def getDFromUser():
-    dFromUser = []
-    for supplierId, supplyDict in user.aggregatedConnections.iteritems():
-        dFromUser.append(round(vincenty(user.location, locations[supplierId]).km, 2))
-    return dFromUser
-
-def getOrderedItems(dFromUser, kWhBySource):
-    order = np.argsort(kWhBySource)[::-1]
-    dFromUserordered = []
-    kWhBySourceOrdered = []
-    supplierIdsOrdered = []
-
-    for idx in order:
-        dFromUserordered.append(dFromUser[idx])
-        supplierIdsOrdered.append(user.aggregatedConnections.keys()[idx])
-        kWhBySourceOrdered.append(kWhBySource[idx])
-
-    kWhSharesBySourceOrdered = np.around(kWhBySourceOrdered / np.sum(kWhBySourceOrdered), 3)
-
-    return supplierIdsOrdered, kWhSharesBySourceOrdered, dFromUserordered
 
 # google Maps Object
 
@@ -531,8 +420,7 @@ GoogleMaps(app)
 
 @app.route("/")
 def home():
-    supplierIdsOrdered, kWhSharesBySourceOrdered, dFromUserordered = getOrderedItems(getDFromUser(), user.getKWhBySource())
-    return render_template('dashboard.html', user=user, producerNames=supplierIdsOrdered, kWh_SharesBySource=kWhSharesBySourceOrdered.tolist(), descriptions=descriptions)
+    return render_template('dashboard.html', user=user, descriptions=descriptions)
 
 @app.after_request
 def add_header(response):
@@ -559,9 +447,8 @@ def maps():
 
 @app.route("/osmaps")
 def osmaps():
-    supplierIdsOrdered, kWhSharesBySourceOrdered, dFromUserordered = getOrderedItems(getDFromUser(), user.getKWhBySource())
     generateMap(user.aggregatedConnections)
-    return render_template('maps.html', user=user, producerNames=supplierIdsOrdered, kWh_SharesBySource=kWhSharesBySourceOrdered.tolist(), dFromUserordered=dFromUserordered, descriptions=descriptions)
+    return render_template('maps.html', user=user, descriptions=descriptions)
 
 
 @app.route("/sinks")
@@ -578,43 +465,12 @@ def sinks():
     )
     return render_template('maps.html', sndmap=sndmap, user=user)
 
-@app.route("/community")
-def community():
-    supplierIdsOrdered, kWhSharesBySourceOrdered, dFromUserordered = getOrderedItems(getDFromUser(), user.getKWhBySource())
-    return render_template('community.html', user=user, kWh_SharesBySource=kWhSharesBySourceOrdered.tolist(),
-                           dFromUser=dFromUserordered, d=np.dot(kWhSharesBySourceOrdered, dFromUserordered), producerNames=supplierIdsOrdered, descriptions=descriptions)
-
 
 @app.route("/details")
 def details():
-    supplierIdsOrdered, kWhSharesBySourceOrdered, dFromUserordered = getOrderedItems(getDFromUser(), user.getKWhBySource())
 
-    return render_template('details.html', user=user, producerNames=supplierIdsOrdered,
-                           kWh_SharesBySource=kWhSharesBySourceOrdered.tolist(), descriptions=descriptions)
+    return render_template('details.html', user=user, descriptions=descriptions)
 
-@app.route("/setAggregatedConnections/<int:start>/<int:end>/")
-def setAggregatedConnections(start=0, end=36136, ref='dashboard'):
-    print("Getting aggregated connections from {} to {} for {}".format(start, end, ref))
-    print(request.path)
-    user.setAggregatedConnections(start=start, end=end)
-    supplierIdsOrdered, kWhSharesBySourceOrdered, dFromUserordered = getOrderedItems(getDFromUser(), user.getKWhBySource())
-
-    if ref=='dashboard':
-        return render_template('dashboard.html', user=user, producerNames=supplierIdsOrdered,
-                               kWh_SharesBySource=kWhSharesBySourceOrdered.tolist(), descriptions=descriptions)
-
-    if ref=='maps':
-        markerList, paths = getMarkerList(user.aggregatedConnections)
-        sndmap = Map(
-            identifier="sndmap",
-            lat=user.location[0],
-            lng=user.location[1],
-            style="",
-            markers=markerList,
-            polylines=paths
-        )
-        return render_template('maps.html', sndmap=sndmap, user=user, producerNames=supplierIdsOrdered,
-                               kWh_SharesBySource=kWhSharesBySourceOrdered.tolist(), descriptions=descriptions)
 
 @app.route("/setResolution/<string:resolution>/")
 def setResolution(resolution='monthly'):
@@ -622,291 +478,20 @@ def setResolution(resolution='monthly'):
 
     print('Setting user resolution to {}'.format(resolution))
 
-    supplierIdsOrdered, kWhSharesBySourceOrdered, dFromUserordered = getOrderedItems(getDFromUser(),
-                                                                                     user.getKWhBySource())
-    return render_template('dashboard.html', user=user, producerNames=supplierIdsOrdered,
-                           kWh_SharesBySource=kWhSharesBySourceOrdered.tolist(), descriptions=descriptions)
-
+    return render_template('dashboard.html', user=user, descriptions=descriptions)
 
 @app.route("/getLast24hours/<int:month>/<int:day>")
 def getLast24hours(month=244, day=10):
     get_period('minimal', month=month, day=day)
 
-    supplierIdsOrdered, kWhSharesBySourceOrdered, dFromUserordered = getOrderedItems(getDFromUser(),
-                                                                                     user.getKWhBySource())
-    return render_template('dashboard.html', user=user, producerNames=supplierIdsOrdered,
-                           kWh_SharesBySource=kWhSharesBySourceOrdered.tolist(), descriptions=descriptions, dFromUserordered=dFromUserordered)
-
-
-def _getLast24hours(month=244, day=10):
-    DELTAT = 0.25  # hours
-    now = int((month + day) * 24 / DELTAT)
-
-    start = now - int((24 / DELTAT))
-    stop = now
-    user.period['start'] = start
-    user.period['stop'] = stop
-
-    print('\n\n!!!')
-    print(start)
-    print(stop)
-
-    print(user.connections[start])
-    print('!!!\n\n')
-
-    user.period = {}
-    user.period['resolution'] = 'minimal'
-
-    MONTHVEC = [0, 31, 29, 31, 30, 31, 30, 31, 31, 30, 31, 30, 31]
-    monthNames = ['Januar', 'Februar', 'Maerz', 'April', 'Mai', 'Juni', 'Juli', 'August', 'September', 'Oktober',
-                  'November', 'Dezember']
-    month_index = 0
-    for days_in_month in MONTHVEC:
-        month = month - days_in_month
-        if month == 0:
-            break
-        month_index += 1
-    month_name = monthNames[month_index]
-    user.period['name'] = '{}. {} 2016'.format(day, month_name)
-    #user.period['name'] = '24 Stunden'
-
-    categories = []
-    for time_slice in range(start, stop):
-        t = 15 * (time_slice - start)
-        h = math.floor(t / 60) % 24
-        m = (t % 60)
-        time_string = '{:0>2}:{:0>2} Uhr'.format(int(h), m)
-        categories.append(time_string)
-
-    user.period['categories'] = categories
-    print("categories: {}".format(user.period['categories']))
-    user.period['demand'] = (np.multiply(user.demand[start:stop], DELTAT)).tolist()
-    print("demand: {}".format(user.period['demand']))
-    user.period['production'] = (np.multiply(user.production[start:stop], DELTAT)).tolist()
-    print("production: {}, sum: {}".format(user.period['production'], sum(user.period['production'])))
-    print("sum: {}".format(sum(user.period['production'])))
-
-    user.period['aggregated_connections'] = user.getAggregatedConnections(start, stop)
-    user.period['quarterhourly_aggregated_connections'] = []
-
-    for timeSlice in range(start, stop):
-        aggregatedConnections = {}
-        if timeSlice in user.connections.keys():
-            timeSliceConnections = user.connections[timeSlice]
-            for connection in timeSliceConnections:
-                fromId = connection['fromId']
-                if fromId not in aggregatedConnections.keys():
-                    aggregatedConnections[fromId] = {}
-                    aggregatedConnections[fromId]['energy'] = connection['energy'] * DELTAT
-                    aggregatedConnections[fromId]['location'] = connection['from']
-                else:
-                    aggregatedConnections[fromId]['energy'] += connection['energy'] * DELTAT
-
-        user.period['quarterhourly_aggregated_connections'].append(aggregatedConnections)
-
-    print('quarterhourly_aggregated_connections: {}'.format(user.period['quarterhourly_aggregated_connections']))
-
-
-    categorized_connections = {'self': 0, 'local': 0, 'grisons': 0, 'other': 0}
-    detailConnections = {}
-
-    for connections in user.period['quarterhourly_aggregated_connections']:
-        for supplierId in connections.keys():
-            if supplierId not in detailConnections.keys():
-                detailConnections[supplierId] = []
-
-    print(detailConnections)
-
-    for connections in user.period['quarterhourly_aggregated_connections']:
-
-        for supplierId, connection in connections.iteritems():
-            detailConnections[supplierId].append(connection['energy'] / 1000.)
-
-        for supplierId in detailConnections.keys():
-            if supplierId not in connections.keys():
-                detailConnections[supplierId].append(0)
-
-
-    categorized_connections = {'self': 0, 'local': 0, 'grisons': 0, 'other': 0}
-    for supplierId, connections in detailConnections.iteritems():
-        supplier_distance = round(vincenty(user.location, locations[supplierId]).km, 2)
-        if (supplierId == user.index):
-            categorized_connections['self'] += sum(connections)
-        elif supplier_distance < 10:
-            categorized_connections['local'] += sum(connections)
-        elif (supplier_distance > 10) and (supplier_distance < 30):
-            categorized_connections['grisons'] += sum(connections)
-        elif (supplier_distance > 30) or (supplierId == 'GRID'):
-            categorized_connections['other'] += sum(connections)
-
-    user.period['categorized_connections'] = categorized_connections
-
-    user.period['detailConnections'] = detailConnections
-    print('detailConnections: {}'.format(user.period['detailConnections']))
-    print('categorized_connections: {}'.format(categorized_connections))
-
-    if user.index in user.period['detailConnections']:
-        user.period['selfConsumption'] = user.period['detailConnections'][user.index]
-    else:
-        user.period['selfConsumption'] = [0]
-    print('selfConsumption: {}'.format(user.period['selfConsumption']))
-
-    #user.period['outsource'] = np.subtract(user.period['demand'], user.period['selfConsumption']).tolist()
-    #print('outsource: {}'.format(user.period['outsource']))
-
-    #user.period['contribution'] = np.subtract(user.period['production'], user.period['selfConsumption']).tolist()
-    #print('contribution: {}'.format(user.period['contribution']))
-
-    user.period['kpiConsumption'] = round( sum(user.period['demand']) , 2)
-    print('kpiConsumption : {}'.format(user.period['kpiConsumption']))
-
-    #user.period['kpiOutsource'] = round( sum(user.period['outsource']) / sum(user.period['demand']) * 100, 2)
-    #print('kpiOutsource : {}'.format(user.period['kpiOutsource']))
-
-    user.period['kpiAutarky'] = round( sum(user.period['selfConsumption']) / sum(user.period['demand']) * 100, 2)
-    print('kpiAutarky : {}'.format(user.period['kpiAutarky']))
-
-    user.period['kpiProduction'] = round( sum(user.period['production']), 2)
-    print('kpiProduction : {}'.format(user.period['kpiProduction']))
-
-    if (sum(user.period['production']) > 0):
-        user.period['kpiSelfConsumption'] = round( sum(user.period['selfConsumption']) / sum(user.period['production']) * 100, 2)
-    else:
-        user.period['kpiSelfConsumption'] = 0
-    print('kpiSelfConsumption : {}'.format(user.period['kpiSelfConsumption']))
-
-    if (sum(user.period['production']) > 0):
-        #user.period['kpiContribution'] = round( sum(user.period['contribution']) / sum(user.period['production']) * 100, 2)
-        user.period['kpiContribution'] = 0
-    else:
-        user.period['kpiContribution'] = 0
-    print('kpiContribution : {}'.format(user.period['kpiContribution']))
-
-
-    user.aggregatedConnections = user.period['aggregated_connections']
-
-    supplierIdsOrdered, kWhSharesBySourceOrdered, dFromUserordered = getOrderedItems(getDFromUser(),
-                                                                                     user.getKWhBySource())
-    return render_template('dashboard.html', user=user, producerNames=supplierIdsOrdered,
-                           kWh_SharesBySource=kWhSharesBySourceOrdered.tolist(), descriptions=descriptions)
+    return render_template('dashboard.html', user=user, descriptions=descriptions)
 
 
 @app.route("/getMonthlyGraph/<string:month>/")
 def getMonthlyGraph(month='Jan'):
     get_period('daily', month=month)
 
-    supplierIdsOrdered, kWhSharesBySourceOrdered, dFromUserordered = getOrderedItems(getDFromUser(),
-                                                                                     user.getKWhBySource())
-    return render_template('dashboard.html', user=user, producerNames=supplierIdsOrdered,
-                           kWh_SharesBySource=kWhSharesBySourceOrdered.tolist(), descriptions=descriptions, dFromUserordered=dFromUserordered)
-
-def _getMonthlyGraph(month='Jan'):
-    user.resolution = 'daily'
-    user.month = month
-
-    user.period = {}
-    user.period['resolution'] = 'daily'
-    user.period['month'] = month
-
-    monthNumbers = {'Jan':1, 'Feb':2, 'Mar':3, 'Apr':4, 'Mai':5, 'Jun':6, 'Jul':7, 'Aug':8, 'Sep':9, 'Okt':10, 'Nov':11, 'Dez':12}
-    monthNames =  {'Jan':'Januar', 'Feb':'Februar', 'Mar':'Maerz', 'Apr':'April', 'May':'Mai', 'Jun':'Juni',
-                   'Jul':'Juli', 'Aug':'August', 'Sep':'September', 'Okt':'Oktober', 'Nov':'November', 'Dez':'Dezember'}
-    MONTHVEC = [0, 31, 29, 31, 30, 31, 30, 31, 31, 30, 31, 30, 31]
-    DELTAT = 0.25  # hours
-
-    start = sum(MONTHVEC[0:monthNumbers[month]])
-    stop = sum(MONTHVEC[0:monthNumbers[month]+1])
-    user.period['start'] = start
-    user.period['stop'] = stop
-
-    print('Getting monthly data for {} (days: {} - {})'.format(month, start, stop))
-
-    user.period['name'] = "{} 2016".format(monthNames[month])
-    user.period['categories'] = range(1, MONTHVEC[monthNumbers[month]]+1)
-    user.period['demand'] = user.demandByDay[start:stop]
-    user.period['production'] = user.productionByDay[start:stop]
-    user.period['daily_aggregated_connections'] = user.dailyAggregatedConnections[start:stop]
-    user.period['aggregated_connections'] = user.aggregateDailyConnections(user.period['daily_aggregated_connections'])
-
-    user.aggregatedConnections = user.period['aggregated_connections']
-
-    print('\n\n!!!!')
-    print(sum(user.demandByDay))
-    print(sum(user.demandByMonth))
-    print(sum(user.demand))
-    print('!!!!\n')
-    categorized_connections = {'self': 0, 'local': 0, 'grisons': 0, 'other': 0}
-
-    detailConnections = {}
-    for dayConnections in user.dailyAggregatedConnections[start:stop]:
-        for supplierId in detailConnections.keys():
-            if supplierId not in dayConnections.keys():
-                detailConnections[supplierId].append(0)
-
-        for supplierId, connection in dayConnections.iteritems():
-            if supplierId not in detailConnections.keys():
-                detailConnections[supplierId] = []
-            detailConnections[supplierId].append(connection['energy'] / 1000.)
-
-
-    categorized_connections = {'self': 0, 'local': 0, 'grisons': 0, 'other': 0}
-    for supplierId, connections in detailConnections.iteritems():
-        supplier_distance = round(vincenty(user.location, locations[supplierId]).km, 2)
-        if (supplierId == user.index):
-            categorized_connections['self'] += sum(connections)
-        elif supplier_distance < 10:
-            categorized_connections['local'] += sum(connections)
-        elif (supplier_distance > 10) and (supplier_distance < 30):
-            categorized_connections['grisons'] += sum(connections)
-        elif (supplier_distance > 30) or (supplierId == 'GRID'):
-            categorized_connections['other'] += sum(connections)
-
-    print(categorized_connections)
-    print("Sum: {}".format(sum(categorized_connections.values())))
-    user.period['categorized_connections'] = categorized_connections
-    user.period['detailConnections'] = detailConnections
-
-
-    if user.index in user.period['detailConnections']:
-        user.period['selfConsumption'] = user.period['detailConnections'][user.index]
-    else:
-        user.period['selfConsumption'] = [0]
-
-    user.period['outsource'] = np.subtract(user.period['demand'], user.period['selfConsumption']).tolist()
-
-    user.period['contribution'] = np.subtract(user.period['production'], user.period['selfConsumption']).tolist()
-
-
-    user.period['kpiConsumption'] = round( sum(user.period['demand']) , 2)
-    print('kpiConsumption : {}'.format(user.period['kpiConsumption']))
-
-    user.period['kpiOutsource'] = round( sum(user.period['outsource']) / sum(user.period['demand']) * 100, 2)
-    print('kpiOutsource : {}'.format(user.period['kpiOutsource']))
-
-    user.period['kpiAutarky'] = round( sum(user.period['selfConsumption']) / sum(user.period['demand']) * 100, 2)
-    print('kpiAutarky : {}'.format(user.period['kpiAutarky']))
-
-    user.period['kpiProduction'] = round( sum(user.period['production']), 2)
-    print('kpiProduction : {}'.format(user.period['kpiProduction']))
-
-    if (sum(user.period['production']) > 0):
-        user.period['kpiSelfConsumption'] = round( sum(user.period['selfConsumption']) / sum(user.period['production']) * 100, 2)
-    else:
-        user.period['kpiSelfConsumption'] = 0
-    print('kpiSelfConsumption : {}'.format(user.period['kpiSelfConsumption']))
-
-    if (sum(user.period['production']) > 0):
-        user.period['kpiContribution'] = round( sum(user.period['contribution']) / sum(user.period['production']) * 100, 2)
-    else:
-        user.period['kpiContribution'] = 0
-    print('kpiContribution : {}'.format(user.period['kpiContribution']))
-
-
-    supplierIdsOrdered, kWhSharesBySourceOrdered, dFromUserordered = getOrderedItems(getDFromUser(),
-                                                                                     user.getKWhBySource())
-    return render_template('dashboard.html', user=user, producerNames=supplierIdsOrdered,
-                           kWh_SharesBySource=kWhSharesBySourceOrdered.tolist(), descriptions=descriptions, dFromUserordered=dFromUserordered)
-
+    return render_template('dashboard.html', user=user, descriptions=descriptions)
 
 @app.route("/batterySim", methods=["GET","POST"])
 def batterySim():

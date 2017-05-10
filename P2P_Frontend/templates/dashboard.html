@@ -26,27 +26,11 @@
 								</div>
 							</div>
 						</div>
+
 						<div class="row" style="height: 48%;">
 							<div class="col-md-12" style="height: 100%; top: 5%">
 								<div class="well" style="height: 100%; overflow-y: scroll;">
-									<div id="sup_table">
-										<table class="table">
-											  <tr>
-												<th>Lieferant</th>
-												<th>Anteil</th>
-											  </tr>
-											  {% for k in kWh_SharesBySource %}
-											  <tr>
-												  {% if producerNames[loop.index0] != user.index %}
-													<td>{{ descriptions[producerNames[loop.index0]]['NAME'] }}</td>
-												  {% else %}
-													<td><b>Selbstversorgung</b></td>
-												  {% endif %}
-												<td> {{k * 100}} %</td>
-											  </tr>
-											  {% endfor %}
-										</table>
-									</div>
+									Second Pie Chart
 								</div>
 							</div>
 						</div>
