@@ -29,6 +29,7 @@ def setup_data():
     descriptions_df = descriptions_df.set_index('ID')
 
     prosumer = 5
+    # STEERCO: 5
     #userId = locations.keys()[prosumer]
     user_index = descriptions_df.index[prosumer]
     user_location = ast.literal_eval(descriptions_df.loc[user_index]['LOCATION'])
@@ -63,13 +64,183 @@ def setup_data():
         user.setDailyAggregatedDeliveries()
         print('aggregate deliveries.')
         user.aggregatedDeliveries = user.aggregateDailyConnections(user.dailyAggregatedDeliveries)
-        print('saving user_data')
 
+
+        print('saving user_data')
         pickle.dump(user, open('../Daten/user_data/user_{}.pickle'.format(user_index), "wb"))
+
     print('Done.')
 
-    user.setMonthlyAggregatedConnections()
     init_period()
+
+
+def get_period(resolution='monthly', month=None, day=None):
+    DELTAT = 0.25
+    monthNumbers = {'Jan': 1, 'Feb': 2, 'Mar': 3, 'Apr': 4, 'Mai': 5, 'Jun': 6, 'Jul': 7, 'Aug': 8, 'Sep': 9, 'Okt': 10,
+                    'Nov': 11, 'Dez': 12}
+
+    monthNames =  {'Jan':'Januar', 'Feb':'Februar', 'Mar':'Maerz', 'Apr':'April', 'May':'Mai', 'Jun':'Juni',
+                   'Jul':'Juli', 'Aug':'August', 'Sep':'September', 'Okt':'Oktober', 'Nov':'November', 'Dez':'Dezember'}
+
+    monthNameArray = ['Januar', 'Februar', 'Maerz', 'April', 'Mai', 'Juni', 'Juli', 'August', 'September', 'Oktober',
+                  'November', 'Dezember']
+
+    MONTHVEC = [0, 31, 29, 31, 30, 31, 30, 31, 31, 30, 31, 30, 31]
+
+    start = 0
+    stop = 0
+    name = ''
+    categories = []
+    demand = []
+    production = []
+    timely_aggregated_connections = []
+    aggregated_connections = []
+    detail_connections = {}
+    categorized_connections = {'self': 0, 'local': 0, 'grisons': 0, 'other': 0}
+
+
+    if resolution == 'daily':
+        # View month with data by day
+        if month is not None:
+            start = sum(MONTHVEC[0:monthNumbers[month]])
+            stop = sum(MONTHVEC[0:monthNumbers[month]+1])
+        else:
+            # Default to January if month is not set
+            start = 0
+            stop = sum(MONTHVEC[0:2])
+        name = '{} 2016'.format(monthNames[month])
+
+        categories = range(1, MONTHVEC[monthNumbers[month]]+1)
+
+        demand = user.demandByDay[start:stop]
+        production = user.productionByDay[start:stop]
+        timely_aggregated_connections = user.dailyAggegatedConnections[start:stop]
+
+    elif resolution == 'minimal':
+        # View 24 hours with data by 15 minutes
+        if (day is not None) and (month is not None):
+            now = int( (month+day) *  24 / DELTAT)
+            start = now - int(24 / DELTAT)
+            stop = now
+        else:
+            # Default to specific day
+            now = int( (244 + 6) * 24 / DELTAT)
+            start = now - int(24 / DELTAT)
+            stop = now
+
+        month_index = 0
+        for days_in_month in MONTHVEC:
+            month = month - days_in_month
+            if month == 0:
+                break
+            month_index += 1
+        month_name = monthNames[month_index]
+        name = '{}. {} 2016'.format(day, month_name)
+
+        categories = []
+        for time_slice in range(start, stop):
+            t = 15 * (time_slice - start)
+            h = math.floor(t / 60) % 24
+            m = (t % 60)
+            time_string = '{:0>2}:{:0>2} Uhr'.format(int(h), m)
+            categories.append(time_string)
+
+        demand = np.multiply( user.demand[start:stop], DELTAT ).tolist()
+        production = np.multiply( user.production[start:stop], DELTAT ).tolist()
+
+        for timeSlice in range(start, stop):
+            aggregatedConnections = {}
+            if timeSlice in user.connections.keys():
+                timeSliceConnections = user.connections[timeSlice]
+                for connection in timeSliceConnections:
+                    fromId = connection['fromId']
+                    if fromId not in aggregatedConnections.keys():
+                        aggregatedConnections[fromId] = {}
+                        aggregatedConnections[fromId]['energy'] = connection['energy'] * DELTAT
+                        aggregatedConnections[fromId]['location'] = connection['from']
+                    else:
+                        aggregatedConnections[fromId]['energy'] += connection['energy'] * DELTAT
+
+            timely_aggregated_connections.append(aggregatedConnections)
+
+        aggregated_connections = user.getAggregatedConnections(start, stop)
+
+    else:
+        # Default to full year, data by month
+        start = 0
+        stop = 35136
+        name = 'Jahr 2016'
+        categories = ['Jan', 'Feb', 'Mar', 'Apr', 'Mai', 'Jun', 'Jul', 'Aug', 'Sep', 'Okt', 'Nov', 'Dez']
+        demand = user.demandByMonth
+        production = user.productionByMonth
+        timely_aggregated_connections = user.monthlyAggregatedConnections
+        aggregated_connections = user.aggregateDailyConnections(user.dailyAggregatedConnections)
+
+
+    # Fill detail_connections
+    for connections in timely_aggregated_connections:
+        for supplier_id in connections.keys():
+            if supplier_id not in detail_connections.keys():
+                detail_connections['supplier_id'] = []
+
+    for connections in timely_aggregated_connections:
+        for supplier_id, connection in connections.iteritems():
+            detail_connections['supplier_id'].append(connection['energy'] / 1000)
+
+        for supplier_id in detail_connections.keys():
+            if supplier_id not in connections.keys():
+                detail_connections['supplier_id'].append(0)
+
+    # Fill categorized_connections
+    for supplier_id, connections in detail_connections.iteritems():
+        supplier_distance = round(vincenty(user.location), locations[supplier_id].km, 2)
+
+        if (supplier_id == user.index):
+            categorized_connections['self'] += sum(connections)
+        elif supplier_distance < 10:
+            categorized_connections['local'] += sum(connections)
+        elif (supplier_distance > 10) and (supplier_distance < 30):
+            categorized_connections['grisons'] += sum(connections)
+        elif (supplier_distance > 30) or (supplierId == 'GRID'):
+            categorized_connections['other'] += sum(connections)
+
+
+    self_consumption = 0
+    if user.index in detail_connections.keys():
+        self_consumption = detail_connections[user.index]
+
+    sum_consumption = round(sum(demand), 2)
+    sum_production = round(sum(production), 2)
+    sum_self_consumption = round(sum(self_consumption), 2)
+
+    kpi_self_consumption = 0
+    if sum_production > 0:
+        kpi_self_consumption = sum_self_consumption / sum_production
+
+    kpi_autarky = 0
+    if sum_consumption > 0:
+        kpi_autarky = sum_self_consumption / sum_consumption
+
+
+    user.period['start'] = start
+    user.period['stop'] = stop
+    user.period['name'] = name
+    user.period['categories'] = categories
+    user.period['demand'] = demand
+    user.period['production'] = production
+    user.period['aggregated_connections'] = aggregated_connections
+    user.period['timely_aggregated_connections'] = timely_aggregated_connections
+    user.period['detail_connections'] = detail_connections
+    user.period['categorized_connections'] = categorized_connections
+    user.period['self_consumption'] = self_consumption
+    user.period['sum_consumption'] = sum_consumption
+    user.period['sum_production'] = sum_production
+    user.period['sum_self_consumption'] = sum_self_consumption
+    user.period['kpi_self_consumption'] = kpi_self_consumption
+    user.period['kpi_autarky'] = kpi_autarky
+
+
+    print('Getting {} data ({} - {})'.format(resolution, start, stop))
 
 
 def init_period():
@@ -90,8 +261,6 @@ def init_period():
 
 
     detailConnections = {}
-    categorized_connections = {'self': 0, 'local': 0, 'grisons': 0, 'other': 0}
-
     for monthConnections in user.monthlyAggregatedConnections:
         for supplierId in detailConnections.keys():
             if supplierId not in monthConnections.keys():
@@ -100,18 +269,20 @@ def init_period():
         for supplierId, connection in monthConnections.iteritems():
             if supplierId not in detailConnections.keys():
                 detailConnections[supplierId] = []
-            detailConnections[supplierId].append(connection['energy'] / 1000.)
+            detailConnections[supplierId].append(connection['energy'] / 1000. / DELTAT)
 
-            supplier_distance = round(vincenty(user.location, locations[supplierId]).km, 2)
 
-            if (supplierId == user.index):
-                categorized_connections['self'] += connection['energy'] / 1000. / DELTAT
-            elif supplier_distance < 10:
-                categorized_connections['local'] += connection['energy'] / 1000. / DELTAT
-            elif (supplier_distance > 10) and (supplier_distance < 30):
-                categorized_connections['grisons'] += connection['energy'] / 1000. / DELTAT
-            elif (supplier_distance > 30):
-                categorized_connections['other'] += connection['energy'] / 1000. / DELTAT
+    categorized_connections = {'self': 0, 'local': 0, 'grisons': 0, 'other': 0}
+    for supplierId, connections in detailConnections.iteritems():
+        supplier_distance = round(vincenty(user.location, locations[supplierId]).km, 2)
+        if (supplierId == user.index):
+            categorized_connections['self'] += sum(connections)
+        elif supplier_distance < 10:
+            categorized_connections['local'] += sum(connections)
+        elif (supplier_distance > 10) and (supplier_distance < 30):
+            categorized_connections['grisons'] += sum(connections)
+        elif (supplier_distance > 30) or (supplierId == 'GRID'):
+            categorized_connections['other'] += sum(connections)
 
     user.period['categorized_connections'] = categorized_connections
     user.period['detailConnections'] = detailConnections
@@ -184,7 +355,13 @@ def generateMap(aggregatedConnections):
     description_texts = {'Hydro1' : 'hydro_klosters.jpeg', 'Hydro2' : 'hydro_kueblis.jpeg', 'Biogas' : 'biomass_raps.jpeg',
                   'PV1': 'solar_bauernhof.jpeg', 'PV2' : 'solar_molkerei.jpeg'}
     print("generating osmap")
+
     osmap = folium.Map(location=user.location, tiles='Stamen Terrain', zoom_start=11, min_zoom=10)
+
+    #osmap = folium.Map(location=user.location, zoom_start=11, min_zoom=10,
+    #                   tiles = 'https://api.mapbox.com/styles/v1/tscheng805/cj2a7l00s004j2sn0f4a938in/tiles/256/{z}/{x}/{y}?access_token=pk.eyJ1IjoidHNjaGVuZzgwNSIsImEiOiJjajJhNzJ1cGIwMDBkMzNvNXdtbDJ5OHhyIn0.veVS3rSwK4U0NoHEWxXK1g',
+    #                   attr = 'XXX Mapbox Attribution')
+
     kWhBySource = user.getKWhBySource()
     autarky, selfConsumption = user.getAutarkySelfConsumption()
 
@@ -449,7 +626,7 @@ def setPeriod(start, stop, resolution):
         user.period["resolution"] = 'monthly'
 
 @app.route("/getLast24hours/<int:month>/<int:day>")
-def getLast24hours(month=4000, day=10):
+def getLast24hours(month=244, day=10):
     DELTAT = 0.25  # hours
     now = int((month + day) * 24 / DELTAT)
 
@@ -467,7 +644,19 @@ def getLast24hours(month=4000, day=10):
 
     user.period = {}
     user.period['resolution'] = 'minimal'
-    user.period['name'] = '24 Stunden'
+
+    MONTHVEC = [0, 31, 29, 31, 30, 31, 30, 31, 31, 30, 31, 30, 31]
+    monthNames = ['Januar', 'Februar', 'Maerz', 'April', 'Mai', 'Juni', 'Juli', 'August', 'September', 'Oktober',
+                  'November', 'Dezember']
+    month_index = 0
+    for days_in_month in MONTHVEC:
+        month = month - days_in_month
+        if month == 0:
+            break
+        month_index += 1
+    month_name = monthNames[month_index]
+    user.period['name'] = '{}. {} 2016'.format(day, month_name)
+    #user.period['name'] = '24 Stunden'
 
     categories = []
     for time_slice in range(start, stop):
@@ -509,35 +698,40 @@ def getLast24hours(month=4000, day=10):
     categorized_connections = {'self': 0, 'local': 0, 'grisons': 0, 'other': 0}
     detailConnections = {}
 
-    for dayConnections in user.period['quarterhourly_aggregated_connections']:
-        for supplierId in dayConnections.keys():
+    for connections in user.period['quarterhourly_aggregated_connections']:
+        for supplierId in connections.keys():
             if supplierId not in detailConnections.keys():
                 detailConnections[supplierId] = []
 
-    for dayConnections in user.period['quarterhourly_aggregated_connections']:
+    print(detailConnections)
 
-        for supplierId, connection in dayConnections.iteritems():
+    for connections in user.period['quarterhourly_aggregated_connections']:
+
+        for supplierId, connection in connections.iteritems():
             detailConnections[supplierId].append(connection['energy'] / 1000.)
 
         for supplierId in detailConnections.keys():
-            if supplierId not in dayConnections.keys():
+            if supplierId not in connections.keys():
                 detailConnections[supplierId].append(0)
 
-            supplier_distance = round(vincenty(user.location, locations[supplierId]).km, 2)
 
-            if (supplierId == user.index):
-                categorized_connections['self'] += connection['energy'] / 1000.
-            elif supplier_distance < 10:
-                categorized_connections['local'] += connection['energy'] / 1000.
-            elif  (supplier_distance > 10) and (supplier_distance < 30):
-                categorized_connections['grisons'] += connection['energy'] / 1000.
-            elif (supplier_distance > 30):
-                categorized_connections['other'] += connection['energy'] / 1000.
+    categorized_connections = {'self': 0, 'local': 0, 'grisons': 0, 'other': 0}
+    for supplierId, connections in detailConnections.iteritems():
+        supplier_distance = round(vincenty(user.location, locations[supplierId]).km, 2)
+        if (supplierId == user.index):
+            categorized_connections['self'] += sum(connections)
+        elif supplier_distance < 10:
+            categorized_connections['local'] += sum(connections)
+        elif (supplier_distance > 10) and (supplier_distance < 30):
+            categorized_connections['grisons'] += sum(connections)
+        elif (supplier_distance > 30) or (supplierId == 'GRID'):
+            categorized_connections['other'] += sum(connections)
 
     user.period['categorized_connections'] = categorized_connections
 
     user.period['detailConnections'] = detailConnections
     print('detailConnections: {}'.format(user.period['detailConnections']))
+    print('categorized_connections: {}'.format(categorized_connections))
 
     if user.index in user.period['detailConnections']:
         user.period['selfConsumption'] = user.period['detailConnections'][user.index]
@@ -634,16 +828,18 @@ def getMonthlyGraph(month='Jan'):
                 detailConnections[supplierId] = []
             detailConnections[supplierId].append(connection['energy'] / 1000.)
 
-            supplier_distance = round(vincenty(user.location, locations[supplierId]).km, 2)
 
-            if (supplierId == user.index):
-                categorized_connections['self'] += connection['energy'] / 1000.
-            elif supplier_distance < 10:
-                categorized_connections['local'] += connection['energy'] / 1000.
-            elif  (supplier_distance > 10) and (supplier_distance < 30):
-                categorized_connections['grisons'] += connection['energy'] / 1000.
-            elif (supplier_distance > 30):
-                categorized_connections['other'] += connection['energy'] / 1000.
+    categorized_connections = {'self': 0, 'local': 0, 'grisons': 0, 'other': 0}
+    for supplierId, connections in detailConnections.iteritems():
+        supplier_distance = round(vincenty(user.location, locations[supplierId]).km, 2)
+        if (supplierId == user.index):
+            categorized_connections['self'] += sum(connections)
+        elif supplier_distance < 10:
+            categorized_connections['local'] += sum(connections)
+        elif (supplier_distance > 10) and (supplier_distance < 30):
+            categorized_connections['grisons'] += sum(connections)
+        elif (supplier_distance > 30) or (supplierId == 'GRID'):
+            categorized_connections['other'] += sum(connections)
 
     print(categorized_connections)
     print("Sum: {}".format(sum(categorized_connections.values())))

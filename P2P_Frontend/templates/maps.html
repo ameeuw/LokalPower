@@ -92,7 +92,7 @@
                                           <div class="container">
                                               <div class="row">
                                                 <h4 class="panel-title">
-                                                  Autarkie
+                                                  Selbstversorgung
                                                 </h4>
                                               </div>
                                               <div class="row">
@@ -123,16 +123,16 @@
                                               </div>
                                               <div class="row">
                                                   <div class="col-sm-1">
-                                                      {{ user.period['categorized_connections']['local']|round(1)  }} kWh
+                                                      {{ user.period['categorized_connections']['local'] | round(1)  }} kWh
                                                   </div>
                                                   <div class="col-sm-1">
-                                                      {{ (user.period['categorized_connections']['local'] / user.period['kpiConsumption'] * 100)|round(1)  }} %
+                                                      {{ (user.period['categorized_connections']['local'] / user.period['kpiConsumption'] * 100) | round(1)  }} %
                                                   </div>
                                               </div>
                                           </div>
                                       </div>
                                       <div id="collapse1" class="panel-collapse collapse in">
-                                        <div class="panel-body" style="overflow-y: scroll; max-height: 40%">
+                                        <div class="panel-body" style="overflow-y: scroll; max-height: 140px">
                                             <table class="table table-sm">
 
                                                 <tr>
@@ -150,7 +150,11 @@
                                                     <td><b>Eigenverbrauch</b></td>
                                                   {% endif %}
                                                     <td> {{ dFromUserordered[loop.index0]|round(2) }} km</td>
-                                                    <td> {{k * 100}} %</td>
+                                                    {% if k < 0.01 %}
+                                                    <td> < 1 %</td>
+                                                    {% else %}
+                                                    <td> {{ k * 100 }}</td>
+                                                    {% endif %}
                                                 </tr>
                                                 {% endif %}
 
@@ -181,7 +185,7 @@
                                           </div>
                                       </div>
                                       <div id="collapse2" class="panel-collapse collapse">
-                                        <div class="panel-body" style="overflow-y: scroll; max-height: 36%">
+                                        <div class="panel-body" style="overflow-y: scroll; max-height: 140px">
                                             <table class="table table-sm">
 
                                                 <tr>

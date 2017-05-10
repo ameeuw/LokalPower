@@ -40,7 +40,7 @@
 												  {% if producerNames[loop.index0] != user.index %}
 													<td>{{ descriptions[producerNames[loop.index0]]['NAME'] }}</td>
 												  {% else %}
-													<td><b>Eigenverbrauch</b></td>
+													<td><b>Selbstversorgung</b></td>
 												  {% endif %}
 												<td> {{k * 100}} %</td>
 											  </tr>
@@ -60,9 +60,11 @@
 	{% block footer %}
 	<script type="text/javascript" src="https://cdn.jsdelivr.net/momentjs/latest/moment.min.js"></script>
 	<!--<script type="text/javascript" src="{{ url_for('static', filename='charts/overview_chart.js') }}"></script>-->
-	<script>
+
+	<script type="text/javascript">
 	Highcharts.chart('pie_chart', {
 		chart: {
+			backgroundColor: '#F5F5F5',
 			plotBackgroundColor: null,
 			plotBorderWidth: null,
 			plotShadow: false,
@@ -103,7 +105,7 @@
 
 					{% for category, energy in user.period['categorized_connections'].iteritems() %}
 					{
-						name: '{{ category | replace("self","Eigenverbrauch") | replace("local","Lokal") | replace("grisons","Graubünden") | replace("other","Sonstige") }}',
+						name: '{{ category | replace("self","Selbstversorgung") | replace("local","Lokal") | replace("grisons","Graubünden") | replace("other","Sonstige") }}',
 						y: {{ energy }},
 						color: '{{ category | replace("self","#08BB1E") | replace("local","#F1750A") | replace("grisons","#F1150A") | replace("other","#078C92") }}'
 					},
@@ -123,6 +125,9 @@
 		Highcharts.Series.prototype.drawPoints = function() { };
 	{% endif %}
 	Highcharts.chart('overview_chart', {
+		chart: {
+			backgroundColor: '#F5F5F5'
+		},
 
 		title: {
 			{% if user.annualProduction > 0 %}
