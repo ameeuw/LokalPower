@@ -22,15 +22,15 @@
 						<div class="row" style="height: 50%">
 							<div class="col-md-12" style="height: 100%">
 								<div class="well" style="height: 100%">
-									<div id="pie_chart" style="height: 100%"></div>
+									<div id="pie_chart_connections" style="height: 100%"></div>
 								</div>
 							</div>
 						</div>
 
 						<div class="row" style="height: 48%;">
 							<div class="col-md-12" style="height: 100%; top: 5%">
-								<div class="well" style="height: 100%; overflow-y: scroll;">
-									Second Pie Chart
+								<div class="well" style="height: 100%;">
+									<div id="pie_chart_deliveries" style="height: 100%"></div>
 								</div>
 							</div>
 						</div>
@@ -46,7 +46,7 @@
 	<!--<script type="text/javascript" src="{{ url_for('static', filename='charts/overview_chart.js') }}"></script>-->
 
 	<script type="text/javascript">
-	Highcharts.chart('pie_chart', {
+	Highcharts.chart('pie_chart_connections', {
 		chart: {
 			backgroundColor: '#F5F5F5',
 			plotBackgroundColor: null,
@@ -62,7 +62,7 @@
 			text: '100 % = {{ user.period['sum_consumption'] }} kWh'
 		},
 		tooltip: {
-			pointFormat: '{series.name}: <b>{point.percentage:.1f}%</b>'
+			pointFormat: '{series.name}: {point.y:.0f} kWh / <b>{point.percentage:.1f}%</b>'
 		},
 		plotOptions: {
 			pie: {
@@ -105,6 +105,69 @@
 			}
 		}
 	});
+
+	Highcharts.chart('pie_chart_deliveries', {
+		chart: {
+			backgroundColor: '#F5F5F5',
+			plotBackgroundColor: null,
+			plotBorderWidth: null,
+			plotShadow: false,
+			type: 'pie'
+		},
+		title: {
+			text: 'Meine Stromsenken',
+			align: 'left'
+		},
+		subtitle: {
+			text: '100 % = {{ user.period['sum_production'] }} kWh'
+		},
+		tooltip: {
+			pointFormat: '{series.name}: {point.y:.0f} kWh / <b>{point.percentage:.1f}%</b>'
+		},
+		plotOptions: {
+			pie: {
+				allowPointSelect: true,
+				cursor: 'pointer',
+				align: 'left',
+				dataLabels: {
+					enabled: false,
+					name: 'Anteile',
+					format: '<b>{point.name}</b>: {point.percentage:.1f} %',
+					style: {
+						color: (Highcharts.theme && Highcharts.theme.contrastTextColor) || 'black'
+					}
+				},
+			showInLegend: true,
+			}
+		},
+		series: [{
+			name: 'Anteil',
+			colorByPoint: true,
+			size: '100%',
+			innerSize: '60%',
+			data: [
+
+					{% for category, category_dict in user.period['categorized_deliveries'].iteritems() %}
+					{
+						name: '{{ category | replace("self","Eigenverbrauch") | replace("local","Lokal") | replace("grisons","Graubünden") | replace("other","Sonstige") }}',
+						y: {{ category_dict['sum'] }},
+						color: '{{ category | replace("self","#08BB1E") | replace("local","#F1750A") | replace("grisons","#F1150A") | replace("other","#078C92") }}'
+					},
+					{% endfor %}
+			]
+		}],
+		legend: {
+			layout: 'vertical',
+			align: 'right',
+			verticalAlign: 'bottom',
+        	labelFormatter: function() {
+				return this.name + " (" + this.percentage.toFixed(1) + " %)";
+			}
+		}
+	});
+
+
+
 	{% if user.period['resolution'] == 'minimal' %}
 		Highcharts.Series.prototype.drawPoints = function() { };
 	{% endif %}

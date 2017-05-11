@@ -63,6 +63,8 @@ def setup_data():
 
         print('daily aggregated deliveries.')
         user.setDailyAggregatedDeliveries()
+        print('monthly aggregated deliveries')
+        user.setMonthlyAggregatedDeliveries()
         print('aggregate deliveries.')
         user.aggregatedDeliveries = user.aggregateDailyConnections(user.dailyAggregatedDeliveries)
 
@@ -103,6 +105,13 @@ def get_period(resolution='monthly', month=None, day=None):
                                'grisons': {'sum': 0, 'list': []},
                                'other': {'sum': 0, 'list': []}}
 
+    timely_aggregated_deliveries = []
+    aggregated_deliveries = []
+    detail_deliveries = {}
+    categorized_deliveries = {'self': {'sum': 0, 'list': []},
+                               'local': {'sum': 0, 'list': []},
+                               'grisons': {'sum': 0, 'list': []},
+                               'other': {'sum': 0, 'list': []}}
 
     if resolution == 'daily':
         # View month with data by day
@@ -114,13 +123,15 @@ def get_period(resolution='monthly', month=None, day=None):
             start = 0
             stop = sum(MONTHVEC[0:2])
             month = 'Jan'
-        name = '{} 2016'.format(monthNames[month])
 
+        name = '{} 2016'.format(monthNames[month])
         categories = range(1, MONTHVEC[monthNumbers[month]]+1)
 
         demand = user.demandByDay[start:stop]
         production = user.productionByDay[start:stop]
         timely_aggregated_connections = user.dailyAggregatedConnections[start:stop]
+
+        timely_aggregated_deliveries = user.dailyAggregatedDeliveries[start:stop]
 
     elif resolution == 'minimal':
         # View 24 hours with data by 15 minutes
@@ -171,7 +182,27 @@ def get_period(resolution='monthly', month=None, day=None):
 
             timely_aggregated_connections.append(aggregatedConnections)
 
+
         aggregated_connections = user.getAggregatedConnections(start, stop)
+
+
+
+        for timeSlice in range(start, stop):
+            aggregatedDeliveries = {}
+            if timeSlice in user.deliveries.keys():
+                timeSliceDeliveries = user.deliveries[timeSlice]
+                for delivery in timeSliceDeliveries:
+                    toId = delivery['toId']
+                    if toId not in aggregatedDeliveries.keys():
+                        aggregatedDeliveries[toId] = {}
+                        aggregatedDeliveries[toId]['energy'] = delivery['energy'] * DELTAT
+                        aggregatedDeliveries[toId]['location'] = delivery['to']
+                    else:
+                        aggregatedDeliveries[toId]['energy'] += delivery['energy'] * DELTAT
+
+            timely_aggregated_deliveries.append(aggregatedDeliveries)
+
+        aggregated_deliveries = user.getAggregatedDeliveries(start, stop)
 
     else:
         # Default to full year, data by month
@@ -185,6 +216,12 @@ def get_period(resolution='monthly', month=None, day=None):
         timely_aggregated_connections = user.monthlyAggregatedConnections
         aggregated_connections = user.aggregateDailyConnections(user.dailyAggregatedConnections)
 
+        timely_aggregated_deliveries = user.monthlyAggregatedDeliveries
+        aggregated_deliveries = user.aggregateDailyDeliveries(user.dailyAggregatedDeliveries)
+
+    print('sum(demandByMonth: {} {}'.format(sum(demand), demand))
+    print('sum(productionByMonth: {} {}'.format(sum(production), production))
+
 
     # Fill detail_connections
     for connections in timely_aggregated_connections:
@@ -194,15 +231,26 @@ def get_period(resolution='monthly', month=None, day=None):
 
     for connections in timely_aggregated_connections:
         for supplier_id, connection in connections.iteritems():
-            # NOT REALLY SURE WHY?!?!
-            if resolution == 'monthly':
-                detail_connections[supplier_id].append(connection['energy'] / 1000 / DELTAT)
-            else:
-                detail_connections[supplier_id].append(connection['energy'] / 1000)
+            detail_connections[supplier_id].append(connection['energy'] / 1000)
 
         for supplier_id in detail_connections.keys():
             if supplier_id not in connections.keys():
                 detail_connections[supplier_id].append(0)
+
+
+    # Fill detail deliveries
+    for deliveries in timely_aggregated_deliveries:
+        for sink_id in deliveries.keys():
+            if sink_id not in detail_deliveries.keys():
+                detail_deliveries[sink_id] = []
+
+    for deliveries in timely_aggregated_deliveries:
+        for sink_id, delivery in deliveries.iteritems():
+            detail_deliveries[sink_id].append(delivery['energy'] / 1000)
+
+        for sink_id in detail_deliveries.keys():
+            if sink_id not in deliveries.keys():
+                detail_deliveries[sink_id].append(0)
 
     # Fill categorized_connections
     for supplier_id, connections in detail_connections.iteritems():
@@ -231,6 +279,35 @@ def get_period(resolution='monthly', month=None, day=None):
     categorized_connections['grisons']['list'] = sorted(categorized_connections['grisons']['list'], key=itemgetter('energy'), reverse=True)
     categorized_connections['other']['list'] = sorted(categorized_connections['other']['list'], key=itemgetter('energy'), reverse=True)
 
+    # Fill categorized_deliveries
+    for sink_id, deliveries in detail_deliveries.iteritems():
+        sink_distance = round(vincenty(user.location, locations[sink_id]).km, 2)
+
+        list_entry = {}
+        list_entry['sink_id'] = sink_id
+        list_entry['distance'] = sink_distance
+        list_entry['energy'] = sum(connections)
+
+        sink_category = 'other'
+        if (sink_id == user.index):
+            sink_category = 'self'
+        elif sink_distance < 10:
+            sink_category = 'local'
+        elif (sink_distance > 10) and (sink_distance < 30) and (sink_id != 'GRID'):
+            sink_category = 'grisons'
+        elif (sink_distance > 30) or (sink_id == 'GRID'):
+            sink_category = 'other'
+
+        categorized_deliveries[sink_category]['sum'] += sum(deliveries)
+        categorized_deliveries[sink_category]['list'].append(list_entry)
+
+    # sort lists by distance
+    categorized_deliveries['local']['list'] = sorted(categorized_deliveries['local']['list'], key=itemgetter('energy'), reverse=True)
+    categorized_deliveries['grisons']['list'] = sorted(categorized_deliveries['grisons']['list'], key=itemgetter('energy'), reverse=True)
+    categorized_deliveries['other']['list'] = sorted(categorized_deliveries['other']['list'], key=itemgetter('energy'), reverse=True)
+
+    print('\ncategorized_deliveries\n{}'.format(categorized_deliveries))
+
     self_consumption = [0]
     if user.index in detail_connections:
         self_consumption = detail_connections[user.index]
@@ -258,6 +335,9 @@ def get_period(resolution='monthly', month=None, day=None):
     user.period['timely_aggregated_connections'] = timely_aggregated_connections
     user.period['detail_connections'] = detail_connections
     user.period['categorized_connections'] = categorized_connections
+    user.period['timely_aggregated_deliveries'] = timely_aggregated_deliveries
+    user.period['detail_deliveries'] = detail_deliveries
+    user.period['categorized_deliveries'] = categorized_deliveries
     user.period['self_consumption'] = self_consumption
     user.period['sum_consumption'] = sum_consumption
     user.period['sum_production'] = sum_production

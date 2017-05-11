@@ -197,39 +197,6 @@ class User:
                             aggregatedConnections[fromId]['energy'] += connection['energy'] * DELTAT
         return aggregatedConnections
 
-    def setDailyAggregatedConnections(self):
-        dailyAggregatedConnections = []
-        if hasattr(self, 'connections'):
-            for day in range(sum(MONTHVEC)):
-                dailyAggregatedConnections.append(self.getAggregatedConnections(day * 24*4, (day+1) * 24*4))
-        # print(len(dailyAggregatedConnections))
-        # print(dailyAggregatedConnections)
-        setattr(self, 'dailyAggregatedConnections', dailyAggregatedConnections)
-
-    def setMonthlyAggregatedConnections(self):
-        monthlyAggregatedConnections = []
-        if hasattr(self, 'connections'):
-            for month in range(12):
-                start = sum(MONTHVEC[0:month + 1])
-                stop = sum(MONTHVEC[0:month + 2])
-                monthlyAggregatedConnections.append(self.aggregateDailyConnections(self.dailyAggregatedConnections[start:stop]))
-        setattr(self, 'monthlyAggregatedConnections', monthlyAggregatedConnections)
-
-    def aggregateDailyConnections(self, dailyConnections):
-        aggregatedConnections = {}
-        for timeSliceConnections in dailyConnections:
-            for fromId, connection in timeSliceConnections.iteritems():
-                if fromId not in aggregatedConnections.keys():
-                    aggregatedConnections[fromId] = {}
-                    aggregatedConnections[fromId]['energy'] = connection['energy'] * DELTAT
-                    aggregatedConnections[fromId]['location'] = connection['location']
-                else:
-                    aggregatedConnections[fromId]['energy'] += connection['energy'] * DELTAT
-        return aggregatedConnections
-
-
-    def getDemandBy(self, resolution='month', start=0):
-        pass
 
     def getAggregatedDeliveries(self, start=0, end=35136):
         aggregatedDeliveries = {}
@@ -242,11 +209,20 @@ class User:
                         toId = delivery['toId']
                         if toId not in aggregatedDeliveries.keys():
                             aggregatedDeliveries[toId] = {}
-                            aggregatedDeliveries[toId]['energy'] = delivery['energy']
+                            aggregatedDeliveries[toId]['energy'] = delivery['energy'] * DELTAT
                             aggregatedDeliveries[toId]['location'] = delivery['to']
                         else:
-                            aggregatedDeliveries[toId]['energy'] += delivery['energy']
+                            aggregatedDeliveries[toId]['energy'] += delivery['energy'] * DELTAT
         return aggregatedDeliveries
+
+    def setDailyAggregatedConnections(self):
+        dailyAggregatedConnections = []
+        if hasattr(self, 'connections'):
+            for day in range(sum(MONTHVEC)):
+                dailyAggregatedConnections.append(self.getAggregatedConnections(day * 24*4, (day+1) * 24*4))
+        # print(len(dailyAggregatedConnections))
+        # print(dailyAggregatedConnections)
+        setattr(self, 'dailyAggregatedConnections', dailyAggregatedConnections)
 
 
     def setDailyAggregatedDeliveries(self):
@@ -258,61 +234,60 @@ class User:
         # print(dailyAggregatedDeliveries)
         setattr(self, 'dailyAggregatedDeliveries', dailyAggregatedDeliveries)
 
-    def setPeriodicProduction(self, start=0, end=35136):
-        setattr(self, 'periodicProduction', self.getAggregatedConnections(start=start, end=end))
+
+    def setMonthlyAggregatedConnections(self):
+        monthlyAggregatedConnections = []
+        if hasattr(self, 'connections'):
+            for month in range(12):
+                start = sum(MONTHVEC[0:month + 1])
+                stop = sum(MONTHVEC[0:month + 2])
+                monthlyAggregatedConnections.append(self.aggregateDailyConnections(self.dailyAggregatedConnections[start:stop]))
+        setattr(self, 'monthlyAggregatedConnections', monthlyAggregatedConnections)
+
+
+    def setMonthlyAggregatedDeliveries(self):
+        monthlyAggregatedDeliveries = []
+        if hasattr(self, 'deliveries'):
+            for month in range(12):
+                start = sum(MONTHVEC[0:month + 1])
+                stop = sum(MONTHVEC[0:month + 2])
+                monthlyAggregatedDeliveries.append(self.aggregateDailyDeliveries(self.dailyAggregatedDeliveries[start:stop]))
+        setattr(self, 'monthlyAggregatedDeliveries', monthlyAggregatedDeliveries)
+
+
+    def aggregateDailyConnections(self, dailyConnections):
+        aggregatedConnections = {}
+        for timeSliceConnections in dailyConnections:
+            for fromId, connection in timeSliceConnections.iteritems():
+                if fromId not in aggregatedConnections.keys():
+                    aggregatedConnections[fromId] = {}
+                    aggregatedConnections[fromId]['energy'] = connection['energy']
+                    aggregatedConnections[fromId]['location'] = connection['location']
+                else:
+                    aggregatedConnections[fromId]['energy'] += connection['energy']
+        return aggregatedConnections
+
+
+    def aggregateDailyDeliveries(self, dailyDeliveries):
+        aggregatedDeliveries = {}
+        for timeSliceDeliveries in dailyDeliveries:
+            for toId, delivery in timeSliceDeliveries.iteritems():
+                if toId not in aggregatedDeliveries.keys():
+                    aggregatedDeliveries[toId] = {}
+                    aggregatedDeliveries[toId]['energy'] = delivery['energy']
+                    aggregatedDeliveries[toId]['location'] = delivery['location']
+                else:
+                    aggregatedDeliveries[toId]['energy'] += delivery['energy']
+        return aggregatedDeliveries
+
 
     def setAggregatedConnections(self, start=0, end=35136):
         setattr(self, 'aggregatedConnections', self.getAggregatedConnections(start=start, end=end))
 
+
     def setAggregatedDeliveries(self, start=0, end=35136):
         setattr(self, 'aggregatedDeliveries', self.getAggregatedDeliveries(start=start, end=end))
 
-    def getAggregatedPaths(self, aggregatedConnections=None):
-        paths = []
-        if aggregatedConnections is None:
-            if self.aggregatedConnections is None:
-                aggregatedConnections = self.getAggregatedConnections()
-            else:
-                aggregatedConnections = self.aggregatedConnections
-
-        for supplierId, supplyDict in aggregatedConnections.iteritems():
-            path = []
-            path.append(supplyDict['location'])
-            path.append(self.location)
-            paths.append(path)
-        return paths
-
-    def setAggregatedPaths(self):
-        setattr(self, 'aggregatedPaths', self.getAggregatedPaths(self.aggregatedConnections))
-
-    def getPaths(self):
-        paths = []
-        if hasattr(self, 'connections'):
-            for timeSlice in range(len(self.connections)):
-                for connection in range(len(self.connections[timeSlice])):
-                    path = []
-                    path.append(self.connections[timeSlice][connection]['from'])
-                    path.append(self.connections[timeSlice][connection]['to'])
-                paths.append(path)
-        return paths
-
-    def getKWhBySource(self):
-        kWhBySource = np.array([])
-        for supplierId, supplyDict in self.aggregatedConnections.iteritems():
-            kWhBySource = np.append(kWhBySource, supplyDict['energy'])
-        return kWhBySource
-
-    def getAutarkySelfConsumption(self):
-        kWhBySource = self.getKWhBySource()
-        if self.index in self.aggregatedConnections.keys():
-            autarky = self.aggregatedConnections[self.index]['energy'] / np.sum(kWhBySource)
-            selfConsumption = self.aggregatedConnections[self.index]['energy'] / (self.annualProduction * 1000)
-        else:
-            autarky = 0
-            selfConsumption = 0
-
-        return autarky, selfConsumption
-        
 
     def prosumerSim(self, EbatR=0):
         dLoad = self.demand - self.production
