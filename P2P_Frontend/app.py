@@ -8,11 +8,13 @@ from operator import itemgetter
 
 import numpy as np
 from flask import Flask, render_template, url_for, request, send_file
+from flask_script import Manager
 from flask_googlemaps import Map, GoogleMaps
 from geopy.distance import vincenty
 import pickle
 
 import Algos as ag
+
 
 def setup_data():
     # define global variables
@@ -68,6 +70,8 @@ def setup_data():
         print('aggregate deliveries.')
         user.aggregatedDeliveries = user.aggregateDailyConnections(user.dailyAggregatedDeliveries)
 
+        print('battery simulation size: S')
+        user.prosumerSim(EbatR=4.0)
 
         print('saving user_data')
         pickle.dump(user, open('../Daten/user_data/user_{}.pickle'.format(user_index), "wb"))
@@ -83,7 +87,7 @@ def get_period(resolution='monthly', month=None, day=None):
     monthNumbers = {'Jan': 1, 'Feb': 2, 'Mar': 3, 'Apr': 4, 'Mai': 5, 'Jun': 6, 'Jul': 7, 'Aug': 8, 'Sep': 9, 'Okt': 10,
                     'Nov': 11, 'Dez': 12}
 
-    monthNames =  {'Jan':'Januar', 'Feb':'Februar', 'Mar':'Maerz', 'Apr':'April', 'May':'Mai', 'Jun':'Juni',
+    monthNames =  {'Jan':'Januar', 'Feb':'Februar', 'Mar':'Maerz', 'Apr':'April', 'Mai':'Mai', 'Jun':'Juni',
                    'Jul':'Juli', 'Aug':'August', 'Sep':'September', 'Okt':'Oktober', 'Nov':'November', 'Dez':'Dezember'}
 
     monthNameArray = ['Januar', 'Februar', 'Maerz', 'April', 'Mai', 'Juni', 'Juli', 'August', 'September', 'Oktober',
@@ -98,20 +102,14 @@ def get_period(resolution='monthly', month=None, day=None):
     demand = []
     production = []
     timely_aggregated_connections = []
-    aggregated_connections = []
+    aggregated_connections = {}
     detail_connections = {}
-    categorized_connections = {'self': {'sum': 0, 'list': []},
-                               'local': {'sum': 0, 'list': []},
-                               'grisons': {'sum': 0, 'list': []},
-                               'other': {'sum': 0, 'list': []}}
 
     timely_aggregated_deliveries = []
-    aggregated_deliveries = []
+    aggregated_deliveries = {}
     detail_deliveries = {}
-    categorized_deliveries = {'self': {'sum': 0, 'list': []},
-                               'local': {'sum': 0, 'list': []},
-                               'grisons': {'sum': 0, 'list': []},
-                               'other': {'sum': 0, 'list': []}}
+
+    battery_simulation = {}
 
     if resolution == 'daily':
         # View month with data by day
@@ -130,8 +128,10 @@ def get_period(resolution='monthly', month=None, day=None):
         demand = user.demandByDay[start:stop]
         production = user.productionByDay[start:stop]
         timely_aggregated_connections = user.dailyAggregatedConnections[start:stop]
+        aggregated_connections = user.aggregateDailyConnections(user.dailyAggregatedConnections[start:stop])
 
         timely_aggregated_deliveries = user.dailyAggregatedDeliveries[start:stop]
+        battery_simulation['battery_to_load'] = user.daily_b2l[start:stop]
 
     elif resolution == 'minimal':
         # View 24 hours with data by 15 minutes
@@ -204,6 +204,8 @@ def get_period(resolution='monthly', month=None, day=None):
 
         aggregated_deliveries = user.getAggregatedDeliveries(start, stop)
 
+        battery_simulation['battery_to_load'] = (np.multiply(user.B2L[start:stop], DELTAT)).tolist()
+
     else:
         # Default to full year, data by month
         start = 0
@@ -219,8 +221,12 @@ def get_period(resolution='monthly', month=None, day=None):
         timely_aggregated_deliveries = user.monthlyAggregatedDeliveries
         aggregated_deliveries = user.aggregateDailyDeliveries(user.dailyAggregatedDeliveries)
 
-    print('sum(demandByMonth: {} {}'.format(sum(demand), demand))
-    print('sum(productionByMonth: {} {}'.format(sum(production), production))
+        battery_simulation['battery_to_load'] = user.monthly_b2l
+
+
+
+    # print('sum(demandByMonth: {} {}'.format(sum(demand), demand))
+    # print('sum(productionByMonth: {} {}'.format(sum(production), production))
 
 
     # Fill detail_connections
@@ -252,6 +258,12 @@ def get_period(resolution='monthly', month=None, day=None):
             if sink_id not in deliveries.keys():
                 detail_deliveries[sink_id].append(0)
 
+
+    categorized_connections = {'self': {'sum': 0, 'list': [], 'time_series': np.zeros(len(categories)).tolist()},
+                               'local': {'sum': 0, 'list': [], 'time_series': np.zeros(len(categories)).tolist()},
+                               'grisons': {'sum': 0, 'list': [], 'time_series': np.zeros(len(categories)).tolist()},
+                               'other': {'sum': 0, 'list': [], 'time_series': np.zeros(len(categories)).tolist()}}
+
     # Fill categorized_connections
     for supplier_id, connections in detail_connections.iteritems():
         supplier_distance = round(vincenty(user.location, locations[supplier_id]).km, 2)
@@ -271,13 +283,23 @@ def get_period(resolution='monthly', month=None, day=None):
         elif (supplier_distance > 30) or (supplier_id == 'GRID'):
             supplier_category = 'other'
 
+        #print('LEN(CONNECTIONS: {}'.format(len(connections)))
+
         categorized_connections[supplier_category]['sum'] += sum(connections)
         categorized_connections[supplier_category]['list'].append(list_entry)
+        categorized_connections[supplier_category]['time_series'] = np.add(categorized_connections[supplier_category]['time_series'], connections).tolist()
 
-    # sort lists by distance
+
+
+    # sort lists by energy
     categorized_connections['local']['list'] = sorted(categorized_connections['local']['list'], key=itemgetter('energy'), reverse=True)
     categorized_connections['grisons']['list'] = sorted(categorized_connections['grisons']['list'], key=itemgetter('energy'), reverse=True)
     categorized_connections['other']['list'] = sorted(categorized_connections['other']['list'], key=itemgetter('energy'), reverse=True)
+
+    categorized_deliveries = {'self': {'sum': 0, 'list': [], 'time_series': np.zeros(len(categories)).tolist()},
+                               'local': {'sum': 0, 'list': [], 'time_series': np.zeros(len(categories)).tolist()},
+                               'grisons': {'sum': 0, 'list': [], 'time_series': np.zeros(len(categories)).tolist()},
+                               'other': {'sum': 0, 'list': [], 'time_series': np.zeros(len(categories)).tolist()}}
 
     # Fill categorized_deliveries
     for sink_id, deliveries in detail_deliveries.iteritems():
@@ -286,7 +308,7 @@ def get_period(resolution='monthly', month=None, day=None):
         list_entry = {}
         list_entry['sink_id'] = sink_id
         list_entry['distance'] = sink_distance
-        list_entry['energy'] = sum(connections)
+        list_entry['energy'] = sum(deliveries)
 
         sink_category = 'other'
         if (sink_id == user.index):
@@ -300,13 +322,18 @@ def get_period(resolution='monthly', month=None, day=None):
 
         categorized_deliveries[sink_category]['sum'] += sum(deliveries)
         categorized_deliveries[sink_category]['list'].append(list_entry)
+        categorized_deliveries[sink_category]['time_series'] = np.add(categorized_deliveries[supplier_category]['time_series'], deliveries).tolist()
 
-    # sort lists by distance
+    # print('CAT_CONNECTIONS: {}'.format(categorized_deliveries['local']['time_series']))
+    # print('CAT_CONNECTIONS: {}'.format(categorized_deliveries['other']['time_series']))
+    # print('CAT_DELIVERIES: {}'.format(categorized_deliveries))
+
+    # sort lists by energy
     categorized_deliveries['local']['list'] = sorted(categorized_deliveries['local']['list'], key=itemgetter('energy'), reverse=True)
     categorized_deliveries['grisons']['list'] = sorted(categorized_deliveries['grisons']['list'], key=itemgetter('energy'), reverse=True)
     categorized_deliveries['other']['list'] = sorted(categorized_deliveries['other']['list'], key=itemgetter('energy'), reverse=True)
 
-    print('\ncategorized_deliveries\n{}'.format(categorized_deliveries))
+    # print('\ncategorized_deliveries\n{}'.format(categorized_deliveries))
 
     self_consumption = [0]
     if user.index in detail_connections:
@@ -335,6 +362,7 @@ def get_period(resolution='monthly', month=None, day=None):
     user.period['timely_aggregated_connections'] = timely_aggregated_connections
     user.period['detail_connections'] = detail_connections
     user.period['categorized_connections'] = categorized_connections
+    user.period['aggregated_deliveries'] = aggregated_deliveries
     user.period['timely_aggregated_deliveries'] = timely_aggregated_deliveries
     user.period['detail_deliveries'] = detail_deliveries
     user.period['categorized_deliveries'] = categorized_deliveries
@@ -344,12 +372,17 @@ def get_period(resolution='monthly', month=None, day=None):
     user.period['sum_self_consumption'] = sum_self_consumption
     user.period['kpi_self_consumption'] = kpi_self_consumption
     user.period['kpi_autarky'] = kpi_autarky
+    user.period['battery_simulation'] = battery_simulation
 
     print('Getting {} data ({} - {})'.format(resolution, start, stop))
+    generateMap(user.period['aggregated_connections'], 'sources_map.html')
+    #print('\n\nGENERATING SOURCES MAP USING:\n\n{}\n\n'.format(user.period['aggregated_connections']))
+    generateMap(user.period['aggregated_deliveries'], 'sinks_map.html')
+    #print('\n\nGENERATING SINKS MAP USING:\n\n{}\n\n'.format(user.period['aggregated_deliveries']))
 
 # google Maps Object
 
-def generateMap(aggregatedConnections):
+def generateMap(aggregatedConnections, file_name='sources_map.html'):
     photo_dict = {'Hydro1' : 'hydro_klosters.jpeg', 'Hydro2' : 'hydro_kueblis.jpeg', 'Biogas' : 'biomass_raps.jpeg',
                   'PV1': 'solar_bauernhof.jpeg', 'PV2' : 'solar_molkerei.jpeg'}
     description_texts = {'Hydro1' : 'hydro_klosters.jpeg', 'Hydro2' : 'hydro_kueblis.jpeg', 'Biogas' : 'biomass_raps.jpeg',
@@ -361,9 +394,6 @@ def generateMap(aggregatedConnections):
     #osmap = folium.Map(location=user.location, zoom_start=11, min_zoom=10,
     #                   tiles = 'https://api.mapbox.com/styles/v1/tscheng805/cj2a7l00s004j2sn0f4a938in/tiles/256/{z}/{x}/{y}?access_token=pk.eyJ1IjoidHNjaGVuZzgwNSIsImEiOiJjajJhNzJ1cGIwMDBkMzNvNXdtbDJ5OHhyIn0.veVS3rSwK4U0NoHEWxXK1g',
     #                   attr = 'XXX Mapbox Attribution')
-
-    kWhBySource = user.getKWhBySource()
-    autarky, selfConsumption = user.getAutarkySelfConsumption()
 
     # Only print values on map with more than 1 % share.
     filterValue = 0.005
@@ -386,44 +416,37 @@ def generateMap(aggregatedConnections):
                 icon = folium.features.CustomIcon('static/img/markers/{}.png'.format(descriptions[supplierId]['TYPE']),
                                                   icon_size=icon_size)
 
-                supplierShare = (supplyDict['energy'] / 1000.) / (np.sum(kWhBySource) / 1000)
-                suppliedEnergy = supplyDict['energy'] / 1000
+                if (descriptions[supplierId]['KIND'] == 'plant'):
+                    print('img: {} {}'.format(supplierId, photo_dict[supplierId]))
+                    html = """
+                        <img src="http://127.0.0.1:5000/static/img/photos/{photo}" style="width: 136px; height: 69px">
+                        <h4>{name}</h4><br>
+                        
+                        <p>
+                        </p>
+                        """.format(name=descriptions[supplierId]['NAME'], photo=photo_dict[supplierId])
 
-                if (supplierShare > filterValue):
-
-                    if (descriptions[supplierId]['KIND'] == 'plant'):
-                        print('img: {} {}'.format(supplierId, photo_dict[supplierId]))
-                        html = """
-                            <img src="http://127.0.0.1:5000/static/img/photos/{photo}" style="width: 136px; height: 69px">
-                            <h4>{name}</h4><br>
-                            
-                            <p>
-                            </p>
-                            """.format(name=descriptions[supplierId]['NAME'], photo=photo_dict[supplierId])
-
-                        iframe = folium.IFrame(html=render_template('tooltip.html', photo=photo_dict[supplierId],
-                                                                    name=descriptions[supplierId]['NAME'],
-                                                                    supplierId=supplierId,
-                                                                    supplierShare=supplierShare,
-                                                                    suppliedEnergy=suppliedEnergy),
-                                               width=360, height=250)
-                    else:
-                        html = """
-                            <h3>{name}</h3><br>
-                            Einfacher Text mit Zusammenfassssung und Bild
-                            <p>
-                            </p>
-                            """.format(name=descriptions[supplierId]['NAME'])
-                        iframe = folium.IFrame(html=html, width=200, height=150)
+                    iframe = folium.IFrame(html=render_template('tooltip.html', photo=photo_dict[supplierId],
+                                                                name=descriptions[supplierId]['NAME'],
+                                                                supplierId=supplierId),
+                                           width=360, height=250)
+                else:
+                    html = """
+                        <h3>{name}</h3><br>
+                        Einfacher Text mit Zusammenfassssung und Bild
+                        <p>
+                        </p>
+                        """.format(name=descriptions[supplierId]['NAME'])
+                    iframe = folium.IFrame(html=html, width=200, height=150)
 
 
-                    popup = folium.Popup(iframe, max_width=2650)
+                popup = folium.Popup(iframe, max_width=2650)
 
-                    folium.Marker(locations[supplierId], popup=popup, icon=icon).add_to(osmap)
+                folium.Marker(locations[supplierId], popup=popup, icon=icon).add_to(osmap)
 
-                    folium.PolyLine([user.location, locations[supplierId]], color="red", weight=2.5, opacity=.6).add_to(osmap)
+                folium.PolyLine([user.location, locations[supplierId]], color="red", weight=2.5, opacity=.6).add_to(osmap)
 
-    osmap.save('osmaps.html')
+    osmap.save(file_name)
 
     return 0
 
@@ -489,6 +512,12 @@ def getMarkerList(aggregatedConnections):
 
 # TODO: welchen kpi brauchst du? Autarkie oder Eigenverbrauch
 app = Flask(__name__)
+
+@app.before_first_request
+def startup():
+    setup_data()
+    print("database tables created")
+
 app.config['DEBUG'] = True
 
 app.config['GOOGLEMAPS_KEY'] = "8JZ7i18MjFuM35dJHq70n3Hx4"
@@ -500,7 +529,7 @@ GoogleMaps(app)
 
 @app.route("/")
 def home():
-    return render_template('dashboard.html', user=user, descriptions=descriptions)
+    return render_template('dashboard.html', user=user, descriptions=descriptions, origin='dashboard.html')
 
 @app.after_request
 def add_header(response):
@@ -510,6 +539,14 @@ def add_header(response):
 @app.route('/os_maps')
 def os_maps():
     return send_file('osmaps.html')
+
+@app.route('/sources_maps')
+def sources_maps():
+    return send_file('sources_map.html')
+
+@app.route('/sinks_maps')
+def sinks_maps():
+    return send_file('sinks_map.html')
 
 @app.route("/maps")
 def maps():
@@ -525,10 +562,10 @@ def maps():
     )
     return render_template('maps.html', sndmap=sndmap, user=user, producerNames=supplierIdsOrdered, kWh_SharesBySource=kWhSharesBySourceOrdered.tolist(), dFromUserordered=dFromUserordered, descriptions=descriptions)
 
-@app.route("/osmaps")
-def osmaps():
-    generateMap(user.aggregatedConnections)
-    return render_template('maps.html', user=user, descriptions=descriptions)
+@app.route("/osmaps/<string:type>/")
+def osmaps(type='sources'):
+    #generateMap(user.period['aggregated_connections'])
+    return render_template('maps.html', user=user, descriptions=descriptions, type=type, origin='maps.html')
 
 
 @app.route("/sinks")
@@ -543,13 +580,13 @@ def sinks():
         polylines = paths,
         cluster = True
     )
-    return render_template('maps.html', sndmap=sndmap, user=user)
+    return render_template('maps.html', sndmap=sndmap, user=user, origin='maps.html')
 
 
-@app.route("/details")
-def details():
+@app.route("/details/osmaps/<string:type>/")
+def details(type='sources'):
 
-    return render_template('details.html', user=user, descriptions=descriptions)
+    return render_template('details.html', user=user, descriptions=descriptions, type=type, origin='details.html')
 
 
 @app.route("/setResolution/<string:resolution>/")
@@ -558,20 +595,68 @@ def setResolution(resolution='monthly'):
 
     print('Setting user resolution to {}'.format(resolution))
 
-    return render_template('dashboard.html', user=user, descriptions=descriptions)
+    return render_template('dashboard.html', user=user, descriptions=descriptions, origin='dashboard.html')
 
 @app.route("/getLast24hours/<int:month>/<int:day>")
 def getLast24hours(month=244, day=10):
     get_period('minimal', month=month, day=day)
 
-    return render_template('dashboard.html', user=user, descriptions=descriptions)
+    return render_template('dashboard.html', user=user, descriptions=descriptions, origin='dashboard.html')
 
 
 @app.route("/getMonthlyGraph/<string:month>/")
 def getMonthlyGraph(month='Jan'):
     get_period('daily', month=month)
 
-    return render_template('dashboard.html', user=user, descriptions=descriptions)
+    return render_template('dashboard.html', user=user, descriptions=descriptions, origin='dashboard.html')
+
+
+@app.route("/move", methods=['GET','POST'])
+def move():
+    origin = 'dashboard.html'
+    start = 0
+    direction = 'next'
+    if request.method=='POST':
+        origin = request.form['origin']
+        start = int(request.form['start'])
+        direction = request.form['direction']
+
+
+    monthNameArray = ['Jan', 'Feb', 'Mar', 'Apr', 'Mai', 'Jun', 'Jul', 'Aug', 'Sep', 'Okt', 'Nov', 'Dez']
+
+    MONTHVEC = [0, 31, 29, 31, 30, 31, 30, 31, 31, 30, 31, 30, 31]
+
+    month = start
+    month_index = 0
+    for days_in_month in MONTHVEC:
+        month = month - days_in_month
+        if month == 0:
+            break
+        month_index += 1
+
+    limit_value = 0
+    if user.period['resolution'] == 'daily':
+        limit_value = 12 - 1
+    else:
+        limit_value = 366 - 1
+
+    if direction == 'next':
+        month_name = monthNameArray[min(limit_value, month_index+1)]
+    else:
+        month_name = monthNameArray[max(0, month_index-1)]
+
+
+    print('\n\n')
+    print("origin = {}".format(origin))
+    print("start = {}".format(start))
+    print("direction = {}".format(direction))
+    print("month_name = {}".format(month_name))
+    print('\n\n')
+
+    get_period('daily', month=month_name)
+
+
+    return render_template(origin, user=user, descriptions=descriptions, origin=origin)
 
 @app.route("/batterySim", methods=["GET","POST"])
 def batterySim():
@@ -582,8 +667,8 @@ def batterySim():
 
     user.prosumerSim(EbatR=EbatR)
 
-    return render_template('batterySim.html', user=user, BatterySize=EbatR)
+    return render_template('batterySim.html', user=user, BatterySize=EbatR, origin='batterySim.html')
 
 if __name__ == "__main__":
-    setup_data()
+    #setup_data()
     app.run(threaded=True)

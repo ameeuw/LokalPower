@@ -316,6 +316,57 @@ class User:
         setattr( self, 'selfconsumption', selfconsumption )
 
         keyList=['G2L', 'PV2G', 'B2L', 'PV2L', 'PV2B', 'PV']
-        
+
+
+        g2l_daily = []
+        pv2g_daily = []
+        b2l_daily = []
+        pv2l_daily = []
+        pv2b_daily = []
+        pv_daily = []
+        for day in range(NDAYS):
+            g2l = self.G2L[(day * 24*4):((day+1) * 24*4)]
+            pv2g = self.PV2G[(day * 24*4):((day+1) * 24*4)]
+
+            b2l = self.B2L[(day * 24*4):((day+1) * 24*4)]
+            pv2l = self.PV2L[(day * 24*4):((day+1) * 24*4)]
+            pv2b = self.PV2B[(day * 24*4):((day+1) * 24*4)]
+            pv = self.PV[(day * 24*4):((day+1) * 24*4)]
+
+            g2l_daily.append(round(np.sum(g2l * DELTAT), 2))
+            pv2g_daily.append(round(np.sum(pv2g * DELTAT), 2))
+
+            b2l_daily.append(round(np.sum(b2l * DELTAT), 2))
+            pv2l_daily.append(round(np.sum(pv2l * DELTAT), 2))
+            pv2b_daily.append(round(np.sum(pv2b * DELTAT), 2))
+            pv_daily.append(round(np.sum(pv * DELTAT), 2))
+        setattr(self, 'daily_g2l', g2l_daily)
+        setattr(self, 'daily_pv2l', pv2l_daily)
+        setattr(self, 'daily_b2l', b2l_daily)
+        setattr(self, 'daily_pv', pv_daily)
+
+
+        monthly_g2l = []
+        monthly_pv2l = []
+        monthly_b2l = []
+        monthly_pv = []
+        for _k in range(len(cMonthVec) - 1):
+            g2l = self.G2L[cMonthVec[_k]:cMonthVec[_k + 1]]
+            pv2l = self.PV2L[cMonthVec[_k]:cMonthVec[_k + 1]]
+            b2l = self.B2L[cMonthVec[_k]:cMonthVec[_k + 1]]
+            pv = self.PV[cMonthVec[_k]:cMonthVec[_k + 1]]
+
+            monthly_g2l.append(round(np.sum(g2l * DELTAT), 2))
+            monthly_pv2l.append(round(np.sum(pv2l * DELTAT), 2))
+            monthly_b2l.append(round(np.sum(b2l * DELTAT), 2))
+            monthly_pv.append(round(np.sum(pv * DELTAT), 2))
+        setattr(self, 'monthly_g2l', monthly_g2l)
+        setattr(self, 'monthly_pv2l', monthly_pv2l)
+        setattr(self, 'monthly_b2l', monthly_b2l)
+        setattr(self, 'monthly_pv', monthly_pv)
+
+        print('\n\ndaily_b2l = {}\n\n'.format(self.daily_b2l))
+        print('\n\ndaily_pv = {}\n\n'.format(self.daily_pv))
+
         for _k in keyList:
             setattr(self, 'annual_'+_k, np.sum( getattr(self, _k) * Inputs['dt'] ).astype(int) )

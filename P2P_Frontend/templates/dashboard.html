@@ -37,9 +37,9 @@
 					</div>
 				</div>
 			</div>
+		{% endblock %}
 		</div>
 	</div>
-	{% endblock %}
 
 	{% block footer %}
 	<script type="text/javascript" src="https://cdn.jsdelivr.net/momentjs/latest/moment.min.js"></script>
@@ -255,6 +255,17 @@
 			color: '#FFA960',
 			data: {{ user.period['production'] | safe }},
 			showInLegend: true
+		},
+
+		{
+			type: 'areaspline',
+			stacking: true,
+			name: 'Batterie S (4 kWh)',
+			colorByPoint: false,
+			color: '#038D14',
+			data: {{ user.period['battery_simulation']['battery_to_load'] | safe }},
+			showInLegend: true,
+			visible: false
 		},
 
 		{

@@ -1,0 +1,143 @@
+<div class="container" style="width: 100%;">
+  <h4>Meine Stromsenken</h4>
+    <div class="panel-group">
+
+    <!-- EIGENVERBRAUCH -->
+    <div class="panel panel-default" style="max-height: 45px">
+      <div class="panel-heading"  style="background-color: #08BB1E;">
+              <div class="container">
+                  <div class="row">
+                    <h4 class="panel-title">
+                        Eigenverbrauch
+                    </h4>
+                  </div>
+                  <div class="row">
+                      <div class="col-sm-1">
+                          {{ user.period['sum_self_consumption'] | round(1) }} kWh
+                      </div>
+                      <div class="col-sm-1">
+                          {{ user.period['kpi_self_consumption'] | round(1)  }} %
+                      </div>
+                  </div>
+              </div>
+          </div>
+      </div>
+    </div>
+
+
+    <div class="panel-group" id="accordion">
+
+
+        <!-- LOKAL -->
+        <div class="panel panel-default">
+          <div class="panel-heading" style="background-color: #F1750A;">
+              <div class="container">
+                  <div class="row">
+                    <h4 class="panel-title">
+                      <a data-toggle="collapse" data-parent="#accordion" href="#collapse1"><div>Lokal</div></a>
+                    </h4>
+                  </div>
+                  <div class="row">
+                      <div class="col-sm-1">
+                          {{ user.period['categorized_deliveries']['local']['sum'] | round(1)  }} kWh
+                      </div>
+                      <div class="col-sm-1">
+                          {{ (user.period['categorized_deliveries']['local']['sum'] / user.period['sum_production'] * 100) | round(1)  }} %
+                      </div>
+                  </div>
+              </div>
+          </div>
+          <div id="collapse1" class="panel-collapse collapse in">
+            <div class="panel-body" style="overflow-y: scroll; max-height: 140px">
+                <table class="table table-sm">
+
+                    <tr>
+                        <th>Quelle</th>
+                        <th>Distanz</th>
+                        <th>Anteil</th>
+                    </tr>
+                    {% for entry in user.period['categorized_deliveries']['local']['list'] %}
+                    <tr>
+                        <td>{{ descriptions[entry['sink_id']]['NAME'] }}</td>
+                        <td>{{ entry['distance'] }} km</td>
+                        {% if (entry['energy'] / user.period['sum_production']) < 0.01 %}
+                        <td> < 1 %</td>
+                        {% else %}
+                        <td> {{ ((entry['energy'] / user.period['sum_production']) * 100) | round(1) }} %</td>
+                        {% endif %}
+                    </tr>
+                    {% endfor %}
+                </table>
+            </div>
+          </div>
+        </div>
+
+
+        <!-- GRAUBÜNDEN -->
+        <div class="panel panel-default">
+          <div class="panel-heading" style="background-color: #F1150A">
+              <div class="container">
+                  <div class="row">
+                    <h4 class="panel-title">
+                      <a data-toggle="collapse" data-parent="#accordion" href="#collapse2">Graubünden</a>
+                    </h4>
+                  </div>
+                  <div class="row">
+                      <div class="col-sm-1">
+                          {{ user.period['categorized_deliveries']['grisons']['sum'] | round(1)  }} kWh
+                      </div>
+                      <div class="col-sm-1">
+                          {{ (user.period['categorized_deliveries']['grisons']['sum'] / user.period['sum_production'] * 100)|round(1)  }} %
+                      </div>
+                  </div>
+              </div>
+          </div>
+          <div id="collapse2" class="panel-collapse collapse">
+            <div class="panel-body" style="overflow-y: scroll; max-height: 140px">
+                <table class="table table-sm">
+
+                    <tr>
+                        <th>Quelle</th>
+                        <th>Distanz</th>
+                        <th>Anteil</th>
+                    </tr>
+                    {% for entry in user.period['categorized_deliveries']['grisons']['list'] %}
+                    <tr>
+                        <td>{{ descriptions[entry['sink_id']]['NAME'] }}</td>
+                        <td>{{ entry['distance'] }} km</td>
+                        {% if (entry['energy'] / user.period['sum_production']) < 0.01 %}
+                        <td> < 1 %</td>
+                        {% else %}
+                        <td> {{ ((entry['energy'] / user.period['sum_production']) * 100) | round(1) }} %</td>
+                        {% endif %}
+                    </tr>
+                    {% endfor %}
+                </table>
+            </div>
+          </div>
+        </div>
+
+
+        <!-- SONSTIGE -->
+        <div class="panel panel-default" style="max-height: 80px">
+            <div class="panel-heading" style="background-color: #078C92;">
+                <div class="container">
+                    <div class="row">
+                        <h4 class="panel-title">
+                            Sonstige
+                        </h4>
+                    </div>
+
+                    <div class="row">
+                        <div class="col-sm-1">
+                            {{ user.period['categorized_deliveries']['other']['sum'] | round(1)  }} kWh
+                        </div>
+                        <div class="col-sm-1">
+                            {{ (user.period['categorized_deliveries']['other']['sum'] / user.period['sum_production'] * 100)|round(1)  }} %
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>

@@ -81,23 +81,27 @@
 						</li>
 
 						<li>
-							<a href="{{ url_for('osmaps') }}">
+							<a href="{{ url_for('osmaps', type='sources') }}">
 								<i class="material-icons">location_on</i>
 								<p>Verbrauch: Karte</p>
 							</a>
 						</li>
-						<!--
 						<li>
-							<a href="{{ url_for('sinks') }}">
+							<a href="{{ url_for('osmaps', type='sinks') }}">
 								<i class="material-icons">location_off</i>
-								<p>Senken</p>
+								<p>Produktion: Karte</p>
 							</a>
 						</li>
-						-->
 						<li >
-							<a href="{{ url_for('details') }}">
+							<a href="{{ url_for('details', type='sources') }}">
 								<i class="fa fa-share-alt" aria-hidden="true"></i>
 								<p>Verbrauch: Details</p>
+							</a>
+						</li>
+						<li >
+							<a href="{{ url_for('details', type='sinks') }}">
+								<i class="fa fa-share-alt" aria-hidden="true"></i>
+								<p>Produktion: Details</p>
 							</a>
 						</li>
 						
@@ -199,17 +203,29 @@
                     </div>
 
                     <div class="col-md-1">
-                        <h3><</h3>
+						<form role="form" method="post" action="{{ url_for('move') }}">
+							<input name="origin" value="{{ origin }}" type="hidden">
+							<input name="start" value="{{ user.period['start'] }}" type="hidden">
+							<button type="action" class="btn btn-default btn-md" name="direction" value="previous">
+							  <span class="glyphicon glyphicon-chevron-left" aria-hidden="true"></span>
+							</button>
+						</form>
                     </div>
 
                     <div class="col-md-2">
                         <center>
-                            <h3>{{ user.period['name'] }}</h3>
+                            <h3  style="vertical-align: middle;">{{ user.period['name'] }}</h3>
                         </center>
                     </div>
 
                     <div class="col-md-1">
-                        <h3>></h3>
+						<form role="form" method="post" action="{{ url_for('move') }}">
+							<input name="origin" value="{{ origin }}" type="hidden">
+							<input name="start" value="{{ user.period['start'] }}" type="hidden">
+							<button type="action" class="btn btn-default btn-md" name="direction" value="next">
+							  <span class="glyphicon glyphicon-chevron-right" aria-hidden="true"></span>
+							</button>
+						</form>
                     </div>
 
                     <div class="col-md-4" style="align: right">

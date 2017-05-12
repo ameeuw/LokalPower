@@ -32,18 +32,37 @@
                             <p>Übersicht</p>
                         </a>
                     </li>
-
-                    <li class="active">
-                        <a href="{{ url_for('osmaps') }}">
+                    <li
+                    {% if type == 'sources' %}
+                     class="active"
+                    {% endif %}>
+                        <a href="{{ url_for('osmaps', type='sources') }}">
                             <i class="material-icons">location_on</i>
                             <p>Verbrauch: Karte</p>
                         </a>
                     </li>
 
+                    <li
+                    {% if type == 'sinks' %}
+                     class="active"
+                    {% endif %}>
+                        <a href="{{ url_for('osmaps', type='sinks') }}">
+                            <i class="material-icons">location_off</i>
+                            <p>Produktion: Karte</p>
+                        </a>
+                    </li>
+
                     <li >
-                        <a href="{{ url_for('details') }}">
+                        <a href="{{ url_for('details', type='sources') }}">
                             <i class="fa fa-share-alt" aria-hidden="true"></i>
                             <p>Verbrauch: Details</p>
+                        </a>
+                    </li>
+
+                    <li >
+                        <a href="{{ url_for('details', type='sinks') }}">
+                            <i class="fa fa-share-alt" aria-hidden="true"></i>
+                            <p>Produktion: Details</p>
                         </a>
                     </li>
 
@@ -74,171 +93,34 @@
                         <div class="well">
                             <!--<div id="sndmap" class="map" style="height: 450px; width: 720px;"></div>-->
                             <div class="embed-responsive embed-responsive-16by9">
-                                <iframe class="embed-responsive-item" src="{{ url_for('os_maps') }}" style=""></iframe>
+                                {% if type == 'sinks' %}
+                                <iframe class="embed-responsive-item" src="{{ url_for('sinks_maps') }}" style=""></iframe>
+                                {% else %}
+                                <iframe class="embed-responsive-item" src="{{ url_for('sources_maps') }}" style=""></iframe>
+                                {% endif %}
                             </div>
-
                         </div>
                     </div>
 
                     <div class="col-md-4" style="height: 100%px">
                         <div class="well">
-                            <div class="container" style="width: 100%;">
-                              <h4>Meine Stromquellen</h4>
-                                <div class="panel-group">
-
-                                <!-- EIGENVERBRAUCH -->
-                                <div class="panel panel-default" style="max-height: 45px">
-                                  <div class="panel-heading"  style="background-color: #08BB1E;">
-                                          <div class="container">
-                                              <div class="row">
-                                                <h4 class="panel-title">
-                                                  Selbstversorgung
-                                                </h4>
-                                              </div>
-                                              <div class="row">
-                                                  <div class="col-sm-1">
-                                                      {{ user.period['sum_self_consumption'] | round(1) }} kWh
-                                                  </div>
-                                                  <div class="col-sm-1">
-                                                      {{ user.period['kpi_autarky']|round(1) }} %
-                                                  </div>
-                                              </div>
-                                          </div>
-                                      </div>
-                                  </div>
-                                </div>
-
-
-                                <div class="panel-group" id="accordion">
-
-
-                                    <!-- LOKAL -->
-                                    <div class="panel panel-default">
-                                      <div class="panel-heading" style="background-color: #F1750A;">
-                                          <div class="container">
-                                              <div class="row">
-                                                <h4 class="panel-title">
-                                                  <a data-toggle="collapse" data-parent="#accordion" href="#collapse1"><div>Lokal</div></a>
-                                                </h4>
-                                              </div>
-                                              <div class="row">
-                                                  <div class="col-sm-1">
-                                                      {{ user.period['categorized_connections']['local']['sum'] | round(1)  }} kWh
-                                                  </div>
-                                                  <div class="col-sm-1">
-                                                      {{ (user.period['categorized_connections']['local']['sum'] / user.period['sum_consumption'] * 100) | round(1)  }} %
-                                                  </div>
-                                              </div>
-                                          </div>
-                                      </div>
-                                      <div id="collapse1" class="panel-collapse collapse in">
-                                        <div class="panel-body" style="overflow-y: scroll; max-height: 140px">
-                                            <table class="table table-sm">
-
-                                                <tr>
-                                                    <th>Quelle</th>
-                                                    <th>Distanz</th>
-                                                    <th>Anteil</th>
-                                                </tr>
-                                                {% for entry in user.period['categorized_connections']['local']['list'] %}
-                                                <tr>
-                                                    <td>{{ descriptions[entry['supplier_id']]['NAME'] }}</td>
-                                                    <td>{{ entry['distance'] }} km</td>
-                                                    {% if (entry['energy'] / user.period['sum_consumption']) < 0.01 %}
-                                                    <td> < 1 %</td>
-                                                    {% else %}
-                                                    <td> {{ ((entry['energy'] / user.period['sum_consumption']) * 100) | round(1) }}</td>
-                                                    {% endif %}
-                                                </tr>
-                                                {% endfor %}
-                                            </table>
-                                        </div>
-                                      </div>
-                                    </div>
-
-
-                                    <!-- GRAUBÜNDEN -->
-                                    <div class="panel panel-default">
-                                      <div class="panel-heading" style="background-color: #F1150A">
-                                          <div class="container">
-                                              <div class="row">
-                                                <h4 class="panel-title">
-                                                  <a data-toggle="collapse" data-parent="#accordion" href="#collapse2">Graubünden</a>
-                                                </h4>
-                                              </div>
-                                              <div class="row">
-                                                  <div class="col-sm-1">
-                                                      {{ user.period['categorized_connections']['grisons']['sum'] | round(1)  }} kWh
-                                                  </div>
-                                                  <div class="col-sm-1">
-                                                      {{ (user.period['categorized_connections']['grisons']['sum'] / user.period['sum_consumption'] * 100)|round(1)  }} %
-                                                  </div>
-                                              </div>
-                                          </div>
-                                      </div>
-                                      <div id="collapse2" class="panel-collapse collapse">
-                                        <div class="panel-body" style="overflow-y: scroll; max-height: 140px">
-                                            <table class="table table-sm">
-
-                                                <tr>
-                                                    <th>Quelle</th>
-                                                    <th>Distanz</th>
-                                                    <th>Anteil</th>
-                                                </tr>
-                                                {% for entry in user.period['categorized_connections']['grisons']['list'] %}
-                                                <tr>
-                                                    <td>{{ descriptions[entry['supplier_id']]['NAME'] }}</td>
-                                                    <td>{{ entry['distance'] }} km</td>
-                                                    {% if (entry['energy'] / user.period['sum_consumption']) < 0.01 %}
-                                                    <td> < 1 %</td>
-                                                    {% else %}
-                                                    <td> {{ ((entry['energy'] / user.period['sum_consumption']) * 100) | round(1) }}</td>
-                                                    {% endif %}
-                                                </tr>
-                                                {% endfor %}
-                                            </table>
-                                        </div>
-                                      </div>
-                                    </div>
-
-
-                                <!-- SONSTIGE -->
-                                <div class="panel panel-default" style="max-height: 80px">
-                                  <div class="panel-heading" style="background-color: #078C92;">
-                                      <div class="container">
-                                          <div class="row">
-                                            <h4 class="panel-title">
-                                              Sonstige
-                                            </h4>
-                                          </div>
-                                              <div class="row">
-                                                  <div class="col-sm-1">
-                                                      {{ user.period['categorized_connections']['other']['sum'] | round(1)  }} kWh
-                                                  </div>
-                                                  <div class="col-sm-1">
-                                                      {{ (user.period['categorized_connections']['other']['sum'] / user.period['sum_consumption'] * 100)|round(1)  }} %
-                                                  </div>
-                                              </div>
-                                      </div>
-                                  </div>
-                                </div>
-                                  </div>
-                                </div>
-                            </div>
+                            {% if type == 'sinks' %}
+                            {% include 'sinks_accordion_list.html' %}
+                            {% else %}
+                            {% include 'sources_accordion_list.html' %}
+                            {% endif %}
                         </div>
                     </div>
-
                 </div>
+            </div>
 
 
                 {% endblock %}
 
-            </div>
         </div>
-
     </div>
-</div>
 
+</div>
 
 {% block footer %}
 <script>
