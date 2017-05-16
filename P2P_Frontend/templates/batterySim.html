@@ -25,16 +25,27 @@
 						</li>
 
 						<li>
-							<a href="{{ url_for('maps') }}">
+							<a href="{{ url_for('osmaps', type='sources') }}">
 								<i class="material-icons">location_on</i>
 								<p>Verbrauch: Karte</p>
 							</a>
 						</li>
-
+						<li>
+							<a href="{{ url_for('osmaps', type='sinks') }}">
+								<i class="material-icons">location_off</i>
+								<p>Produktion: Karte</p>
+							</a>
+						</li>
 						<li >
 							<a href="{{ url_for('details', type='sources') }}">
 								<i class="fa fa-share-alt" aria-hidden="true"></i>
 								<p>Verbrauch: Details</p>
+							</a>
+						</li>
+						<li >
+							<a href="{{ url_for('details', type='sinks') }}">
+								<i class="fa fa-share-alt" aria-hidden="true"></i>
+								<p>Produktion: Details</p>
 							</a>
 						</li>
 
@@ -75,10 +86,10 @@
 							<div class="col-md-12" style="height: 100%; top: 5%">
 								<div class="well" style="height: 100%;">
 									<form role="form" method="post" action="{{ url_for('batterySim') }}">
-										<button name="BatteryCapacity" value="4">Batterie S : 9.000,- CHF</button><br>
-										<button name="BatteryCapacity" value="8">Batterie M : 14.500,- CHF</button><br>
-										<button name="BatteryCapacity" value="12">Batterie L : 20.000,- CHF</button><br>
-										<button name="BatteryCapacity" value="16">Batterie XL : 25.000,- CHF</button><br>
+										<button name="BatteryCapacity" value="4">Batterie S : 9.000,- CHF</button><br><br>
+										<button name="BatteryCapacity" value="8">Batterie M : 14.500,- CHF</button><br><br>
+										<button name="BatteryCapacity" value="12">Batterie L : 20.000,- CHF</button><br><br>
+										<button name="BatteryCapacity" value="16">Batterie XL : 25.000,- CHF</button><br><br>
 									</form>
 									<!--<center><h3>Wählen Sie Ihre Batteriegrösse</h3></center>
 									<br>
@@ -120,9 +131,14 @@
 
  <script type="text/javascript">
 	
-var Grid2Load = {{ user.annual_G2L |safe }};
-var Solar2Load = {{ user.annual_PV2L |safe }};
-var Battery2Load = {{ user.annual_B2L |safe }};
+var grid_to_load = {{ user.battery_simulation['annual_G2L'] |safe }};
+var solar_to_load = {{ user.battery_simulation['annual_PV2L'] |safe }};
+var battery_to_load = {{ user.battery_simulation['annual_B2L'] |safe }};
+
+var monthly_pv2l = {{ user.battery_simulation['monthly_pv2l'] |safe }};
+var monthly_pv = {{ user.battery_simulation['monthly_pv'] |safe }};
+var monthly_b2l = {{ user.battery_simulation['monthly_b2l'] |safe }};
+var monthly_demand = {{ user.demandByMonth |safe }};
 
 
 Highcharts.chart('pie_chart', {
@@ -167,18 +183,18 @@ Highcharts.chart('pie_chart', {
 			{
 				name: 'Solar (direkt)',
 				color: '#08BB1E',
-				y: Solar2Load
+				y: solar_to_load
 			},
 			{
 				name: 'Batterie',
 				color: '#038D14',
-				y: Battery2Load,
+				y: battery_to_load,
 				sliced: true
 			},
 			{
 				name: 'Netz',
 				color: '#078C92',
-				y: Grid2Load
+				y: grid_to_load
 			}
 		]
 	}],
@@ -233,7 +249,7 @@ Highcharts.chart('overview_chart', {
 			name: 'Produktion',
 			colorByPoint: false,
 			color: '#FFA960',
-			data: {{ user.monthly_pv | safe }},
+			data: monthly_pv,
 			showInLegend: true
 		},
 
@@ -243,7 +259,7 @@ Highcharts.chart('overview_chart', {
 			name: 'Verbrauch',
 			colorByPoint: false,
 			color: '#FF6860',
-			data: {{ user.demandByMonth | safe }},
+			data: monthly_demand,
 			showInLegend: true
 		},
 
@@ -253,7 +269,7 @@ Highcharts.chart('overview_chart', {
 			name: 'Batterie',
 			colorByPoint: false,
 			color: '#038D14',
-			data: {{ user.monthly_b2l | safe }},
+			data: monthly_b2l,
 			showInLegend: true
 		},
 
@@ -264,7 +280,7 @@ Highcharts.chart('overview_chart', {
 			name: 'Eigenverbrauch',
 			colorByPoint: false,
 			color: '#08BB1E',
-			data: {{ user.monthly_pv2l | safe }},
+			data: monthly_pv2l,
 			showInLegend: true
 		}
 

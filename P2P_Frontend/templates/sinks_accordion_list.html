@@ -58,7 +58,7 @@
                     </tr>
                     {% for entry in user.period['categorized_deliveries']['local']['list'] %}
                     <tr>
-                        <td>{{ descriptions[entry['sink_id']]['NAME'] }}</td>
+                        <td>{{ descriptions[entry['s_id']]['NAME'] }}</td>
                         <td>{{ entry['distance'] }} km</td>
                         {% if (entry['energy'] / user.period['sum_production']) < 0.01 %}
                         <td> < 1 %</td>
@@ -103,7 +103,7 @@
                     </tr>
                     {% for entry in user.period['categorized_deliveries']['grisons']['list'] %}
                     <tr>
-                        <td>{{ descriptions[entry['sink_id']]['NAME'] }}</td>
+                        <td>{{ descriptions[entry['s_id']]['NAME'] }}</td>
                         <td>{{ entry['distance'] }} km</td>
                         {% if (entry['energy'] / user.period['sum_production']) < 0.01 %}
                         <td> < 1 %</td>

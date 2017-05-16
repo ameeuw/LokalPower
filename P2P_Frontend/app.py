@@ -32,7 +32,6 @@ def setup_data():
     descriptions_df = descriptions_df.set_index('ID')
 
     prosumer = 5
-    # STEERCO: 5
     #userId = locations.keys()[prosumer]
     user_index = descriptions_df.index[prosumer]
     user_location = ast.literal_eval(descriptions_df.loc[user_index]['LOCATION'])
@@ -45,30 +44,24 @@ def setup_data():
     else:
         print('generating from sources...')
         user = ag.User('../Daten/users/{}.csv'.format(user_index), user_location, user_index)
-        user.setUserDict('../Daten/dicts/{}.pickle'.format(user_index))
-
-        #print('aggregated connections.')
-        #user.setAggregatedConnections()
+        user.set_user_dict('../Daten/dicts/{}.pickle'.format(user_index))
 
         print('producer data.')
-        user.setProducerDict('../Daten/dicts/prod_{}.pickle'.format(user_index))
-
-        # print('aggregated deliveries.')
-        # user.setAggregatedDeliveries()
+        user.set_producer_dict('../Daten/dicts/prod_{}.pickle'.format(user_index))
 
         print('daily aggregated connections.')
-        user.setDailyAggregatedConnections()
+        user.set_daily_aggregated_connections()
         print('monthly aggregated connections')
-        user.setMonthlyAggregatedConnections()
+        user.set_monthly_aggregated_connections()
         print('aggregate connections.')
-        user.aggregatedConnections = user.aggregateDailyConnections(user.dailyAggregatedConnections)
+        user.aggregated_connections = user.aggregate_daily_connections(user.daily_aggregated_connections)
 
         print('daily aggregated deliveries.')
-        user.setDailyAggregatedDeliveries()
+        user.set_daily_aggregated_deliveries()
         print('monthly aggregated deliveries')
-        user.setMonthlyAggregatedDeliveries()
+        user.set_monthly_aggregated_deliveries()
         print('aggregate deliveries.')
-        user.aggregatedDeliveries = user.aggregateDailyConnections(user.dailyAggregatedDeliveries)
+        user.aggregated_deliveries = user.aggregate_daily_deliveries(user.daily_aggregated_deliveries)
 
         print('battery simulation size: S')
         user.prosumerSim(EbatR=4.0)
@@ -125,13 +118,13 @@ def get_period(resolution='monthly', month=None, day=None):
         name = '{} 2016'.format(monthNames[month])
         categories = range(1, MONTHVEC[monthNumbers[month]]+1)
 
-        demand = user.demandByDay[start:stop]
-        production = user.productionByDay[start:stop]
-        timely_aggregated_connections = user.dailyAggregatedConnections[start:stop]
-        aggregated_connections = user.aggregateDailyConnections(user.dailyAggregatedConnections[start:stop])
-
-        timely_aggregated_deliveries = user.dailyAggregatedDeliveries[start:stop]
-        battery_simulation['battery_to_load'] = user.daily_b2l[start:stop]
+        demand = user.demand_by_day[start:stop]
+        production = user.production_by_day[start:stop]
+        timely_aggregated_connections = user.daily_aggregated_connections[start:stop]
+        aggregated_connections = user.aggregate_daily_connections(user.daily_aggregated_connections[start:stop])
+        aggregated_deliveries = user.aggregate_daily_deliveries(user.daily_aggregated_deliveries[start:stop])
+        timely_aggregated_deliveries = user.daily_aggregated_deliveries[start:stop]
+        battery_simulation['battery_to_load'] = user.battery_simulation['daily_b2l'][start:stop]
 
     elif resolution == 'minimal':
         # View 24 hours with data by 15 minutes
@@ -167,44 +160,14 @@ def get_period(resolution='monthly', month=None, day=None):
         demand = np.multiply( user.demand[start:stop], DELTAT ).tolist()
         production = np.multiply( user.production[start:stop], DELTAT ).tolist()
 
-        for timeSlice in range(start, stop):
-            aggregatedConnections = {}
-            if timeSlice in user.connections.keys():
-                timeSliceConnections = user.connections[timeSlice]
-                for connection in timeSliceConnections:
-                    fromId = connection['fromId']
-                    if fromId not in aggregatedConnections.keys():
-                        aggregatedConnections[fromId] = {}
-                        aggregatedConnections[fromId]['energy'] = connection['energy'] * DELTAT
-                        aggregatedConnections[fromId]['location'] = connection['from']
-                    else:
-                        aggregatedConnections[fromId]['energy'] += connection['energy'] * DELTAT
+        for time_slice in range(start, stop):
+            timely_aggregated_connections.append(user.get_aggregated_connections(start=time_slice, stop=time_slice+1))
+            timely_aggregated_deliveries.append(user.get_aggregated_deliveries(start=time_slice, stop=time_slice+1))
 
-            timely_aggregated_connections.append(aggregatedConnections)
+        aggregated_connections = user.get_aggregated_connections(start, stop)
+        aggregated_deliveries = user.get_aggregated_deliveries(start, stop)
 
-
-        aggregated_connections = user.getAggregatedConnections(start, stop)
-
-
-
-        for timeSlice in range(start, stop):
-            aggregatedDeliveries = {}
-            if timeSlice in user.deliveries.keys():
-                timeSliceDeliveries = user.deliveries[timeSlice]
-                for delivery in timeSliceDeliveries:
-                    toId = delivery['toId']
-                    if toId not in aggregatedDeliveries.keys():
-                        aggregatedDeliveries[toId] = {}
-                        aggregatedDeliveries[toId]['energy'] = delivery['energy'] * DELTAT
-                        aggregatedDeliveries[toId]['location'] = delivery['to']
-                    else:
-                        aggregatedDeliveries[toId]['energy'] += delivery['energy'] * DELTAT
-
-            timely_aggregated_deliveries.append(aggregatedDeliveries)
-
-        aggregated_deliveries = user.getAggregatedDeliveries(start, stop)
-
-        battery_simulation['battery_to_load'] = (np.multiply(user.B2L[start:stop], DELTAT)).tolist()
+        battery_simulation['battery_to_load'] = (np.multiply(user.battery_simulation['B2L'][start:stop], DELTAT)).tolist()
 
     else:
         # Default to full year, data by month
@@ -213,15 +176,15 @@ def get_period(resolution='monthly', month=None, day=None):
         resolution = 'monthly'
         name = 'Jahr 2016'
         categories = ['Jan', 'Feb', 'Mar', 'Apr', 'Mai', 'Jun', 'Jul', 'Aug', 'Sep', 'Okt', 'Nov', 'Dez']
-        demand = user.demandByMonth
-        production = user.productionByMonth
-        timely_aggregated_connections = user.monthlyAggregatedConnections
-        aggregated_connections = user.aggregateDailyConnections(user.dailyAggregatedConnections)
+        demand = user.demand_by_month
+        production = user.production_by_month
+        timely_aggregated_connections = user.monthly_aggregated_connections
+        aggregated_connections = user.aggregate_daily_connections(user.daily_aggregated_connections)
 
-        timely_aggregated_deliveries = user.monthlyAggregatedDeliveries
-        aggregated_deliveries = user.aggregateDailyDeliveries(user.dailyAggregatedDeliveries)
+        timely_aggregated_deliveries = user.monthly_aggregated_deliveries
+        aggregated_deliveries = user.aggregate_daily_deliveries(user.daily_aggregated_deliveries)
 
-        battery_simulation['battery_to_load'] = user.monthly_b2l
+        battery_simulation['battery_to_load'] = user.battery_simulation['monthly_b2l']
 
 
 
@@ -229,111 +192,63 @@ def get_period(resolution='monthly', month=None, day=None):
     # print('sum(productionByMonth: {} {}'.format(sum(production), production))
 
 
-    # Fill detail_connections
-    for connections in timely_aggregated_connections:
-        for supplier_id in connections.keys():
-            if supplier_id not in detail_connections.keys():
-                detail_connections[supplier_id] = []
+    # Fill details
+    def get_details(timely_aggregated):
+        details = {}
+        for connections in timely_aggregated:
+            for s_id in connections.keys():
+                if s_id not in details.keys():
+                    details[s_id] = []
 
-    for connections in timely_aggregated_connections:
-        for supplier_id, connection in connections.iteritems():
-            detail_connections[supplier_id].append(connection['energy'] / 1000)
+        for connections in timely_aggregated:
+            for s_id, connection in connections.iteritems():
+                details[s_id].append(connection['energy'] / 1000)
 
-        for supplier_id in detail_connections.keys():
-            if supplier_id not in connections.keys():
-                detail_connections[supplier_id].append(0)
+            for s_id in details.keys():
+                if s_id not in connections.keys():
+                    details[s_id].append(0)
+        return details
 
+    def get_categorized(details):
+        categorized = {'self': {'sum': 0, 'list': [], 'time_series': np.zeros(len(categories)).tolist()},
+                       'local': {'sum': 0, 'list': [], 'time_series': np.zeros(len(categories)).tolist()},
+                       'grisons': {'sum': 0, 'list': [], 'time_series': np.zeros(len(categories)).tolist()},
+                       'other': {'sum': 0, 'list': [], 'time_series': np.zeros(len(categories)).tolist()}}
 
-    # Fill detail deliveries
-    for deliveries in timely_aggregated_deliveries:
-        for sink_id in deliveries.keys():
-            if sink_id not in detail_deliveries.keys():
-                detail_deliveries[sink_id] = []
+        for s_id, connections in details.iteritems():
+            s_distance = round(vincenty(user.location, locations[s_id]).km, 2)
+            list_entry = {}
 
-    for deliveries in timely_aggregated_deliveries:
-        for sink_id, delivery in deliveries.iteritems():
-            detail_deliveries[sink_id].append(delivery['energy'] / 1000)
+            list_entry['s_id'] = s_id
+            list_entry['distance'] = s_distance
+            list_entry['energy'] = sum(connections)
 
-        for sink_id in detail_deliveries.keys():
-            if sink_id not in deliveries.keys():
-                detail_deliveries[sink_id].append(0)
+            s_category = 'other'
+            if (s_id == user.index):
+                s_category = 'self'
+            elif s_distance < 10:
+                s_category = 'local'
+            elif (s_distance > 10) and (s_distance < 30) and (s_id != 'GRID'):
+                s_category = 'grisons'
+            elif (s_distance > 30) or (s_id == 'GRID'):
+                s_category = 'other'
 
+            categorized[s_category]['sum'] += sum(connections)
+            categorized[s_category]['list'].append(list_entry)
+            categorized[s_category]['time_series'] = np.add(categorized[s_category]['time_series'], connections).tolist()
 
-    categorized_connections = {'self': {'sum': 0, 'list': [], 'time_series': np.zeros(len(categories)).tolist()},
-                               'local': {'sum': 0, 'list': [], 'time_series': np.zeros(len(categories)).tolist()},
-                               'grisons': {'sum': 0, 'list': [], 'time_series': np.zeros(len(categories)).tolist()},
-                               'other': {'sum': 0, 'list': [], 'time_series': np.zeros(len(categories)).tolist()}}
+        # sort lists by energy
+        categorized['local']['list'] = sorted(categorized['local']['list'], key=itemgetter('energy'), reverse=True)
+        categorized['grisons']['list'] = sorted(categorized['grisons']['list'], key=itemgetter('energy'), reverse=True)
+        categorized['other']['list'] = sorted(categorized['other']['list'], key=itemgetter('energy'), reverse=True)
 
-    # Fill categorized_connections
-    for supplier_id, connections in detail_connections.iteritems():
-        supplier_distance = round(vincenty(user.location, locations[supplier_id]).km, 2)
-        list_entry = {}
+        return categorized
 
-        list_entry['supplier_id'] = supplier_id
-        list_entry['distance'] = supplier_distance
-        list_entry['energy'] = sum(connections)
+    detail_connections = get_details(timely_aggregated_connections)
+    detail_deliveries = get_details(timely_aggregated_deliveries)
 
-        supplier_category = 'other'
-        if (supplier_id == user.index):
-            supplier_category = 'self'
-        elif supplier_distance < 10:
-            supplier_category = 'local'
-        elif (supplier_distance > 10) and (supplier_distance < 30) and (supplier_id != 'GRID'):
-            supplier_category = 'grisons'
-        elif (supplier_distance > 30) or (supplier_id == 'GRID'):
-            supplier_category = 'other'
-
-        #print('LEN(CONNECTIONS: {}'.format(len(connections)))
-
-        categorized_connections[supplier_category]['sum'] += sum(connections)
-        categorized_connections[supplier_category]['list'].append(list_entry)
-        categorized_connections[supplier_category]['time_series'] = np.add(categorized_connections[supplier_category]['time_series'], connections).tolist()
-
-
-
-    # sort lists by energy
-    categorized_connections['local']['list'] = sorted(categorized_connections['local']['list'], key=itemgetter('energy'), reverse=True)
-    categorized_connections['grisons']['list'] = sorted(categorized_connections['grisons']['list'], key=itemgetter('energy'), reverse=True)
-    categorized_connections['other']['list'] = sorted(categorized_connections['other']['list'], key=itemgetter('energy'), reverse=True)
-
-    categorized_deliveries = {'self': {'sum': 0, 'list': [], 'time_series': np.zeros(len(categories)).tolist()},
-                               'local': {'sum': 0, 'list': [], 'time_series': np.zeros(len(categories)).tolist()},
-                               'grisons': {'sum': 0, 'list': [], 'time_series': np.zeros(len(categories)).tolist()},
-                               'other': {'sum': 0, 'list': [], 'time_series': np.zeros(len(categories)).tolist()}}
-
-    # Fill categorized_deliveries
-    for sink_id, deliveries in detail_deliveries.iteritems():
-        sink_distance = round(vincenty(user.location, locations[sink_id]).km, 2)
-
-        list_entry = {}
-        list_entry['sink_id'] = sink_id
-        list_entry['distance'] = sink_distance
-        list_entry['energy'] = sum(deliveries)
-
-        sink_category = 'other'
-        if (sink_id == user.index):
-            sink_category = 'self'
-        elif sink_distance < 10:
-            sink_category = 'local'
-        elif (sink_distance > 10) and (sink_distance < 30) and (sink_id != 'GRID'):
-            sink_category = 'grisons'
-        elif (sink_distance > 30) or (sink_id == 'GRID'):
-            sink_category = 'other'
-
-        categorized_deliveries[sink_category]['sum'] += sum(deliveries)
-        categorized_deliveries[sink_category]['list'].append(list_entry)
-        categorized_deliveries[sink_category]['time_series'] = np.add(categorized_deliveries[supplier_category]['time_series'], deliveries).tolist()
-
-    # print('CAT_CONNECTIONS: {}'.format(categorized_deliveries['local']['time_series']))
-    # print('CAT_CONNECTIONS: {}'.format(categorized_deliveries['other']['time_series']))
-    # print('CAT_DELIVERIES: {}'.format(categorized_deliveries))
-
-    # sort lists by energy
-    categorized_deliveries['local']['list'] = sorted(categorized_deliveries['local']['list'], key=itemgetter('energy'), reverse=True)
-    categorized_deliveries['grisons']['list'] = sorted(categorized_deliveries['grisons']['list'], key=itemgetter('energy'), reverse=True)
-    categorized_deliveries['other']['list'] = sorted(categorized_deliveries['other']['list'], key=itemgetter('energy'), reverse=True)
-
-    # print('\ncategorized_deliveries\n{}'.format(categorized_deliveries))
+    categorized_connections = get_categorized(detail_connections)
+    categorized_deliveries = get_categorized(detail_deliveries)
 
     self_consumption = [0]
     if user.index in detail_connections:
@@ -375,14 +290,14 @@ def get_period(resolution='monthly', month=None, day=None):
     user.period['battery_simulation'] = battery_simulation
 
     print('Getting {} data ({} - {})'.format(resolution, start, stop))
-    generateMap(user.period['aggregated_connections'], 'sources_map.html')
+    generate_map(user.period['aggregated_connections'], 'sources_map.html')
     #print('\n\nGENERATING SOURCES MAP USING:\n\n{}\n\n'.format(user.period['aggregated_connections']))
-    generateMap(user.period['aggregated_deliveries'], 'sinks_map.html')
+    generate_map(user.period['aggregated_deliveries'], 'sinks_map.html')
     #print('\n\nGENERATING SINKS MAP USING:\n\n{}\n\n'.format(user.period['aggregated_deliveries']))
 
 # google Maps Object
 
-def generateMap(aggregatedConnections, file_name='sources_map.html'):
+def generate_map(aggregated_connections, file_name='sources_map.html'):
     photo_dict = {'Hydro1' : 'hydro_klosters.jpeg', 'Hydro2' : 'hydro_kueblis.jpeg', 'Biogas' : 'biomass_raps.jpeg',
                   'PV1': 'solar_bauernhof.jpeg', 'PV2' : 'solar_molkerei.jpeg'}
     description_texts = {'Hydro1' : 'hydro_klosters.jpeg', 'Hydro2' : 'hydro_kueblis.jpeg', 'Biogas' : 'biomass_raps.jpeg',
@@ -410,7 +325,7 @@ def generateMap(aggregatedConnections, file_name='sources_map.html'):
     folium.Marker(user.location, popup=popup, icon=icon).add_to(osmap)
 
 
-    for supplierId, supplyDict in aggregatedConnections.iteritems():
+    for supplierId, supplyDict in aggregated_connections.iteritems():
         if supplierId != 'GRID':
             if (locations[supplierId] != user.location):
                 icon = folium.features.CustomIcon('static/img/markers/{}.png'.format(descriptions[supplierId]['TYPE']),
@@ -421,7 +336,7 @@ def generateMap(aggregatedConnections, file_name='sources_map.html'):
                     html = """
                         <img src="http://127.0.0.1:5000/static/img/photos/{photo}" style="width: 136px; height: 69px">
                         <h4>{name}</h4><br>
-                        
+
                         <p>
                         </p>
                         """.format(name=descriptions[supplierId]['NAME'], photo=photo_dict[supplierId])
@@ -451,66 +366,6 @@ def generateMap(aggregatedConnections, file_name='sources_map.html'):
     return 0
 
 
-def getMarkerList(aggregatedConnections):
-    kWhBySource = user.getKWhBySource()
-    autarky, selfConsumption = user.getAutarkySelfConsumption()
-
-    # Only print values on map with more than 1 % share.
-    filterValue = 0.005
-
-    markerList = []
-    paths = []
-
-    markerList.append({
-        'icon': 'static/img/house.png',
-        'lat': user.location[0],
-        'lng': user.location[1],
-        'infobox': "<b>Das sind Sie, {}</b><br>"
-                   "Jahresverbrauch: {:.2f} kWh<br>"
-                   "Jahreserzeugung: {:.2f}<br>"
-                   "Periodenverbrauch: {:.2f}<br>"
-                   "Eigenverbrauch: {:.2f} %<br>"
-                   "Autarkie: {:.2f} %".format(descriptions[user.index]['NAME'],
-                                               user.annualDemand,
-                                               user.annualProduction,
-                                               np.sum(kWhBySource) / 1000,
-                                               selfConsumption * 100,
-                                               autarky * 100)
-    })
-
-    for supplierId, supplyDict in aggregatedConnections.iteritems():
-        if supplierId != 'GRID':
-            if (locations[supplierId] != user.location):
-                iconFile = 'static/img/solar_small.png'
-
-                if (supplierId == 'Hydro1') or (supplierId == 'Hydro2'):
-                    iconFile = 'static/img/hydro_small.png'
-
-                if (supplierId == 'Biogas'):
-                    iconFile = 'static/img/biomass_small.png'
-
-                if (supplierId == 'Wind'):
-                    iconFile = 'static/img/wind_small.png'
-
-                supplierShare = (supplyDict['energy'] / 1000.) / (np.sum(kWhBySource) / 1000)
-                suppliedEnergy = supplyDict['energy'] / 1000
-
-                if supplierShare > filterValue:
-                    markerList.append({
-                        'icon': iconFile,
-                        'lat': locations[supplierId][0],
-                        'lng': locations[supplierId][1],
-                        'infobox': "<b>Supplier</b><br>"
-                                   "{}<br>"
-                                   "Bezogen: {:.2f} kWh<br>"
-                                   "Anteil: {:.1f} %".format(descriptions[supplierId]['NAME'],
-                                                             suppliedEnergy,
-                                                             supplierShare * 100)
-                        })
-                    paths.append([user.location, locations[supplierId]])
-    return markerList, paths
-
-# TODO: welchen kpi brauchst du? Autarkie oder Eigenverbrauch
 app = Flask(__name__)
 
 @app.before_first_request
@@ -540,47 +395,21 @@ def add_header(response):
 def os_maps():
     return send_file('osmaps.html')
 
+
 @app.route('/sources_maps')
 def sources_maps():
     return send_file('sources_map.html')
+
 
 @app.route('/sinks_maps')
 def sinks_maps():
     return send_file('sinks_map.html')
 
-@app.route("/maps")
-def maps():
-    supplierIdsOrdered, kWhSharesBySourceOrdered, dFromUserordered = getOrderedItems(getDFromUser(), user.getKWhBySource())
-    markerList, paths = getMarkerList(user.aggregatedConnections)
-    sndmap = Map(
-        identifier="sndmap",
-        lat=user.location[0],
-        lng=user.location[1],
-        style="",
-        markers = markerList,
-        polylines = paths
-    )
-    return render_template('maps.html', sndmap=sndmap, user=user, producerNames=supplierIdsOrdered, kWh_SharesBySource=kWhSharesBySourceOrdered.tolist(), dFromUserordered=dFromUserordered, descriptions=descriptions)
 
 @app.route("/osmaps/<string:type>/")
 def osmaps(type='sources'):
     #generateMap(user.period['aggregated_connections'])
     return render_template('maps.html', user=user, descriptions=descriptions, type=type, origin='maps.html')
-
-
-@app.route("/sinks")
-def sinks():
-    markerList, paths = getMarkerList(user.aggregatedDeliveries)
-    sndmap = Map(
-        identifier="sndmap",
-        lat=user.location[0],
-        lng=user.location[1],
-        style="",
-        markers = markerList,
-        polylines = paths,
-        cluster = True
-    )
-    return render_template('maps.html', sndmap=sndmap, user=user, origin='maps.html')
 
 
 @app.route("/details/osmaps/<string:type>/")

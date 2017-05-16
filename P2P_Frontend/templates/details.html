@@ -114,7 +114,7 @@
 	Highcharts.chart('bar_chart', {
 
     title: {
-    	{% if user.annualProduction > 0 %}
+    	{% if user.annual_production > 0 %}
         	text: 'Verbrauch (Quellen)'
         {% else %}
         	text: 'Verbrauch'
@@ -164,7 +164,7 @@
 
     series: [
 
-    {% if user.annualProduction > 0 %}
+    {% if user.annual_production > 0 %}
     {% endif %}
 
 	{% if type == 'sinks' %}

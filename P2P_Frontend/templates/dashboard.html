@@ -41,259 +41,260 @@
 		</div>
 	</div>
 
-	{% block footer %}
-	<script type="text/javascript" src="https://cdn.jsdelivr.net/momentjs/latest/moment.min.js"></script>
-	<!--<script type="text/javascript" src="{{ url_for('static', filename='charts/overview_chart.js') }}"></script>-->
+{% block footer %}
+<script type="text/javascript" src="https://cdn.jsdelivr.net/momentjs/latest/moment.min.js"></script>
+<!--<script type="text/javascript" src="{{ url_for('static', filename='charts/overview_chart.js') }}"></script>-->
 
-	<script type="text/javascript">
-	Highcharts.chart('pie_chart_connections', {
-		chart: {
-			backgroundColor: '#F5F5F5',
-			plotBackgroundColor: null,
-			plotBorderWidth: null,
-			plotShadow: false,
-			type: 'pie'
-		},
-		title: {
-			text: 'Meine Stromquellen',
-			align: 'left'
-		},
-		subtitle: {
-			text: '100 % = {{ user.period['sum_consumption'] }} kWh'
-		},
-		tooltip: {
-			pointFormat: '{series.name}: {point.y:.0f} kWh / <b>{point.percentage:.1f}%</b>'
-		},
-		plotOptions: {
-			pie: {
-				allowPointSelect: true,
-				cursor: 'pointer',
-				align: 'left',
-				dataLabels: {
-					enabled: false,
-					name: 'Anteile',
-					format: '<b>{point.name}</b>: {point.percentage:.1f} %',
-					style: {
-						color: (Highcharts.theme && Highcharts.theme.contrastTextColor) || 'black'
-					}
-				},
-			showInLegend: true,
-			}
-		},
-		series: [{
-			name: 'Anteil',
-			colorByPoint: true,
-			size: '100%',
-			innerSize: '60%',
-			data: [
+<script type="text/javascript">
 
-					{% for category, category_dict in user.period['categorized_connections'].iteritems() %}
-					{
-						name: '{{ category | replace("self","Selbstversorgung") | replace("local","Lokal") | replace("grisons","Graubünden") | replace("other","Sonstige") }}',
-						y: {{ category_dict['sum'] }},
-						color: '{{ category | replace("self","#08BB1E") | replace("local","#F1750A") | replace("grisons","#F1150A") | replace("other","#078C92") }}'
-					},
-					{% endfor %}
-			]
-		}],
-		legend: {
-			layout: 'vertical',
-			align: 'right',
-			verticalAlign: 'bottom',
-        	labelFormatter: function() {
-				return this.name + " (" + this.percentage.toFixed(1) + " %)";
-			}
-		}
-	});
-
-	Highcharts.chart('pie_chart_deliveries', {
-		chart: {
-			backgroundColor: '#F5F5F5',
-			plotBackgroundColor: null,
-			plotBorderWidth: null,
-			plotShadow: false,
-			type: 'pie'
-		},
-		title: {
-			text: 'Meine Stromsenken',
-			align: 'left'
-		},
-		subtitle: {
-			text: '100 % = {{ user.period['sum_production'] }} kWh'
-		},
-		tooltip: {
-			pointFormat: '{series.name}: {point.y:.0f} kWh / <b>{point.percentage:.1f}%</b>'
-		},
-		plotOptions: {
-			pie: {
-				allowPointSelect: true,
-				cursor: 'pointer',
-				align: 'left',
-				dataLabels: {
-					enabled: false,
-					name: 'Anteile',
-					format: '<b>{point.name}</b>: {point.percentage:.1f} %',
-					style: {
-						color: (Highcharts.theme && Highcharts.theme.contrastTextColor) || 'black'
-					}
-				},
-			showInLegend: true,
-			}
-		},
-		series: [{
-			name: 'Anteil',
-			colorByPoint: true,
-			size: '100%',
-			innerSize: '60%',
-			data: [
-
-					{% for category, category_dict in user.period['categorized_deliveries'].iteritems() %}
-					{
-						name: '{{ category | replace("self","Eigenverbrauch") | replace("local","Lokal") | replace("grisons","Graubünden") | replace("other","Sonstige") }}',
-						y: {{ category_dict['sum'] }},
-						color: '{{ category | replace("self","#08BB1E") | replace("local","#F1750A") | replace("grisons","#F1150A") | replace("other","#078C92") }}'
-					},
-					{% endfor %}
-			]
-		}],
-		legend: {
-			layout: 'vertical',
-			align: 'right',
-			verticalAlign: 'bottom',
-        	labelFormatter: function() {
-				return this.name + " (" + this.percentage.toFixed(1) + " %)";
-			}
-		}
-	});
-
-
-
-	{% if user.period['resolution'] == 'minimal' %}
-		Highcharts.Series.prototype.drawPoints = function() { };
-	{% endif %}
-	Highcharts.chart('overview_chart', {
-		chart: {
-			backgroundColor: '#F5F5F5'
-		},
-
-		title: {
-			{% if user.annualProduction > 0 %}
-				text: 'Verbrauch und Produktion'
-			{% else %}
-				text: 'Verbrauch'
-			{% endif %}
-		},
-
-		subtitle: {
-			text: ''
-		},
-
-		{% if user.period['resolution'] == 'monthly' %}
-		plotOptions: {
-			series: {
-				cursor: 'pointer',
-				point: {
-					events: {
-						click: function() {
-							//alert('Month: ' + this.category);
-							location.href='/getMonthlyGraph/' + this.category;
-						}
-					}
+Highcharts.chart('pie_chart_connections', {
+	chart: {
+		backgroundColor: '#F5F5F5',
+		plotBackgroundColor: null,
+		plotBorderWidth: null,
+		plotShadow: false,
+		type: 'pie'
+	},
+	title: {
+		text: 'Meine Stromquellen',
+		align: 'left'
+	},
+	subtitle: {
+		text: '100 % = {{ user.period['sum_consumption'] }} kWh'
+	},
+	tooltip: {
+		pointFormat: '{series.name}: {point.y:.0f} kWh / <b>{point.percentage:.1f}%</b>'
+	},
+	plotOptions: {
+		pie: {
+			allowPointSelect: true,
+			cursor: 'pointer',
+			align: 'left',
+			dataLabels: {
+				enabled: false,
+				name: 'Anteile',
+				format: '<b>{point.name}</b>: {point.percentage:.1f} %',
+				style: {
+					color: (Highcharts.theme && Highcharts.theme.contrastTextColor) || 'black'
 				}
-			}
-		},
-		{% endif %}
-
-		{% if user.period['resolution'] == 'daily' %}
-		plotOptions: {
-			series: {
-				cursor: 'pointer',
-				point: {
-					events: {
-						click: function() {
-							location.href='/getLast24hours/' + {{ user.period['start'] }} + '/' + this.category;
-						}
-					}
-				}
-			}
-		},
-		{% endif %}
-
-		yAxis: {
-			title: {
-				text: 'kWh'
-			}
-		},
-
-		xAxis: {
-			categories: {{ user.period['categories']|safe }},
-			{% if user.period['resolution'] == 'minimal' %}
-			labels: {
-				step: 4,
-				rotation: 45
 			},
-			{% endif %}
-			crosshair: true
-		},
+		showInLegend: true,
+		}
+	},
+	series: [{
+		name: 'Anteil',
+		colorByPoint: true,
+		size: '100%',
+		innerSize: '60%',
+		data: [
 
-		tooltip: {
-			headerFormat: '<span style="font-size:14px">{{ user.period['resolution'] | replace("daily", "Tag") | replace("monthly", "Monat") }}: {point.key}</span><br><table>',
-			pointFormat: '<tr><td style="color:{series.color};padding:0">{series.name}: </td>' +
-				'<td style="padding:0"><b>{point.y:.2f} kWh</b></td></tr>',
-			footerFormat: '</table>',
-			shared: true,
-			useHTML: true
-		},
+				{% for category, category_dict in user.period['categorized_connections'].iteritems() %}
+				{
+					name: '{{ category | replace("self","Selbstversorgung") | replace("local","Lokal") | replace("grisons","Graubünden") | replace("other","Sonstige") }}',
+					y: {{ category_dict['sum'] }},
+					color: '{{ category | replace("self","#08BB1E") | replace("local","#F1750A") | replace("grisons","#F1150A") | replace("other","#078C92") }}'
+				},
+				{% endfor %}
+		]
+	}],
+	legend: {
+		layout: 'vertical',
+		align: 'right',
+		verticalAlign: 'bottom',
+		labelFormatter: function() {
+			return this.name + " (" + this.percentage.toFixed(1) + " %)";
+		}
+	}
+});
 
-		series: [
+Highcharts.chart('pie_chart_deliveries', {
+	chart: {
+		backgroundColor: '#F5F5F5',
+		plotBackgroundColor: null,
+		plotBorderWidth: null,
+		plotShadow: false,
+		type: 'pie'
+	},
+	title: {
+		text: 'Meine Stromsenken',
+		align: 'left'
+	},
+	subtitle: {
+		text: '100 % = {{ user.period['sum_production'] }} kWh'
+	},
+	tooltip: {
+		pointFormat: '{series.name}: {point.y:.0f} kWh / <b>{point.percentage:.1f}%</b>'
+	},
+	plotOptions: {
+		pie: {
+			allowPointSelect: true,
+			cursor: 'pointer',
+			align: 'left',
+			dataLabels: {
+				enabled: false,
+				name: 'Anteile',
+				format: '<b>{point.name}</b>: {point.percentage:.1f} %',
+				style: {
+					color: (Highcharts.theme && Highcharts.theme.contrastTextColor) || 'black'
+				}
+			},
+		showInLegend: true,
+		}
+	},
+	series: [{
+		name: 'Anteil',
+		colorByPoint: true,
+		size: '100%',
+		innerSize: '60%',
+		data: [
 
-		{% if user.period['sum_production'] > 0 %}
-		{
-			type: 'spline',
-			name: 'Produktion',
-			colorByPoint: false,
-			color: '#FFA960',
-			data: {{ user.period['production'] | safe }},
-			showInLegend: true
-		},
+				{% for category, category_dict in user.period['categorized_deliveries'].iteritems() %}
+				{
+					name: '{{ category | replace("self","Eigenverbrauch") | replace("local","Lokal") | replace("grisons","Graubünden") | replace("other","Sonstige") }}',
+					y: {{ category_dict['sum'] }},
+					color: '{{ category | replace("self","#08BB1E") | replace("local","#F1750A") | replace("grisons","#F1150A") | replace("other","#078C92") }}'
+				},
+				{% endfor %}
+		]
+	}],
+	legend: {
+		layout: 'vertical',
+		align: 'right',
+		verticalAlign: 'bottom',
+		labelFormatter: function() {
+			return this.name + " (" + this.percentage.toFixed(1) + " %)";
+		}
+	}
+});
 
-		{
-			type: 'areaspline',
-			stacking: true,
-			name: 'Batterie S (4 kWh)',
-			colorByPoint: false,
-			color: '#038D14',
-			data: {{ user.period['battery_simulation']['battery_to_load'] | safe }},
-			showInLegend: true,
-			visible: false
-		},
 
-		{
-			type: 'areaspline',
-			fillOpacity: 0.5,
-			stacking: true,
-			name: 'Eigenverbrauch',
-			colorByPoint: false,
-			color: '#08BB1E',
-			data: {{ user.period['self_consumption'] | safe }},
-			showInLegend: true
+
+{% if user.period['resolution'] == 'minimal' %}
+	Highcharts.Series.prototype.drawPoints = function() { };
+{% endif %}
+Highcharts.chart('overview_chart', {
+	chart: {
+		backgroundColor: '#F5F5F5'
+	},
+
+	title: {
+		{% if user.annual_production > 0 %}
+			text: 'Verbrauch und Produktion'
+		{% else %}
+			text: 'Verbrauch'
+		{% endif %}
+	},
+
+	subtitle: {
+		text: ''
+	},
+
+	{% if user.period['resolution'] == 'monthly' %}
+	plotOptions: {
+		series: {
+			cursor: 'pointer',
+			point: {
+				events: {
+					click: function() {
+						//alert('Month: ' + this.category);
+						location.href='/getMonthlyGraph/' + this.category;
+					}
+				}
+			}
+		}
+	},
+	{% endif %}
+
+	{% if user.period['resolution'] == 'daily' %}
+	plotOptions: {
+		series: {
+			cursor: 'pointer',
+			point: {
+				events: {
+					click: function() {
+						location.href='/getLast24hours/' + {{ user.period['start'] }} + '/' + this.category;
+					}
+				}
+			}
+		}
+	},
+	{% endif %}
+
+	yAxis: {
+		title: {
+			text: 'kWh'
+		}
+	},
+
+	xAxis: {
+		categories: {{ user.period['categories']|safe }},
+		{% if user.period['resolution'] == 'minimal' %}
+		labels: {
+			step: 4,
+			rotation: 45
 		},
 		{% endif %}
+		crosshair: true
+	},
 
-		{
-			type: 'spline',
-			stacking: false,
-			name: 'Verbrauch',
-			colorByPoint: false,
-			color: '#FF6860',
-			data: {{ user.period['demand'] | safe }},
-			showInLegend: true
-		}
+	tooltip: {
+		headerFormat: '<span style="font-size:14px">{{ user.period['resolution'] | replace("daily", "Tag") | replace("monthly", "Monat") }}: {point.key}</span><br><table>',
+		pointFormat: '<tr><td style="color:{series.color};padding:0">{series.name}: </td>' +
+			'<td style="padding:0"><b>{point.y:.2f} kWh</b></td></tr>',
+		footerFormat: '</table>',
+		shared: true,
+		useHTML: true
+	},
 
-		]
+	series: [
+
+	{% if user.period['sum_production'] > 0 %}
+	{
+		type: 'spline',
+		name: 'Produktion',
+		colorByPoint: false,
+		color: '#FFA960',
+		data: {{ user.period['production'] | safe }},
+		showInLegend: true
+	},
+
+	{
+		type: 'areaspline',
+		stacking: true,
+		name: 'Batterie S (4 kWh)',
+		colorByPoint: false,
+		color: '#038D14',
+		data: {{ user.period['battery_simulation']['battery_to_load'] | safe }},
+		showInLegend: true,
+		visible: false
+	},
+
+	{
+		type: 'areaspline',
+		fillOpacity: 0.5,
+		stacking: true,
+		name: 'Eigenverbrauch',
+		colorByPoint: false,
+		color: '#08BB1E',
+		data: {{ user.period['self_consumption'] | safe }},
+		showInLegend: true
+	},
+	{% endif %}
+
+	{
+		type: 'spline',
+		stacking: false,
+		name: 'Verbrauch',
+		colorByPoint: false,
+		color: '#FF6860',
+		data: {{ user.period['demand'] | safe }},
+		showInLegend: true
+	}
+
+	]
 
 
-		});
+	});
 
-	</script>
-	{% endblock %}
+</script>
+{% endblock %}
