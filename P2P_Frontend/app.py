@@ -5,10 +5,10 @@ import pandas as pd
 import ast
 import math
 from operator import itemgetter
+import time
 
 import numpy as np
 from flask import Flask, render_template, url_for, request, send_file
-from flask_script import Manager
 from flask_googlemaps import Map, GoogleMaps
 from geopy.distance import vincenty
 import pickle
@@ -66,13 +66,79 @@ def setup_data():
         print('battery simulation size: S')
         user.prosumerSim(EbatR=4.0)
 
+        print('building periods')
+        build_periods()
+
         print('saving user_data')
         pickle.dump(user, open('../Daten/user_data/user_{}.pickle'.format(user_index), "wb"))
 
     print('Done.')
 
-    #init_period()
-    get_period()
+    set_period()
+
+
+def build_periods():
+    periods = {}
+    monthNumbers = {'Jan': 0, 'Feb': 1, 'Mar': 3, 'Apr': 4, 'Mai': 5, 'Jun': 6, 'Jul': 7, 'Aug': 8, 'Sep': 9,
+                    'Okt': 10,
+                    'Nov': 11, 'Dez': 12}
+
+    MONTHVEC = [0, 31, 29, 31, 30, 31, 30, 31, 31, 30, 31, 30, 31]
+
+    print('Building monthly period')
+    periods['monthly'] = get_period()
+
+    print('Building daily periods')
+    periods['daily'] = {}
+    for month in monthNumbers.keys():
+        # print('Building {}'.format(month))
+        periods['daily'][month] = get_period(resolution='daily', month=month)
+
+    print('Building minimal periods')
+    periods['minimal'] = {}
+    month = 0
+    for i in range(len(MONTHVEC)-1):
+        days_in_month = MONTHVEC[i]
+        month += days_in_month
+        periods['minimal'][month] = {}
+        # print('month = {}'.format(month))
+
+        for day in range(MONTHVEC[i+1]):
+            #print('day = {}'.format(day+1))
+            periods['minimal'][month][day+1] = get_period(resolution='minimal', month=month, day=day+1)
+    user.periods = periods
+
+    # print('user.periods.keys() = {}'.format(user.periods.keys()))
+    # print('user.periods["daily"].keys() = {}'.format(user.periods['daily'].keys()))
+
+
+def set_period(resolution='monthly', month=None, day=None):
+
+    if resolution == 'daily':
+        if hasattr(user, 'periods'):
+            if resolution in user.periods.keys():
+                print(month)
+
+                if month in user.periods[resolution].keys():
+                    user.period = user.periods[resolution][month]
+                else:
+                    user.period = get_period(resolution, month, day)
+
+    elif resolution == 'minimal':
+        if hasattr(user, 'periods'):
+            if resolution in user.periods.keys():
+                if month in user.periods[resolution].keys():
+                    if day in user.periods[resolution][month].keys():
+                        user.period = user.periods[resolution][month][day]
+                    else:
+                        user.period = get_period(resolution, month, day)
+
+    else:
+        if hasattr(user, 'periods'):
+            if 'monthly' in user.periods.keys():
+                user.period = user.periods[resolution]
+            else:
+                user.period = get_period(resolution, month, day)
 
 
 def get_period(resolution='monthly', month=None, day=None):
@@ -88,6 +154,7 @@ def get_period(resolution='monthly', month=None, day=None):
 
     MONTHVEC = [0, 31, 29, 31, 30, 31, 30, 31, 31, 30, 31, 30, 31]
 
+    period = {}
     start = 0
     stop = 0
     name = ''
@@ -266,34 +333,30 @@ def get_period(resolution='monthly', month=None, day=None):
     if sum_consumption > 0:
         kpi_autarky = round(sum_self_consumption / sum_consumption * 100, 2)
 
-    user.period['resolution'] = resolution
-    user.period['start'] = start
-    user.period['stop'] = stop
-    user.period['name'] = name
-    user.period['categories'] = categories
-    user.period['demand'] = demand
-    user.period['production'] = production
-    user.period['aggregated_connections'] = aggregated_connections
-    user.period['timely_aggregated_connections'] = timely_aggregated_connections
-    user.period['detail_connections'] = detail_connections
-    user.period['categorized_connections'] = categorized_connections
-    user.period['aggregated_deliveries'] = aggregated_deliveries
-    user.period['timely_aggregated_deliveries'] = timely_aggregated_deliveries
-    user.period['detail_deliveries'] = detail_deliveries
-    user.period['categorized_deliveries'] = categorized_deliveries
-    user.period['self_consumption'] = self_consumption
-    user.period['sum_consumption'] = sum_consumption
-    user.period['sum_production'] = sum_production
-    user.period['sum_self_consumption'] = sum_self_consumption
-    user.period['kpi_self_consumption'] = kpi_self_consumption
-    user.period['kpi_autarky'] = kpi_autarky
-    user.period['battery_simulation'] = battery_simulation
+    period['resolution'] = resolution
+    period['start'] = start
+    period['stop'] = stop
+    period['name'] = name
+    period['categories'] = categories
+    period['demand'] = demand
+    period['production'] = production
+    period['aggregated_connections'] = aggregated_connections
+    period['timely_aggregated_connections'] = timely_aggregated_connections
+    period['detail_connections'] = detail_connections
+    period['categorized_connections'] = categorized_connections
+    period['aggregated_deliveries'] = aggregated_deliveries
+    period['timely_aggregated_deliveries'] = timely_aggregated_deliveries
+    period['detail_deliveries'] = detail_deliveries
+    period['categorized_deliveries'] = categorized_deliveries
+    period['self_consumption'] = self_consumption
+    period['sum_consumption'] = sum_consumption
+    period['sum_production'] = sum_production
+    period['sum_self_consumption'] = sum_self_consumption
+    period['kpi_self_consumption'] = kpi_self_consumption
+    period['kpi_autarky'] = kpi_autarky
+    period['battery_simulation'] = battery_simulation
 
-    print('Getting {} data ({} - {})'.format(resolution, start, stop))
-    generate_map(user.period['aggregated_connections'], 'sources_map.html')
-    #print('\n\nGENERATING SOURCES MAP USING:\n\n{}\n\n'.format(user.period['aggregated_connections']))
-    generate_map(user.period['aggregated_deliveries'], 'sinks_map.html')
-    #print('\n\nGENERATING SINKS MAP USING:\n\n{}\n\n'.format(user.period['aggregated_deliveries']))
+    return period
 
 # google Maps Object
 
@@ -302,7 +365,7 @@ def generate_map(aggregated_connections, file_name='sources_map.html'):
                   'PV1': 'solar_bauernhof.jpeg', 'PV2' : 'solar_molkerei.jpeg'}
     description_texts = {'Hydro1' : 'hydro_klosters.jpeg', 'Hydro2' : 'hydro_kueblis.jpeg', 'Biogas' : 'biomass_raps.jpeg',
                   'PV1': 'solar_bauernhof.jpeg', 'PV2' : 'solar_molkerei.jpeg'}
-    print("generating osmap")
+    # print("generating osmap")
 
     osmap = folium.Map(location=user.location, tiles='Stamen Terrain', zoom_start=11, min_zoom=10)
 
@@ -332,26 +395,21 @@ def generate_map(aggregated_connections, file_name='sources_map.html'):
                                                   icon_size=icon_size)
 
                 if (descriptions[supplierId]['KIND'] == 'plant'):
-                    print('img: {} {}'.format(supplierId, photo_dict[supplierId]))
-                    html = """
-                        <img src="http://127.0.0.1:5000/static/img/photos/{photo}" style="width: 136px; height: 69px">
-                        <h4>{name}</h4><br>
-
-                        <p>
-                        </p>
-                        """.format(name=descriptions[supplierId]['NAME'], photo=photo_dict[supplierId])
-
                     iframe = folium.IFrame(html=render_template('tooltip.html', photo=photo_dict[supplierId],
                                                                 name=descriptions[supplierId]['NAME'],
                                                                 supplierId=supplierId),
                                            width=360, height=250)
                 else:
+                    if descriptions[supplierId]['ANONYMITY'] == True:
+                        name = 'Nachbar'
+                    else:
+                        name = descriptions[supplierId]['NAME']
                     html = """
                         <h3>{name}</h3><br>
                         Einfacher Text mit Zusammenfassssung und Bild
                         <p>
                         </p>
-                        """.format(name=descriptions[supplierId]['NAME'])
+                        """.format(name=name)
                     iframe = folium.IFrame(html=html, width=200, height=150)
 
 
@@ -371,7 +429,6 @@ app = Flask(__name__)
 @app.before_first_request
 def startup():
     setup_data()
-    print("database tables created")
 
 app.config['DEBUG'] = True
 
@@ -408,11 +465,17 @@ def sinks_maps():
 
 @app.route("/osmaps/<string:type>/")
 def osmaps(type='sources'):
+
+    generate_map(user.period['aggregated_connections'], 'sources_map.html')
+    #print('\n\nGENERATING SOURCES MAP USING:\n\n{}\n\n'.format(user.period['aggregated_connections']))
+    generate_map(user.period['aggregated_deliveries'], 'sinks_map.html')
+    #print('\n\nGENERATING SINKS MAP USING:\n\n{}\n\n'.format(user.period['aggregated_deliveries']))
+
     #generateMap(user.period['aggregated_connections'])
     return render_template('maps.html', user=user, descriptions=descriptions, type=type, origin='maps.html')
 
 
-@app.route("/details/osmaps/<string:type>/")
+@app.route("/details/<string:type>/")
 def details(type='sources'):
 
     return render_template('details.html', user=user, descriptions=descriptions, type=type, origin='details.html')
@@ -420,7 +483,7 @@ def details(type='sources'):
 
 @app.route("/setResolution/<string:resolution>/")
 def setResolution(resolution='monthly'):
-    get_period(resolution = resolution)
+    set_period(resolution = resolution)
 
     print('Setting user resolution to {}'.format(resolution))
 
@@ -428,14 +491,14 @@ def setResolution(resolution='monthly'):
 
 @app.route("/getLast24hours/<int:month>/<int:day>")
 def getLast24hours(month=244, day=10):
-    get_period('minimal', month=month, day=day)
+    set_period('minimal', month=month, day=day)
 
     return render_template('dashboard.html', user=user, descriptions=descriptions, origin='dashboard.html')
 
 
 @app.route("/getMonthlyGraph/<string:month>/")
 def getMonthlyGraph(month='Jan'):
-    get_period('daily', month=month)
+    set_period('daily', month=month)
 
     return render_template('dashboard.html', user=user, descriptions=descriptions, origin='dashboard.html')
 
@@ -482,7 +545,7 @@ def move():
     print("month_name = {}".format(month_name))
     print('\n\n')
 
-    get_period('daily', month=month_name)
+    set_period('daily', month=month_name)
 
 
     return render_template(origin, user=user, descriptions=descriptions, origin=origin)

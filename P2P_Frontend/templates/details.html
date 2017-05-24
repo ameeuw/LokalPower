@@ -112,13 +112,16 @@
 	<script>
 
 	Highcharts.chart('bar_chart', {
+	chart: {
+		backgroundColor: 'var(--chart-bg-color)',
+	},
 
     title: {
-    	{% if user.annual_production > 0 %}
-        	text: 'Verbrauch (Quellen)'
-        {% else %}
-        	text: 'Verbrauch'
-        {% endif %}
+		{% if type == 'sinks' %}
+			text: 'Verbrauch (Senken)',
+		{% else %}
+			text: 'Verbrauch (Quellen)',
+		{% endif %}
     },
 
     subtitle: {
@@ -164,9 +167,6 @@
 
     series: [
 
-    {% if user.annual_production > 0 %}
-    {% endif %}
-
 	{% if type == 'sinks' %}
 		{% for category, category_dict in user.period['categorized_deliveries'].iteritems() %}
 			{
@@ -174,11 +174,13 @@
 				stacking: true,
 				name: '{{ category | replace("self","Eigenverbrauch") | replace("local","Lokal") | replace("grisons","Graubünden") | replace("other","Sonstige") }}',
 				data: {{ category_dict['time_series'] }},
-				color: '{{ category | replace("self","#08BB1E") | replace("local","#F1750A") | replace("grisons","#F1150A") | replace("other","#078C92") }}',
+				color: '{{ category | replace("self","var(--self-color)") | replace("local","var(--local-color)") | replace("grisons","var(--grisons-color)") | replace("other","var(--other-color)") }}',
+				legendIndex: {{ category | replace("self","0") | replace("local","1") | replace("grisons","2") | replace("other","3") }},
 				showInLegend: true,
 				colorByPoint: false
 			},
 		{% endfor %}
+
 	{% else %}
 		{% for category, category_dict in user.period['categorized_connections'].iteritems() %}
 			{
@@ -186,11 +188,13 @@
 				stacking: true,
 				name: '{{ category | replace("self","Selbstversorgung") | replace("local","Lokal") | replace("grisons","Graubünden") | replace("other","Sonstige") }}',
 				data: {{ category_dict['time_series'] }},
-				color: '{{ category | replace("self","#08BB1E") | replace("local","#F1750A") | replace("grisons","#F1150A") | replace("other","#078C92") }}',
+				color: '{{ category | replace("self","var(--self-color)") | replace("local","var(--local-color)") | replace("grisons","var(--grisons-color)") | replace("other","var(--other-color)") }}',
+				legendIndex: {{ category | replace("self","0") | replace("local","1") | replace("grisons","2") | replace("other","3") }},
 				showInLegend: true,
 				colorByPoint: false
 			},
 		{% endfor %}
+
 	{% endif %}
     ]
 

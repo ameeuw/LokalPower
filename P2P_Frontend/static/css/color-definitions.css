@@ -1,0 +1,15 @@
+:root{
+    --consumption-color: #FF463C;
+    --production-color: #f8b322;
+    --self-consumption-color: #a0ac12;
+    --self-consumption-fill-color: rgba(162,173,0,0.5);
+    --battery-color: #bec64d;
+    --battery-fill-color: rgba(181,189,51,0.5);
+
+    --self-color: #a0ac12;
+    --local-color: #f8b322;
+    --grisons-color: #955096;
+    --other-color: #cb8f41;
+
+    --chart-bg-color: #f5f5f5;
+}

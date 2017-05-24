@@ -49,7 +49,7 @@
 
 Highcharts.chart('pie_chart_connections', {
 	chart: {
-		backgroundColor: '#F5F5F5',
+		backgroundColor: 'var(--chart-bg-color)',
 		plotBackgroundColor: null,
 		plotBorderWidth: null,
 		plotShadow: false,
@@ -92,7 +92,8 @@ Highcharts.chart('pie_chart_connections', {
 				{
 					name: '{{ category | replace("self","Selbstversorgung") | replace("local","Lokal") | replace("grisons","Graubünden") | replace("other","Sonstige") }}',
 					y: {{ category_dict['sum'] }},
-					color: '{{ category | replace("self","#08BB1E") | replace("local","#F1750A") | replace("grisons","#F1150A") | replace("other","#078C92") }}'
+					color: '{{ category | replace("self","var(--self-color)") | replace("local","var(--local-color)") | replace("grisons","var(--grisons-color)") | replace("other","var(--other-color)") }}',
+					legendIndex: {{ category | replace("self","0") | replace("local","1") | replace("grisons","2") | replace("other","3") }},
 				},
 				{% endfor %}
 		]
@@ -109,7 +110,7 @@ Highcharts.chart('pie_chart_connections', {
 
 Highcharts.chart('pie_chart_deliveries', {
 	chart: {
-		backgroundColor: '#F5F5F5',
+		backgroundColor: 'var(--chart-bg-color)',
 		plotBackgroundColor: null,
 		plotBorderWidth: null,
 		plotShadow: false,
@@ -152,7 +153,8 @@ Highcharts.chart('pie_chart_deliveries', {
 				{
 					name: '{{ category | replace("self","Eigenverbrauch") | replace("local","Lokal") | replace("grisons","Graubünden") | replace("other","Sonstige") }}',
 					y: {{ category_dict['sum'] }},
-					color: '{{ category | replace("self","#08BB1E") | replace("local","#F1750A") | replace("grisons","#F1150A") | replace("other","#078C92") }}'
+					color: '{{ category | replace("self","var(--self-color)") | replace("local","var(--local-color)") | replace("grisons","var(--grisons-color)") | replace("other","var(--other-color)") }}',
+					legendIndex: {{ category | replace("self","0") | replace("local","1") | replace("grisons","2") | replace("other","3") }},
 				},
 				{% endfor %}
 		]
@@ -174,7 +176,7 @@ Highcharts.chart('pie_chart_deliveries', {
 {% endif %}
 Highcharts.chart('overview_chart', {
 	chart: {
-		backgroundColor: '#F5F5F5'
+		backgroundColor: 'var(--chart-bg-color)'
 	},
 
 	title: {
@@ -248,48 +250,54 @@ Highcharts.chart('overview_chart', {
 
 	series: [
 
+	{
+		type: 'spline',
+		stacking: false,
+		name: 'Verbrauch',
+		colorByPoint: false,
+		color: 'var(--consumption-color)',
+		data: {{ user.period['demand'] | safe }},
+		showInLegend: true,
+		legendIndex: 0,
+	},
+
 	{% if user.period['sum_production'] > 0 %}
 	{
 		type: 'spline',
 		name: 'Produktion',
 		colorByPoint: false,
-		color: '#FFA960',
+		color: 'var(--production-color)',
 		data: {{ user.period['production'] | safe }},
-		showInLegend: true
-	},
-
-	{
-		type: 'areaspline',
-		stacking: true,
-		name: 'Batterie S (4 kWh)',
-		colorByPoint: false,
-		color: '#038D14',
-		data: {{ user.period['battery_simulation']['battery_to_load'] | safe }},
 		showInLegend: true,
-		visible: false
+		legendIndex: 1,
 	},
 
 	{
 		type: 'areaspline',
 		fillOpacity: 0.5,
 		stacking: true,
-		name: 'Eigenverbrauch',
+		name: 'Batterie S (4 kWh)',
 		colorByPoint: false,
-		color: '#08BB1E',
-		data: {{ user.period['self_consumption'] | safe }},
-		showInLegend: true
+		color: 'var(--battery-color)',
+		fillColor: 'var(--battery-fill-color)',
+		data: {{ user.period['battery_simulation']['battery_to_load'] | safe }},
+		showInLegend: true,
+		visible: false,
+		legendIndex: 3,
 	},
-	{% endif %}
 
 	{
-		type: 'spline',
-		stacking: false,
-		name: 'Verbrauch',
+		type: 'areaspline',
+		stacking: true,
+		name: 'Eigenverbrauch',
 		colorByPoint: false,
-		color: '#FF6860',
-		data: {{ user.period['demand'] | safe }},
-		showInLegend: true
-	}
+		color: 'var(--self-consumption-color)',
+		fillColor: 'var(--self-consumption-fill-color)',
+		data: {{ user.period['self_consumption'] | safe }},
+		showInLegend: true,
+		legendIndex: 2,
+	},
+	{% endif %}
 
 	]
 

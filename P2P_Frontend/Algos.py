@@ -102,6 +102,7 @@ class User:
         self.file_name = file_name
         self.index = idx
         self.period = {}
+        self.periods = {}
         self.period['resolution'] = 'monthly'
         self.period['month'] = 'Jan'
         self.location = location
