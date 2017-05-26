@@ -1,3 +1,5 @@
+# -*- coding: utf-8 -*-
+
 import glob
 import folium
 import os.path
@@ -12,6 +14,11 @@ from flask import Flask, render_template, url_for, request, send_file
 from flask_googlemaps import Map, GoogleMaps
 from geopy.distance import vincenty
 import pickle
+from datetime import datetime
+import calendar
+import locale
+
+locale.setlocale(locale.LC_ALL, 'de_CH')
 
 import Algos as ag
 
@@ -75,9 +82,12 @@ def setup_data():
     print('Done.')
 
     set_period()
+    # build_periods()
 
 
 def build_periods():
+
+    year = 2016
     periods = {}
     monthNumbers = {'Jan': 0, 'Feb': 1, 'Mar': 3, 'Apr': 4, 'Mai': 5, 'Jun': 6, 'Jul': 7, 'Aug': 8, 'Sep': 9,
                     'Okt': 10,
@@ -90,58 +100,53 @@ def build_periods():
 
     print('Building daily periods')
     periods['daily'] = {}
-    for month in monthNumbers.keys():
+    for month_index in range(0, 12):
         # print('Building {}'.format(month))
-        periods['daily'][month] = get_period(resolution='daily', month=month)
+        periods['daily'][month_index] = get_period(resolution='daily', month_index=month_index)
 
     print('Building minimal periods')
     periods['minimal'] = {}
-    month = 0
-    for i in range(len(MONTHVEC)-1):
-        days_in_month = MONTHVEC[i]
-        month += days_in_month
-        periods['minimal'][month] = {}
-        # print('month = {}'.format(month))
+    for month_index in range(0, 12):
+        last_day_in_month = calendar.monthrange(year, month_index+1)[1]
+        periods['minimal'][month_index] = {}
+        for day_index in range(0, last_day_in_month):
+            date = datetime.strptime('{} {} {}'.format(day_index+1, month_index+1, year), '%d %m %Y')
+            day_index = date.timetuple().tm_yday-1
+            periods['minimal'][day_index] = get_period(resolution='minimal', day_index=day_index)
 
-        for day in range(MONTHVEC[i+1]):
-            #print('day = {}'.format(day+1))
-            periods['minimal'][month][day+1] = get_period(resolution='minimal', month=month, day=day+1)
     user.periods = periods
 
-    # print('user.periods.keys() = {}'.format(user.periods.keys()))
-    # print('user.periods["daily"].keys() = {}'.format(user.periods['daily'].keys()))
+    print('user.periods.keys() = {}'.format(user.periods.keys()))
+    print('user.periods["daily"].keys() = {}'.format(user.periods['daily'].keys()))
 
 
-def set_period(resolution='monthly', month=None, day=None):
+def set_period(resolution='monthly', month_index=None, day_index=None):
 
     if resolution == 'daily':
-        if hasattr(user, 'periods'):
+        if hasattr(user, 'periods') :
             if resolution in user.periods.keys():
-                print(month)
-
-                if month in user.periods[resolution].keys():
-                    user.period = user.periods[resolution][month]
-                else:
-                    user.period = get_period(resolution, month, day)
+                if month_index in user.periods[resolution].keys():
+                    user.period = user.periods[resolution][month_index]
+            else:
+                user.period = get_period(resolution, month_index=month_index)
 
     elif resolution == 'minimal':
         if hasattr(user, 'periods'):
             if resolution in user.periods.keys():
-                if month in user.periods[resolution].keys():
-                    if day in user.periods[resolution][month].keys():
-                        user.period = user.periods[resolution][month][day]
-                    else:
-                        user.period = get_period(resolution, month, day)
+                if day_index in user.periods[resolution].keys():
+                    user.period = user.periods[resolution][day_index]
+            else:
+                user.period = get_period(resolution, day_index=day_index)
 
     else:
         if hasattr(user, 'periods'):
             if 'monthly' in user.periods.keys():
                 user.period = user.periods[resolution]
             else:
-                user.period = get_period(resolution, month, day)
+                user.period = get_period(resolution, month_index=month_index, day_index=day_index)
 
 
-def get_period(resolution='monthly', month=None, day=None):
+def get_period(resolution='monthly', month_index=None, day_index=None):
     DELTAT = 0.25
     monthNumbers = {'Jan': 1, 'Feb': 2, 'Mar': 3, 'Apr': 4, 'Mai': 5, 'Jun': 6, 'Jul': 7, 'Aug': 8, 'Sep': 9, 'Okt': 10,
                     'Nov': 11, 'Dez': 12}
@@ -173,17 +178,28 @@ def get_period(resolution='monthly', month=None, day=None):
 
     if resolution == 'daily':
         # View month with data by day
-        if (month is not None) and (month in monthNames.keys()):
-            start = sum(MONTHVEC[0:monthNumbers[month]])
-            stop = sum(MONTHVEC[0:monthNumbers[month]+1])
-        else:
-            # Default to January if month is not set
-            start = 0
-            stop = sum(MONTHVEC[0:2])
-            month = 'Jan'
+        if month_index is None:
+            month_index = 0
 
-        name = '{} 2016'.format(monthNames[month])
-        categories = range(1, MONTHVEC[monthNumbers[month]]+1)
+        year = 2016
+        day_index = 0
+        month = month_index + 1
+        last_day_in_month = calendar.monthrange(year, month)[1]
+
+        start_date = datetime.strptime('{} {}'.format(month, year), '%m %Y')
+        stop_date = datetime.strptime('{} {} {}'.format(last_day_in_month, month, year), '%d %m %Y')
+
+        start = start_date.timetuple().tm_yday - 1
+        stop = stop_date.timetuple().tm_yday
+
+        # print("start = {} ; stop = {}".format(start, stop))
+
+        name = datetime.strftime(start_date, '%B %Y')
+        # print(name)
+
+
+        #name = '{} 2016'.format(monthNames[month])
+        categories = range(1, last_day_in_month+1)
 
         demand = user.demand_by_day[start:stop]
         production = user.production_by_day[start:stop]
@@ -195,26 +211,32 @@ def get_period(resolution='monthly', month=None, day=None):
 
     elif resolution == 'minimal':
         # View 24 hours with data by 15 minutes
-        if (day is not None) and (month is not None):
-            now = int( (month+day) *  24 / DELTAT)
-            start = now - int(24 / DELTAT)
-            stop = now
-        else:
-            # Default to specific day
-            month = 244
-            day = 6
-            now = int((month + day) * 24 / DELTAT)
-            start = now - int(24 / DELTAT)
-            stop = now
 
-        month_index = 0
-        for days_in_month in MONTHVEC:
-            month = month - days_in_month
-            if month == 0:
-                break
-            month_index += 1
-        month_name = monthNameArray[month_index]
-        name = '{}. {} 2016'.format(day, month_name)
+        DELTAT = 0.25
+
+        if day_index is None:
+            day_index = 244
+
+        day_in_year = day_index + 1
+        year = 2016
+
+
+        start_date = datetime.strptime('{} {}'.format(day_in_year, year), '%j %Y')
+        month_index = start_date.timetuple().tm_mon - 1
+
+        if (day_in_year == 365) or (day_in_year == 366):
+            stop = int(day_in_year * 24 / DELTAT)
+        else:
+            stop_date = datetime.strptime('{} {}'.format(day_in_year + 1, year), '%j %Y')
+            stop = int((stop_date.timetuple().tm_yday - 1) * 24 / DELTAT)
+
+        start = int((start_date.timetuple().tm_yday - 1) * 24 / DELTAT)
+
+        name = datetime.strftime(start_date, '%A %-d. %B %Y')
+        # print(name)
+
+        # print("start = {} ; stop = {}".format(start, stop))
+
 
         categories = []
         for time_slice in range(start, stop):
@@ -223,6 +245,7 @@ def get_period(resolution='monthly', month=None, day=None):
             m = (t % 60)
             time_string = '{:0>2}:{:0>2} Uhr'.format(int(h), m)
             categories.append(time_string)
+
 
         demand = np.multiply( user.demand[start:stop], DELTAT ).tolist()
         production = np.multiply( user.production[start:stop], DELTAT ).tolist()
@@ -238,6 +261,8 @@ def get_period(resolution='monthly', month=None, day=None):
 
     else:
         # Default to full year, data by month
+        month_index = 0
+        day_index = 0
         start = 0
         stop = 35136
         resolution = 'monthly'
@@ -343,6 +368,8 @@ def get_period(resolution='monthly', month=None, day=None):
 
 
     period['resolution'] = resolution
+    period['month_index'] = month_index
+    period['day_index'] = day_index
     period['start'] = start
     period['stop'] = stop
     period['name'] = name
@@ -499,16 +526,16 @@ def setResolution(resolution='monthly'):
 
     return render_template('dashboard.html', user=user, descriptions=descriptions, origin='dashboard.html')
 
-@app.route("/setMinimalPeriod/<int:month>/<int:day>")
-def setMinimalPeriod(month=244, day=10):
-    set_period('minimal', month=month, day=day)
+@app.route("/setMinimalPeriod/<int:day>")
+def setMinimalPeriod(day=10):
+    set_period('minimal', month_index=None, day_index=day)
 
     return render_template('dashboard.html', user=user, descriptions=descriptions, origin='dashboard.html')
 
 
-@app.route("/setDailyPeriod/<string:month>/")
-def setDailyPeriod(month='Jan'):
-    set_period('daily', month=month)
+@app.route("/setDailyPeriod/<int:month>/")
+def setDailyPeriod(month=0):
+    set_period('daily', month_index=month)
 
     return render_template('dashboard.html', user=user, descriptions=descriptions, origin='dashboard.html')
 
@@ -520,63 +547,34 @@ def move():
     direction = 'next'
     if request.method=='POST':
         origin = request.form['origin']
-        start = int(request.form['start'])
         direction = request.form['direction']
-        print(request.form)
 
-
-    monthNameArray = ['Jan', 'Feb', 'Mar', 'Apr', 'Mai', 'Jun', 'Jul', 'Aug', 'Sep', 'Okt', 'Nov', 'Dez']
-
-    MONTHVEC = [0, 31, 29, 31, 30, 31, 30, 31, 31, 30, 31, 30, 31]
-
-    month = start
-    month_index = 0
-    for days_in_month in MONTHVEC:
-        month = month - days_in_month
-        if month == 0:
-            break
-        month_index += 1
-
-    limit_value = 0
-    if user.period['resolution'] == 'daily':
-        limit_value = 12 - 1
+    if direction == 'up':
+        if user.period['resolution'] == 'minimal':
+            set_period('daily', month_index=user.period['month_index'])
+        else:
+            set_period('monthly')
     else:
-        limit_value = 366 - 1
 
-        day = month / 24 * 0.25
-        print('day_prev = {}'.format(day))
-        month_index = 0
-        for days_in_month in MONTHVEC:
+        if user.period['resolution'] == 'daily':
+            if direction == 'next':
+                month_index = user.period['month_index'] + 1
+            elif direction == 'previous':
+                month_index = user.period['month_index'] - 1
 
-            if (day - days_in_month) < 0:
-                break
+            limit_value = 11
+            month_index = min(limit_value, month_index)
+            set_period('daily', month_index=month_index)
 
-            day = day - days_in_month
-            month_index += 1
+        elif user.period['resolution'] == 'minimal':
+            if direction == 'next':
+                day_index = user.period['day_index'] + 1
+            elif direction == 'previous':
+                day_index = user.period['day_index'] - 1
 
-        month_name = monthNameArray[month_index-1]
-
-        print('month_index = {}'.format(month_index))
-        print('day = {}'.format(day))
-        print('{}. {} 2016'.format(day, month_name))
-
-
-    if direction == 'next':
-        month_name = monthNameArray[min(limit_value, month_index+1)]
-    else:
-        month_name = monthNameArray[max(0, month_index-1)]
-
-
-
-    print('\n\n')
-    print("origin = {}".format(origin))
-    print("start = {}".format(start))
-    print("direction = {}".format(direction))
-    print("month_name = {}".format(month_name))
-    print('\n\n')
-
-    set_period('daily', month=month_name)
-
+            limit_value = 365
+            day_index = min(limit_value, day_index)
+            set_period('minimal', day_index=day_index)
 
     return render_template(origin, user=user, descriptions=descriptions, origin=origin)
 

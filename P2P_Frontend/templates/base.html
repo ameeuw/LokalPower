@@ -209,13 +209,12 @@
 							<center>
 								<form role="form" method="post" action="{{ url_for('move') }}">
 									<input name="origin" value="{{ origin }}" type="hidden">
-									<input name="start" value="{{ user.period['start'] }}" type="hidden">
 									<button type="action" class="btn btn-default btn-md" name="direction" value="previous">
 									  <span class="glyphicon glyphicon-chevron-left" aria-hidden="true"></span>
 									</button>
 
-								<button type="button" class="btn btn-default btn-md" style="width: 70%">
-									{{ user.period['name'] }}
+								<button type="action" class="btn btn-default btn-md" name="direction" value="up" style="width: 70%">
+									{{ user.period['name'].decode('utf-8') }}
 								</button>
 
 									<button type="action" class="btn btn-default btn-md" name="direction" value="next">
@@ -238,60 +237,59 @@
 					</div>
                 </div>
 
+				<div class="row">
+					<div class="col-md-3">
+						<div class="card card-stats">
+							<div class="card-header" style="background-color: var(--consumption-color);">
+								<i class="fa fa-bolt" aria-hidden="true"></i>
 
-					<div class="row">
-						<div class="col-md-3">
-							<div class="card card-stats">
-								<div class="card-header" style="background-color: var(--consumption-color);">
-									<i class="fa fa-bolt" aria-hidden="true"></i>
-
-								</div>
-								<div class="card-content">
-									<p class="category">Verbrauch</p>
-									<h4 class="title">{{ user.period['sum_consumption'] | round | int}}<small> kWh</small></h4>
-								</div>
 							</div>
-						</div>
-
-
-						<div class="col-md-3">
-							<div class="card card-stats">
-								<div class="card-header" style="background-color: var(--production-color);">
-									<i class="fa fa-bolt" aria-hidden="true"></i>
-								</div>
-								<div class="card-content">
-									<p class="category">Erzeugung</p>
-									<h4 class="title">{{ user.period['sum_production'] | round | int }}<small> kWh</small></h4>
-								</div>
-							</div>
-						</div>
-
-
-						<div class="col-md-3">
-							<div class="card card-stats">
-								<div class="card-header" style="background-color: var(--self-consumption-color);">
-									<i class="fa fa-windows" aria-hidden="true"></i>
-								</div>
-								<div class="card-content">
-									<p class="category">Eigenverbrauch</p>
-									<h4 class="title">{{ user.period['kpi_self_consumption'] | round(1) }}<small> %</small></h4>
-								</div>
-							</div>
-						</div>
-
-
-						<div class="col-md-3">
-							<div class="card card-stats">
-								<div class="card-header" style="background-color: var(--distance-color);">
-									<i class="glyphicon glyphicon-road aria-hidden="true"></i>
-								</div>
-								<div class="card-content">
-									<p class="category">&#216; Distanz</p>
-									<h4 class="title">{{ user.period['kpi_mean_distance'] | round(1) }}<small> km</small></h4>
-								</div>
+							<div class="card-content">
+								<p class="category">Verbrauch</p>
+								<h4 class="title">{{ user.period['sum_consumption'] | round | int}}<small> kWh</small></h4>
 							</div>
 						</div>
 					</div>
+
+
+					<div class="col-md-3">
+						<div class="card card-stats">
+							<div class="card-header" style="background-color: var(--production-color);">
+								<i class="fa fa-bolt" aria-hidden="true"></i>
+							</div>
+							<div class="card-content">
+								<p class="category">Erzeugung</p>
+								<h4 class="title">{{ user.period['sum_production'] | round | int }}<small> kWh</small></h4>
+							</div>
+						</div>
+					</div>
+
+
+					<div class="col-md-3">
+						<div class="card card-stats">
+							<div class="card-header" style="background-color: var(--self-consumption-color);">
+								<i class="fa fa-windows" aria-hidden="true"></i>
+							</div>
+							<div class="card-content">
+								<p class="category">Eigenverbrauch</p>
+								<h4 class="title">{{ user.period['kpi_self_consumption'] | round(1) }}<small> %</small></h4>
+							</div>
+						</div>
+					</div>
+
+
+					<div class="col-md-3">
+						<div class="card card-stats">
+							<div class="card-header" style="background-color: var(--distance-color);">
+								<i class="glyphicon glyphicon-road aria-hidden="true"></i>
+							</div>
+							<div class="card-content">
+								<p class="category">&#216; Distanz</p>
+								<h4 class="title">{{ user.period['kpi_mean_distance'] | round(1) }}<small> km</small></h4>
+							</div>
+						</div>
+					</div>
+				</div>
 			</div>
 
 			{%endblock%}
