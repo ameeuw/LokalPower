@@ -1,8 +1,5 @@
-
 {% extends "base.html" %}
 {% block title %}Dashboard{% endblock %}
-
-
 
 <div class="wrapper">
 	{% block sidebar %}
@@ -30,16 +27,17 @@
 								<p>Verbrauch: Karte</p>
 							</a>
 						</li>
-						<li>
-							<a href="{{ url_for('osmaps', type='sinks') }}">
-								<i class="material-icons">location_off</i>
-								<p>Produktion: Karte</p>
-							</a>
-						</li>
 						<li >
 							<a href="{{ url_for('details', type='sources') }}">
 								<i class="fa fa-share-alt" aria-hidden="true"></i>
 								<p>Verbrauch: Details</p>
+							</a>
+						</li>
+
+						<li>
+							<a href="{{ url_for('osmaps', type='sinks') }}">
+								<i class="material-icons">location_off</i>
+								<p>Produktion: Karte</p>
 							</a>
 						</li>
 						<li >
@@ -50,7 +48,7 @@
 						</li>
 
 						<li class="active">
-							<a href="{{ url_for('batterySim') }}">
+							<a href="{{ url_for('battery') }}">
 								<i class="fa fa-battery-half" aria-hidden="true"></i>
 								<p>PV-Batteriesimulator</p>
 							</a>
@@ -85,7 +83,7 @@
 						<div class="row" style="height: 48%;">
 							<div class="col-md-12" style="height: 100%; top: 5%">
 								<div class="well" style="height: 100%;">
-									<form role="form" method="post" action="{{ url_for('batterySim') }}">
+									<form role="form" method="post" action="{{ url_for('battery') }}">
 										<button name="BatteryCapacity" value="4">Batterie S (4 kWh) : 9.000,- CHF</button><br><br>
 										<button name="BatteryCapacity" value="8">Batterie M (8 kWh) : 14.500,- CHF</button><br><br>
 										<button name="BatteryCapacity" value="12">Batterie L (12 kWh) : 20.000,- CHF</button><br><br>
@@ -93,7 +91,7 @@
 									</form>
 									<!--<center><h3>Wählen Sie Ihre Batteriegrösse</h3></center>
 									<br>
-									<form role="form" method="post" action="{{ url_for('batterySim') }}">
+									<form role="form" method="post" action="{{ url_for('battery') }}">
 										<input type="range" min="0" max="30" value="{{ BatterySize }}" name="BatteryCapacity" id="BatteryCapacity"
 										step="1" onchange="showValue(this.value)" />
 
@@ -129,8 +127,8 @@
 <script src="https://ajax.googleapis.com/ajax/libs/jquery/3.1.0/jquery.min.js"></script>
 -->
 
- <script type="text/javascript">
-	
+<script type="text/javascript">
+
 var grid_to_load = {{ user.battery_simulation['annual_G2L'] |safe }};
 var solar_to_load = {{ user.battery_simulation['annual_PV2L'] |safe }};
 var battery_to_load = {{ user.battery_simulation['annual_B2L'] |safe }};
@@ -210,93 +208,84 @@ Highcharts.chart('pie_chart', {
 
 
 Highcharts.chart('overview_chart', {
-		chart: {
-			backgroundColor: 'var(--chart-bg-color)'
-		},
+	chart: {
+		backgroundColor: 'var(--chart-bg-color)'
+	},
 
+	title: {
+		text: 'Simulation'
+	},
+
+	subtitle: {
+		text: ''
+	},
+
+	yAxis: {
 		title: {
-			text: 'Simulation'
-		},
-
-		subtitle: {
-			text: ''
-		},
-
-		yAxis: {
-			title: {
-				text: 'kWh'
-			}
-		},
-
-		xAxis: {
-			crosshair: true
-		},
-
-		tooltip: {
-			headerFormat: '<span style="font-size:14px">{{ user.period['resolution'] | replace("daily", "Tag") | replace("monthly", "Monat") }}: {point.key}</span><br><table>',
-			pointFormat: '<tr><td style="color:{series.color};padding:0">{series.name}: </td>' +
-				'<td style="padding:0"><b>{point.y:.2f} kWh</b></td></tr>',
-			footerFormat: '</table>',
-			shared: true,
-			useHTML: true
-		},
-
-		series: [
-
-		{
-			type: 'spline',
-			stacking: false,
-			name: 'Produktion',
-			colorByPoint: false,
-			color: 'var(--production-color)',
-			data: monthly_pv,
-			showInLegend: true
-		},
-
-		{
-			type: 'spline',
-			stacking: false,
-			name: 'Verbrauch',
-			colorByPoint: false,
-			color: 'var(--consumption-color)',
-			data: monthly_demand,
-			showInLegend: true
-		},
-
-		{
-			type: 'areaspline',
-			stacking: true,
-			name: 'Batterie',
-			colorByPoint: false,
-			color: 'var(--battery-color)',
-			data: monthly_b2l,
-			showInLegend: true
-		},
-
-		{
-			type: 'areaspline',
-			fillOpacity: 0.5,
-			stacking: true,
-			name: 'Eigenverbrauch',
-			colorByPoint: false,
-			color: 'var(--self-consumption-color)',
-			data: monthly_pv2l,
-			showInLegend: true
+			text: 'kWh'
 		}
+	},
 
-		]
+	xAxis: {
+		crosshair: true
+	},
 
+	tooltip: {
+		headerFormat: '<span style="font-size:14px">{{ user.period['resolution'] | replace("daily", "Tag") | replace("monthly", "Monat") }}: {point.key}</span><br><table>',
+		pointFormat: '<tr><td style="color:{series.color};padding:0">{series.name}: </td>' +
+			'<td style="padding:0"><b>{point.y:.2f} kWh</b></td></tr>',
+		footerFormat: '</table>',
+		shared: true,
+		useHTML: true
+	},
 
-		});
+	series: [
 
+	{
+		type: 'spline',
+		stacking: false,
+		name: 'Produktion',
+		colorByPoint: false,
+		color: 'var(--production-color)',
+		data: monthly_pv,
+		showInLegend: true
+	},
 
+	{
+		type: 'spline',
+		stacking: false,
+		name: 'Verbrauch',
+		colorByPoint: false,
+		color: 'var(--consumption-color)',
+		data: monthly_demand,
+		showInLegend: true
+	},
 
+	{
+		type: 'areaspline',
+		stacking: true,
+		name: 'Batterie',
+		colorByPoint: false,
+		color: 'var(--battery-color)',
+		data: monthly_b2l,
+		showInLegend: true
+	},
 
+	{
+		type: 'areaspline',
+		fillOpacity: 0.5,
+		stacking: true,
+		name: 'Eigenverbrauch',
+		colorByPoint: false,
+		color: 'var(--self-consumption-color)',
+		data: monthly_pv2l,
+		showInLegend: true
+	}
 
+	]
+});
 
-    </script>
-
-	
-	{% endblock %}
+</script>
+{% endblock %}
 
 

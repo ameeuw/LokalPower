@@ -27,6 +27,7 @@ def setup_data():
     # define global variables
     global locations
     global descriptions
+    global descriptions_df
     global user
 
     # load consumption file
@@ -89,11 +90,6 @@ def build_periods():
 
     year = 2016
     periods = {}
-    monthNumbers = {'Jan': 0, 'Feb': 1, 'Mar': 3, 'Apr': 4, 'Mai': 5, 'Jun': 6, 'Jul': 7, 'Aug': 8, 'Sep': 9,
-                    'Okt': 10,
-                    'Nov': 11, 'Dez': 12}
-
-    MONTHVEC = [0, 31, 29, 31, 30, 31, 30, 31, 31, 30, 31, 30, 31]
 
     print('Building monthly period')
     periods['monthly'] = get_period()
@@ -148,16 +144,6 @@ def set_period(resolution='monthly', month_index=None, day_index=None):
 
 def get_period(resolution='monthly', month_index=None, day_index=None):
     DELTAT = 0.25
-    monthNumbers = {'Jan': 1, 'Feb': 2, 'Mar': 3, 'Apr': 4, 'Mai': 5, 'Jun': 6, 'Jul': 7, 'Aug': 8, 'Sep': 9, 'Okt': 10,
-                    'Nov': 11, 'Dez': 12}
-
-    monthNames =  {'Jan':'Januar', 'Feb':'Februar', 'Mar':'Maerz', 'Apr':'April', 'Mai':'Mai', 'Jun':'Juni',
-                   'Jul':'Juli', 'Aug':'August', 'Sep':'September', 'Okt':'Oktober', 'Nov':'November', 'Dez':'Dezember'}
-
-    monthNameArray = ['Januar', 'Februar', 'Maerz', 'April', 'Mai', 'Juni', 'Juli', 'August', 'September', 'Oktober',
-                  'November', 'Dezember']
-
-    MONTHVEC = [0, 31, 29, 31, 30, 31, 30, 31, 31, 30, 31, 30, 31]
 
     period = {}
     start = 0
@@ -197,8 +183,6 @@ def get_period(resolution='monthly', month_index=None, day_index=None):
         name = datetime.strftime(start_date, '%B %Y')
         # print(name)
 
-
-        #name = '{} 2016'.format(monthNames[month])
         categories = range(1, last_day_in_month+1)
 
         demand = user.demand_by_day[start:stop]
@@ -233,10 +217,9 @@ def get_period(resolution='monthly', month_index=None, day_index=None):
         start = int((start_date.timetuple().tm_yday - 1) * 24 / DELTAT)
 
         name = datetime.strftime(start_date, '%A %-d. %B %Y')
+
         # print(name)
-
         # print("start = {} ; stop = {}".format(start, stop))
-
 
         categories = []
         for time_slice in range(start, stop):
@@ -245,7 +228,6 @@ def get_period(resolution='monthly', month_index=None, day_index=None):
             m = (t % 60)
             time_string = '{:0>2}:{:0>2} Uhr'.format(int(h), m)
             categories.append(time_string)
-
 
         demand = np.multiply( user.demand[start:stop], DELTAT ).tolist()
         production = np.multiply( user.production[start:stop], DELTAT ).tolist()
@@ -395,31 +377,21 @@ def get_period(resolution='monthly', month_index=None, day_index=None):
 
     return period
 
-# google Maps Object
-
 def generate_map(aggregated_connections, file_name='sources_map.html'):
-    photo_dict = {'Hydro1' : 'hydro_klosters.jpeg', 'Hydro2' : 'hydro_kueblis.jpeg', 'Biogas' : 'biomass_raps.jpeg',
-                  'PV1': 'solar_bauernhof.jpeg', 'PV2' : 'solar_molkerei.jpeg'}
-    description_texts = {'Hydro1' : 'hydro_klosters.jpeg', 'Hydro2' : 'hydro_kueblis.jpeg', 'Biogas' : 'biomass_raps.jpeg',
-                  'PV1': 'solar_bauernhof.jpeg', 'PV2' : 'solar_molkerei.jpeg'}
-    # print("generating osmap")
-
     osmap = folium.Map(location=user.location, tiles='Stamen Terrain', zoom_start=11, min_zoom=10)
 
     #osmap = folium.Map(location=user.location, zoom_start=11, min_zoom=10,
     #                   tiles = 'https://api.mapbox.com/styles/v1/tscheng805/cj2a7l00s004j2sn0f4a938in/tiles/256/{z}/{x}/{y}?access_token=pk.eyJ1IjoidHNjaGVuZzgwNSIsImEiOiJjajJhNzJ1cGIwMDBkMzNvNXdtbDJ5OHhyIn0.veVS3rSwK4U0NoHEWxXK1g',
     #                   attr = 'XXX Mapbox Attribution')
 
-    # Only print values on map with more than 1 % share.
-    filterValue = 0.005
     icon_size = (25, 25)
-    html = """
-        <h3>Das sind Sie!</h3><b>
-        Einfacher Text mit Zusammenfassung und Bild
-        <p>
-        </p>
-        """
-    iframe = folium.IFrame(html=html, width=250, height=200)
+
+    iframe = folium.IFrame(html=render_template('tooltip.html', photo=descriptions_df.loc[user.index]['PHOTO'],
+                                                name=descriptions[user.index]['NAME'],
+                                                supplierId=user.index),
+                            width=360, height=250)
+
+
     popup = folium.Popup(iframe, max_width=2650)
     icon = folium.Icon(icon='home', color='green')
     folium.Marker(user.location, popup=popup, icon=icon).add_to(osmap)
@@ -432,23 +404,20 @@ def generate_map(aggregated_connections, file_name='sources_map.html'):
                                                   icon_size=icon_size)
 
                 if (descriptions[supplierId]['KIND'] == 'plant'):
-                    iframe = folium.IFrame(html=render_template('tooltip.html', photo=photo_dict[supplierId],
+                    iframe = folium.IFrame(html=render_template('tooltip.html', photo=descriptions_df.loc[supplierId]['PHOTO'],
                                                                 name=descriptions[supplierId]['NAME'],
                                                                 supplierId=supplierId),
-                                           width=360, height=250)
+                                            width=360, height=250)
                 else:
                     if descriptions[supplierId]['ANONYMITY'] == True:
                         name = 'Nachbar'
                     else:
                         name = descriptions[supplierId]['NAME']
-                    html = """
-                        <h3>{name}</h3><br>
-                        Einfacher Text mit Zusammenfassssung und Bild
-                        <p>
-                        </p>
-                        """.format(name=name)
-                    iframe = folium.IFrame(html=html, width=200, height=150)
 
+                    iframe = folium.IFrame(html=render_template('tooltip.html', photo=descriptions_df.loc[supplierId]['PHOTO'],
+                                                                name=name,
+                                                                supplierId=supplierId),
+                                            width=360, height=250)
 
                 popup = folium.Popup(iframe, max_width=2650)
 
@@ -463,27 +432,24 @@ def generate_map(aggregated_connections, file_name='sources_map.html'):
 
 app = Flask(__name__)
 
+
 @app.before_first_request
 def startup():
     setup_data()
 
 app.config['DEBUG'] = True
 
-app.config['GOOGLEMAPS_KEY'] = "8JZ7i18MjFuM35dJHq70n3Hx4"
-
-# Initialize the extension
-GoogleMaps(app)
-
-# app.before_first_request(setup_data)
 
 @app.route("/")
 def home():
     return render_template('dashboard.html', user=user, descriptions=descriptions, origin='dashboard.html')
 
+
 @app.after_request
 def add_header(response):
     response.cache_control.max_age = 30
     return response
+
 
 @app.route('/os_maps')
 def os_maps():
@@ -526,6 +492,7 @@ def setResolution(resolution='monthly'):
 
     return render_template('dashboard.html', user=user, descriptions=descriptions, origin='dashboard.html')
 
+
 @app.route("/setMinimalPeriod/<int:day>")
 def setMinimalPeriod(day=10):
     set_period('minimal', month_index=None, day_index=day)
@@ -543,7 +510,6 @@ def setDailyPeriod(month=0):
 @app.route("/move", methods=['GET','POST'])
 def move():
     origin = 'dashboard.html'
-    start = 0
     direction = 'next'
     if request.method=='POST':
         origin = request.form['origin']
@@ -578,8 +544,9 @@ def move():
 
     return render_template(origin, user=user, descriptions=descriptions, origin=origin)
 
-@app.route("/batterySim", methods=["GET","POST"])
-def batterySim():
+
+@app.route("/battery", methods=["GET","POST"])
+def battery():
 
     EbatR=0.0
     if request.method=='POST':

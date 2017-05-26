@@ -41,6 +41,12 @@
                             <p>Verbrauch: Karte</p>
                         </a>
                     </li>
+                    <li >
+                        <a href="{{ url_for('details', type='sources') }}">
+                            <i class="fa fa-share-alt" aria-hidden="true"></i>
+                            <p>Verbrauch: Details</p>
+                        </a>
+                    </li>
 
                     <li
                     {% if type == 'sinks' %}
@@ -51,14 +57,6 @@
                             <p>Produktion: Karte</p>
                         </a>
                     </li>
-
-                    <li >
-                        <a href="{{ url_for('details', type='sources') }}">
-                            <i class="fa fa-share-alt" aria-hidden="true"></i>
-                            <p>Verbrauch: Details</p>
-                        </a>
-                    </li>
-
                     <li >
                         <a href="{{ url_for('details', type='sinks') }}">
                             <i class="fa fa-share-alt" aria-hidden="true"></i>
@@ -67,7 +65,7 @@
                     </li>
 
                     <li>
-                        <a href="{{ url_for('batterySim') }}">
+                        <a href="{{ url_for('battery') }}">
                             <i class="fa fa-battery-half" aria-hidden="true"></i>
                             <p>PV-Batteriesimulator</p>
                         </a>

@@ -1,10 +1,7 @@
-
 {% extends "base.html" %}
 {% block title %}Dashboard{% endblock %}
 
 <div class="wrapper">
-
-
 	<div class="main-panel" style="">
 		<div class="content">
 		{% block body %}
@@ -243,7 +240,7 @@ Highcharts.chart('overview_chart', {
 	tooltip: {
 		headerFormat: '<span style="font-size:14px">{{ user.period['resolution'] | replace("daily", "Tag") | replace("monthly", "Monat") }}: {point.key}</span><br><table>',
 		pointFormat: '<tr><td style="color:{series.color};padding:0">{series.name}: </td>' +
-			'<td style="padding:0"><b>{point.y:.2f} kWh</b></td></tr>',
+			'<td style="padding:5"><b>{point.y:.2f}</b> kWh</td></tr>',
 		footerFormat: '</table>',
 		shared: true,
 		useHTML: true
