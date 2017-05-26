@@ -59,7 +59,6 @@
 
 	<div class="wrapper">
 
-
 		{% block sidebar %}
 
 		<div class="sidebar" data-color="purple" data-image="../assets/img/sidebar-1.jpg">
@@ -125,7 +124,6 @@
 
 
 	    <div class="main-panel">
-
 			{% block navheader %}
 			<nav class="navbar navbar-transparent navbar-absolute">
 				<div class="container-fluid">
@@ -201,50 +199,48 @@
 
 			<div class="container">
 
-                <div class="row">
-                    <div class="col-md-4">
+				<div class="well">
+                	<div class="row">
 
-                    </div>
+						<div class="col-md-4"></div>
 
-                    <div class="col-md-1">
-						<form role="form" method="post" action="{{ url_for('move') }}">
-							<input name="origin" value="{{ origin }}" type="hidden">
-							<input name="start" value="{{ user.period['start'] }}" type="hidden">
-							<button type="action" class="btn btn-default btn-md" name="direction" value="previous">
-							  <span class="glyphicon glyphicon-chevron-left" aria-hidden="true"></span>
-							</button>
-						</form>
-                    </div>
 
-                    <div class="col-md-2">
-                        <center>
-                            <h3  style="vertical-align: middle;">{{ user.period['name'] }}</h3>
-                        </center>
-                    </div>
+						<div class="col-md-4">
+							<center>
+								<form role="form" method="post" action="{{ url_for('move') }}">
+									<input name="origin" value="{{ origin }}" type="hidden">
+									<input name="start" value="{{ user.period['start'] }}" type="hidden">
+									<button type="action" class="btn btn-default btn-md" name="direction" value="previous">
+									  <span class="glyphicon glyphicon-chevron-left" aria-hidden="true"></span>
+									</button>
 
-                    <div class="col-md-1">
-						<form role="form" method="post" action="{{ url_for('move') }}">
-							<input name="origin" value="{{ origin }}" type="hidden">
-							<input name="start" value="{{ user.period['start'] }}" type="hidden">
-							<button type="action" class="btn btn-default btn-md" name="direction" value="next">
-							  <span class="glyphicon glyphicon-chevron-right" aria-hidden="true"></span>
-							</button>
-						</form>
-                    </div>
+								<button type="button" class="btn btn-default btn-md" style="width: 70%">
+									{{ user.period['name'] }}
+								</button>
 
-                    <div class="col-md-4" style="align: right">
-						<div class="btn-group" role="group" aria-label="Resolution">
-							<button type="button" class="btn btn" onclick="location.href='{{ url_for('getLast24hours', month=244, day=10) }}'">24h</button>
-							<button type="button" class="btn btn" onclick="location.href='{{ url_for('setResolution', resolution='daily') }}'">Monat</button>
-							<button type="button" class="btn btn" onclick="location.href='{{ url_for('setResolution', resolution='monthly') }}'">Jahr</button>
+									<button type="action" class="btn btn-default btn-md" name="direction" value="next">
+									  <span class="glyphicon glyphicon-chevron-right" aria-hidden="true"></span>
+									</button>
+								</form>
+							</center>
 						</div>
-                    </div>
+
+
+						<div class="col-md-1"></div>
+
+						<div class="col-md-3" style="align: right">
+							<div class="btn-group" role="group" aria-label="Resolution">
+								<button type="button" class="btn btn" onclick="location.href='{{ url_for('setMinimalPeriod', month=244, day=10) }}'">24h</button>
+								<button type="button" class="btn btn" onclick="location.href='{{ url_for('setResolution', resolution='daily') }}'">Monat</button>
+								<button type="button" class="btn btn" onclick="location.href='{{ url_for('setResolution', resolution='monthly') }}'">Jahr</button>
+							</div>
+						</div>
+					</div>
                 </div>
 
 
-				<div class="row">
 					<div class="row">
-						<div class="col-md-4">
+						<div class="col-md-3">
 							<div class="card card-stats">
 								<div class="card-header" style="background-color: var(--consumption-color);">
 									<i class="fa fa-bolt" aria-hidden="true"></i>
@@ -258,7 +254,7 @@
 						</div>
 
 
-						<div class="col-md-4">
+						<div class="col-md-3">
 							<div class="card card-stats">
 								<div class="card-header" style="background-color: var(--production-color);">
 									<i class="fa fa-bolt" aria-hidden="true"></i>
@@ -271,7 +267,7 @@
 						</div>
 
 
-						<div class="col-md-4">
+						<div class="col-md-3">
 							<div class="card card-stats">
 								<div class="card-header" style="background-color: var(--self-consumption-color);">
 									<i class="fa fa-windows" aria-hidden="true"></i>
@@ -282,8 +278,20 @@
 								</div>
 							</div>
 						</div>
+
+
+						<div class="col-md-3">
+							<div class="card card-stats">
+								<div class="card-header" style="background-color: var(--distance-color);">
+									<i class="glyphicon glyphicon-road aria-hidden="true"></i>
+								</div>
+								<div class="card-content">
+									<p class="category">&#216; Distanz</p>
+									<h4 class="title">{{ user.period['kpi_mean_distance'] | round(1) }}<small> km</small></h4>
+								</div>
+							</div>
+						</div>
 					</div>
-				</div>
 			</div>
 
 			{%endblock%}

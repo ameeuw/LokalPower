@@ -199,7 +199,8 @@ Highcharts.chart('overview_chart', {
 				events: {
 					click: function() {
 						//alert('Month: ' + this.category);
-						location.href='/getMonthlyGraph/' + this.category;
+						// TODO: use this.index for setting daily period
+						location.href='/setDailyPeriod/' + this.category;
 					}
 				}
 			}
@@ -214,7 +215,12 @@ Highcharts.chart('overview_chart', {
 			point: {
 				events: {
 					click: function() {
-						location.href='/getLast24hours/' + {{ user.period['start'] }} + '/' + this.category;
+						// add up start of period and clicked day in month
+
+						day = {{ user.period['start'] }} + this.index;
+						alert('day: ' + day);
+						// TODO: use day to set minimal period
+						location.href='/setMinimalPeriod/' + {{ user.period['start'] }} + '/' + this.index;
 					}
 				}
 			}

@@ -333,6 +333,15 @@ def get_period(resolution='monthly', month=None, day=None):
     if sum_consumption > 0:
         kpi_autarky = round(sum_self_consumption / sum_consumption * 100, 2)
 
+    distance_energy_sum = 0
+    for s_id, connections in detail_connections.iteritems():
+        s_distance = round(vincenty(user.location, locations[s_id]).km, 2)
+        energy_sum = sum(connections)
+        distance_energy_sum += s_distance * energy_sum
+
+    kpi_mean_distance = round(distance_energy_sum / sum_consumption, 2)
+
+
     period['resolution'] = resolution
     period['start'] = start
     period['stop'] = stop
@@ -354,6 +363,7 @@ def get_period(resolution='monthly', month=None, day=None):
     period['sum_self_consumption'] = sum_self_consumption
     period['kpi_self_consumption'] = kpi_self_consumption
     period['kpi_autarky'] = kpi_autarky
+    period['kpi_mean_distance'] = kpi_mean_distance
     period['battery_simulation'] = battery_simulation
 
     return period
@@ -489,15 +499,15 @@ def setResolution(resolution='monthly'):
 
     return render_template('dashboard.html', user=user, descriptions=descriptions, origin='dashboard.html')
 
-@app.route("/getLast24hours/<int:month>/<int:day>")
-def getLast24hours(month=244, day=10):
+@app.route("/setMinimalPeriod/<int:month>/<int:day>")
+def setMinimalPeriod(month=244, day=10):
     set_period('minimal', month=month, day=day)
 
     return render_template('dashboard.html', user=user, descriptions=descriptions, origin='dashboard.html')
 
 
-@app.route("/getMonthlyGraph/<string:month>/")
-def getMonthlyGraph(month='Jan'):
+@app.route("/setDailyPeriod/<string:month>/")
+def setDailyPeriod(month='Jan'):
     set_period('daily', month=month)
 
     return render_template('dashboard.html', user=user, descriptions=descriptions, origin='dashboard.html')
@@ -512,6 +522,7 @@ def move():
         origin = request.form['origin']
         start = int(request.form['start'])
         direction = request.form['direction']
+        print(request.form)
 
 
     monthNameArray = ['Jan', 'Feb', 'Mar', 'Apr', 'Mai', 'Jun', 'Jul', 'Aug', 'Sep', 'Okt', 'Nov', 'Dez']
@@ -532,10 +543,29 @@ def move():
     else:
         limit_value = 366 - 1
 
+        day = month / 24 * 0.25
+        print('day_prev = {}'.format(day))
+        month_index = 0
+        for days_in_month in MONTHVEC:
+
+            if (day - days_in_month) < 0:
+                break
+
+            day = day - days_in_month
+            month_index += 1
+
+        month_name = monthNameArray[month_index-1]
+
+        print('month_index = {}'.format(month_index))
+        print('day = {}'.format(day))
+        print('{}. {} 2016'.format(day, month_name))
+
+
     if direction == 'next':
         month_name = monthNameArray[min(limit_value, month_index+1)]
     else:
         month_name = monthNameArray[max(0, month_index-1)]
+
 
 
     print('\n\n')
