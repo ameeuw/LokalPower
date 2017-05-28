@@ -493,18 +493,19 @@ def setResolution(resolution='monthly'):
     return render_template('dashboard.html', user=user, descriptions=descriptions, origin='dashboard.html')
 
 
-@app.route("/setMinimalPeriod/<int:day>")
-def setMinimalPeriod(day=10):
+@app.route("/setMinimalPeriod/<int:day>/<string:origin>/<string:type>/")
+def setMinimalPeriod(day=10, origin='dashboard.html', type=None):
     set_period('minimal', month_index=None, day_index=day)
 
-    return render_template('dashboard.html', user=user, descriptions=descriptions, origin='dashboard.html')
+    return render_template(origin, type=type, user=user, descriptions=descriptions, origin=origin)
 
 
-@app.route("/setDailyPeriod/<int:month>/")
-def setDailyPeriod(month=0):
+@app.route("/setDailyPeriod/<int:month>/<string:origin>/<string:type>/")
+def setDailyPeriod(month=0, origin='dashboard.html', type=None):
     set_period('daily', month_index=month)
 
-    return render_template('dashboard.html', user=user, descriptions=descriptions, origin='dashboard.html')
+    return render_template(origin, type=type, user=user, descriptions=descriptions, origin=origin)
+
 
 
 @app.route("/move", methods=['GET','POST'])
@@ -512,6 +513,7 @@ def move():
     origin = 'dashboard.html'
     direction = 'next'
     if request.method=='POST':
+        type = request.form['type']
         origin = request.form['origin']
         direction = request.form['direction']
 
@@ -542,7 +544,7 @@ def move():
             day_index = min(limit_value, day_index)
             set_period('minimal', day_index=day_index)
 
-    return render_template(origin, user=user, descriptions=descriptions, origin=origin)
+    return render_template(origin, user=user, descriptions=descriptions, origin=origin, type=type)
 
 
 @app.route("/battery", methods=["GET","POST"])

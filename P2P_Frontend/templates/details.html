@@ -110,7 +110,7 @@
 
     title: {
 		{% if type == 'sinks' %}
-			text: 'Verbrauch (Senken)',
+			text: 'Produktion (Senken)',
 		{% else %}
 			text: 'Verbrauch (Quellen)',
 		{% endif %}
@@ -120,21 +120,37 @@
         text: ''
     },
 
-	{% if user.resolution == 'monthly' %}
+	{% if user.period['resolution'] == 'monthly' %}
     plotOptions: {
     	series: {
     		cursor: 'pointer',
     		point: {
     			events: {
     				click: function() {
-    					//alert('Month: ' + this.category);
-    					location.href='/getDailyPeriod/' + this.category;
+    					location.href='/setDailyPeriod/' + this.index + '/' + '{{ origin }}' + '/' + '{{ type }}';
     				}
     			}
     		}
     	}
     },
     {% endif %}
+
+	{% if user.period['resolution'] == 'daily' %}
+	plotOptions: {
+		series: {
+			cursor: 'pointer',
+			point: {
+				events: {
+					click: function() {
+						// add up start of period and clicked day in month
+						day = {{ user.period['start'] }} + this.index;
+						location.href='/setMinimalPeriod/' + day + '/' + '{{ origin }}' + '/' + '{{ type }}';
+					}
+				}
+			}
+		}
+	},
+	{% endif %}
 
 
     yAxis: {
@@ -149,7 +165,7 @@
     },
 
     tooltip: {
-        headerFormat: '<span style="font-size:14px">Monat: {point.key}</span><br><table>',
+        headerFormat: '<span style="font-size:14px">{{ user.period['resolution'] | replace("daily", "Tag") | replace("monthly", "Monat") }}: {point.key}</span><br><table>',
         pointFormat: '<tr><td style="color:{series.color};padding:0">{series.name}: </td>' +
             '<td style="padding:0"><b>{point.y:.2f} kWh</b></td></tr>',
         footerFormat: '</table>',

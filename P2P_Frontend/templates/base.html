@@ -210,6 +210,7 @@
 							<center>
 								<form role="form" method="post" action="{{ url_for('move') }}">
 									<input name="origin" value="{{ origin }}" type="hidden">
+									<input name="type" value="{{ type }}" type="hidden">
 									<button type="action" class="btn btn-default btn-md" name="direction" value="previous">
 									  <span class="glyphicon glyphicon-chevron-left" aria-hidden="true"></span>
 									</button>
@@ -230,7 +231,7 @@
 
 						<div class="col-md-3" style="align: right">
 							<div class="btn-group" role="group" aria-label="Resolution">
-								<button type="button" class="btn btn" onclick="location.href='{{ url_for('setMinimalPeriod', month=244, day=10) }}'">24h</button>
+								<button type="button" class="btn btn" onclick="location.href='{{ url_for('setMinimalPeriod', day=244, origin='dashboard.html', type='') }}'">24h</button>
 								<button type="button" class="btn btn" onclick="location.href='{{ url_for('setResolution', resolution='daily') }}'">Monat</button>
 								<button type="button" class="btn btn" onclick="location.href='{{ url_for('setResolution', resolution='monthly') }}'">Jahr</button>
 							</div>
