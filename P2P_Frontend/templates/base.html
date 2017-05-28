@@ -203,10 +203,10 @@
 				<div class="well">
                 	<div class="row">
 
-						<div class="col-md-4"></div>
+						<div class="col-md-3"></div>
 
 
-						<div class="col-md-4">
+						<div class="col-md-6">
 							<center>
 								<form role="form" method="post" action="{{ url_for('move') }}">
 									<input name="origin" value="{{ origin }}" type="hidden">
@@ -227,8 +227,8 @@
 						</div>
 
 
-						<div class="col-md-1"></div>
-
+						<div class="col-md-3"></div>
+						<!--
 						<div class="col-md-3" style="align: right">
 							<div class="btn-group" role="group" aria-label="Resolution">
 								<button type="button" class="btn btn" onclick="location.href='{{ url_for('setMinimalPeriod', day=244, origin='dashboard.html', type='') }}'">24h</button>
@@ -236,6 +236,7 @@
 								<button type="button" class="btn btn" onclick="location.href='{{ url_for('setResolution', resolution='monthly') }}'">Jahr</button>
 							</div>
 						</div>
+						-->
 					</div>
                 </div>
 

@@ -88,13 +88,13 @@
 				<div class="row embed-responsive embed-responsive-16by9" style="">
 					<div class="col-md-8 embed-responsive-item" style="width: 65%;">
                         {% if type == 'sinks' %}
-                        <iframe class="well" src="{{ url_for('sinks_maps') }}" style="left: 2%; width: 96%; height: 79%"></iframe>
+                        <iframe class="well" src="{{ url_for('sinks_maps') }}" style="left: 2%; width: 96%; height: 75%"></iframe>
                         {% else %}
-                        <iframe class="well" src="{{ url_for('sources_maps') }}" style="left: 2%; width: 96%; height: 79%"></iframe>
+                        <iframe class="well" src="{{ url_for('sources_maps') }}" style="left: 2%; width: 96%; height: 75%"></iframe>
                         {% endif %}
 					</div>
 
-                    <div class="col-md-4 embed-responsive-item" style="left: 65%; max-width: 35%; max-height: 100%">
+                    <div class="col-md-4 embed-responsive-item" style="left: 65%; max-width: 35%; max-height: 78%">
                         <div class="well">
                             {% if type == 'sinks' %}
                             {% include 'sinks_accordion_list.html' %}
