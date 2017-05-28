@@ -52,3 +52,7 @@ P2P_Frontend/sources_map\.html
 P2P_Frontend/sinks_map\.html
 
 P2P_Frontend/osmaps\.html
+
+Daten/\.ipynb_checkpoints/
+
+Daten/sthelens\.html

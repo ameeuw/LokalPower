@@ -12,5 +12,21 @@
     --grisons-color: rgb(191,151,197);
     --other-color: #cb8f41;
 
-    --chart-bg-color: #f5f5f5;
+    --chart-bg-color: rgb(240,240,240);
+    --well-bg-color: rgb(240,240,240);
+}
+
+.well {
+    background-color: var(--well-bg-color) !important;
+}
+
+.row {
+  display: -webkit-box;
+  display: -webkit-flex;
+  display: -ms-flexbox;
+  display:         flex;
+}
+.row > [class*='col-'] {
+	 display: flex;
+	 flex-direction: column;
 }

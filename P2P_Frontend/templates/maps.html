@@ -81,26 +81,20 @@
 
     <div class="main-panel">
 
-        <div class="content">
+        <div class="content-fluid">
             {% block body %}
 
             <div class="container-fluid">
+				<div class="row embed-responsive embed-responsive-16by9" style="">
+					<div class="col-md-8 embed-responsive-item" style="width: 65%;">
+                        {% if type == 'sinks' %}
+                        <iframe class="well" src="{{ url_for('sinks_maps') }}" style="left: 2%; width: 96%; height: 79%"></iframe>
+                        {% else %}
+                        <iframe class="well" src="{{ url_for('sources_maps') }}" style="left: 2%; width: 96%; height: 79%"></iframe>
+                        {% endif %}
+					</div>
 
-                <div class="row">
-                    <div class="col-md-8">
-                        <div class="well">
-                            <!--<div id="sndmap" class="map" style="height: 450px; width: 720px;"></div>-->
-                            <div class="embed-responsive embed-responsive-16by9">
-                                {% if type == 'sinks' %}
-                                <iframe class="embed-responsive-item" src="{{ url_for('sinks_maps') }}" style=""></iframe>
-                                {% else %}
-                                <iframe class="embed-responsive-item" src="{{ url_for('sources_maps') }}" style=""></iframe>
-                                {% endif %}
-                            </div>
-                        </div>
-                    </div>
-
-                    <div class="col-md-4" style="height: 100%px">
+                    <div class="col-md-4 embed-responsive-item" style="left: 65%; max-width: 35%; max-height: 100%">
                         <div class="well">
                             {% if type == 'sinks' %}
                             {% include 'sinks_accordion_list.html' %}
@@ -109,12 +103,10 @@
                             {% endif %}
                         </div>
                     </div>
+
                 </div>
             </div>
-
-
-                {% endblock %}
-
+            {% endblock %}
         </div>
     </div>
 
