@@ -62,26 +62,25 @@
 	<div class="main-panel">
 		<div class="content">
 		{% block body %}
+
 			<div class="container-fluid">
 				<div class="row embed-responsive embed-responsive-16by9" style="">
 
 					<div class="col-md-8 embed-responsive-item" style="width: 65%;">
-						<div class="well">
-							<div class="" id="overview_chart" style=""></div>
-						</div>
+						<div class="well" id="overview_chart" style="height: 75%"></div>
 					</div>
 
-					<div class="col-md-4 embed-responsive-item" style="left: 65%; max-width: 35%; max-height: 65%">
-						<div class="row" style="height: 50%">
+					<div class="col-md-4 embed-responsive-item" style="left: 65%; max-width: 35%; max-height: 74.5%">
+						<div class="row" style="height: 100%;">
 							<div class="col-md-12" style="height: 100%">
 								<div class="well" style="height: 100%">
-									<div id="pie_chart" style="height: 100%;"></div>
+									<div id="pie_chart" style="height: 100%"></div>
 								</div>
 							</div>
 						</div>
 
-						<div class="row" style="height: 48%;">
-							<div class="col-md-12" style="height: 100%; top: 5%">
+						<div class="row" style="height: 100%;">
+							<div class="col-md-12" style="height: 100%; top: 8%">
 								<div class="well" style="height: 100%;">
 									<form role="form" method="post" action="{{ url_for('battery') }}">
 										<button name="BatteryCapacity" value="4">Batterie S (4 kWh) : 9.000,- CHF</button><br><br>
@@ -89,22 +88,6 @@
 										<button name="BatteryCapacity" value="12">Batterie L (12 kWh) : 20.000,- CHF</button><br><br>
 										<button name="BatteryCapacity" value="16">Batterie XL (16 kWh) : 25.000,- CHF</button><br><br>
 									</form>
-									<!--<center><h3>Wählen Sie Ihre Batteriegrösse</h3></center>
-									<br>
-									<form role="form" method="post" action="{{ url_for('battery') }}">
-										<input type="range" min="0" max="30" value="{{ BatterySize }}" name="BatteryCapacity" id="BatteryCapacity"
-										step="1" onchange="showValue(this.value)" />
-
-										<span id="range"><h3>{{ BatterySize }} kWh</h3></span>
-										<script type="text/javascript">
-
-										function showValue(newValue)
-										{
-											document.getElementById("range").innerHTML = "<h3>" + newValue + " kWh</h3>";
-										}
-										</script>
-										<input type="submit" class="btn btn-primary" value="Submit" />
-									</form>-->
 								</div>
 							</div>
 						</div>
@@ -181,18 +164,24 @@ Highcharts.chart('pie_chart', {
 			{
 				name: 'Solar (direkt)',
 				color: 'var(--local-color)',
-				y: solar_to_load
+				y: solar_to_load,
+				showInLegend: true,
+				legendIndex: 0
 			},
 			{
 				name: 'Batterie',
 				color: 'var(--battery-color)',
 				y: battery_to_load,
-				sliced: true
+				sliced: true,
+				showInLegend: true,
+				legendIndex: 1
 			},
 			{
 				name: 'Netz',
 				color: 'var(--other-color)',
-				y: grid_to_load
+				y: grid_to_load,
+				showInLegend: true,
+				legendIndex: 2
 			}
 		]
 	}],
@@ -201,7 +190,7 @@ Highcharts.chart('pie_chart', {
 		align: 'right',
 		verticalAlign: 'bottom',
 		labelFormatter: function() {
-			return this.name + "(" + this.percentage.toFixed(1) + " %)";
+			return this.name + " (" + this.percentage.toFixed(1) + " %)";
 		}
 	}
 });
@@ -248,7 +237,8 @@ Highcharts.chart('overview_chart', {
 		colorByPoint: false,
 		color: 'var(--production-color)',
 		data: monthly_pv,
-		showInLegend: true
+		showInLegend: true,
+		legendIndex: 1
 	},
 
 	{
@@ -258,7 +248,8 @@ Highcharts.chart('overview_chart', {
 		colorByPoint: false,
 		color: 'var(--consumption-color)',
 		data: monthly_demand,
-		showInLegend: true
+		showInLegend: true,
+		legendIndex: 0
 	},
 
 	{
@@ -267,8 +258,10 @@ Highcharts.chart('overview_chart', {
 		name: 'Batterie',
 		colorByPoint: false,
 		color: 'var(--battery-color)',
+		fillColor: 'var(--battery-fill-color)',
 		data: monthly_b2l,
-		showInLegend: true
+		showInLegend: true,
+		legendIndex: 3
 	},
 
 	{
@@ -278,8 +271,10 @@ Highcharts.chart('overview_chart', {
 		name: 'Eigenverbrauch',
 		colorByPoint: false,
 		color: 'var(--self-consumption-color)',
+		fillColor: 'var(--self-consumption-fill-color)',
 		data: monthly_pv2l,
-		showInLegend: true
+		showInLegend: true,
+		legendIndex: 2
 	}
 
 	]
