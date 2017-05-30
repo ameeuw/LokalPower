@@ -384,11 +384,11 @@ def generate_map(aggregated_connections, file_name='sources_map.html'):
     #                   tiles = 'https://api.mapbox.com/styles/v1/tscheng805/cj2a7l00s004j2sn0f4a938in/tiles/256/{z}/{x}/{y}?access_token=pk.eyJ1IjoidHNjaGVuZzgwNSIsImEiOiJjajJhNzJ1cGIwMDBkMzNvNXdtbDJ5OHhyIn0.veVS3rSwK4U0NoHEWxXK1g',
     #                   attr = 'XXX Mapbox Attribution')
 
-    icon_size = (25, 25)
+    icon_size = (30, 30)
 
     iframe = folium.IFrame(html=render_template('tooltip.html', photo=descriptions_df.loc[user.index]['PHOTO'],
                                                 name=descriptions[user.index]['NAME'],
-                                                supplierId=user.index),
+                                                supplierId=user.index, kind='self'),
                             width=360, height=250)
 
 
@@ -406,7 +406,7 @@ def generate_map(aggregated_connections, file_name='sources_map.html'):
                 if (descriptions[supplierId]['KIND'] == 'plant'):
                     iframe = folium.IFrame(html=render_template('tooltip.html', photo=descriptions_df.loc[supplierId]['PHOTO'],
                                                                 name=descriptions[supplierId]['NAME'],
-                                                                supplierId=supplierId),
+                                                                supplierId=supplierId, kind='plant'),
                                             width=360, height=250)
                 else:
                     if descriptions[supplierId]['ANONYMITY'] == True:
@@ -416,7 +416,7 @@ def generate_map(aggregated_connections, file_name='sources_map.html'):
 
                     iframe = folium.IFrame(html=render_template('tooltip.html', photo=descriptions_df.loc[supplierId]['PHOTO'],
                                                                 name=name,
-                                                                supplierId=supplierId),
+                                                                supplierId=supplierId, kind=descriptions_df.loc[supplierId]['KIND']),
                                             width=360, height=250)
 
                 popup = folium.Popup(iframe, max_width=2650)
