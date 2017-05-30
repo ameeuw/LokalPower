@@ -39,8 +39,8 @@
 
 
     <!--     Fonts and icons     -->
-    <link href="http://maxcdn.bootstrapcdn.com/font-awesome/latest/css/font-awesome.min.css" rel="stylesheet">
-    <link href='http://fonts.googleapis.com/css?family=Roboto:400,700,300|Material+Icons' rel='stylesheet' type='text/css'>
+    <link href="https://maxcdn.bootstrapcdn.com/font-awesome/latest/css/font-awesome.min.css" rel="stylesheet">
+    <link href='https://fonts.googleapis.com/css?family=Roboto:400,700,300|Material+Icons' rel='stylesheet' type='text/css'>
 
 
    <script src="https://use.fontawesome.com/a0a5a9decc.js"></script>
@@ -59,8 +59,18 @@
                 </div>
 
                 <div class="panel-body">
-                  <center><img class="img-responsive img-rounded" src="http://127.0.0.1:5000/static/img/photos/{{ photo }}"></center>
+                    <center><img class="img-responsive img-rounded" src="http://127.0.0.1:5000/static/img/photos/{{ photo }}"></center>
+
+                {% if kind=='plant' or kind=='prosumer' %}
+                    <br>
+                    <center>
+                        <button type="button" class="btn btn-default btn-warning btn-md" style="width: 100%">
+                            Zu meinen Versorgern hinzufügen <span class="glyphicon glyphicon-star" aria-hidden="true"></span>
+                        </button>
+                    </center>
+                {% endif %}
                 </div>
+
                 <div class="panel-heading">
                     <h4 class="panel-title">Kurzbeschreibung</h4>
                 </div>
@@ -80,56 +90,57 @@
                     {% endif %}
                 </div>
 
-              <div class="panel-footer">
-                  <h4 class="panel-title" style="">Technische Daten</h4>
+                {% if kind=='plant' %}
+                <div class="panel-footer">
+                    <h4 class="panel-title" style="">Technische Daten</h4>
                     {% if supplierId == 'Hydro1' %}
                     <table class="table table-sm" border="0" cellspacing="0" cellpadding="0">
                         <tbody>
-                            <tr>
-                                <td><span>Bruttofallhöhe</span></td>
-                                <td style="text-align: right;"><span>366 m</span></td>
-                            </tr>
-                            <tr>
-                                <td><span>Genutzte Wassermenge</span></td>
-                                <td style="text-align: right;"><span>5,5 m<sup>3</sup>/s</span></td>
-                            </tr>
-                            <tr>
-                                <td><span>Anzahl und Art der Turbinen</span></td>
-                                <td style="text-align: right;"><span>2 Pelton horizontal</span></td>
-                            </tr>
-                            <tr>
-                                <td><span>Leistung</span></td>
-                                <td style="text-align: right;"><span>16,5 MW</span></td>
-                            </tr>
-                            <tr>
-                                <td><span>Jahresproduktion</span></td>
-                                <td style="text-align: right;"><span>22,1 GWh/a</span></td>
-                            </tr>
+                        <tr>
+                            <td><span>Bruttofallhöhe</span></td>
+                            <td style="text-align: right;"><span>366 m</span></td>
+                        </tr>
+                        <tr>
+                            <td><span>Genutzte Wassermenge</span></td>
+                            <td style="text-align: right;"><span>5,5 m<sup>3</sup>/s</span></td>
+                        </tr>
+                        <tr>
+                            <td><span>Anzahl und Art der Turbinen</span></td>
+                            <td style="text-align: right;"><span>2 Pelton horizontal</span></td>
+                        </tr>
+                        <tr>
+                            <td><span>Leistung</span></td>
+                            <td style="text-align: right;"><span>16,5 MW</span></td>
+                        </tr>
+                        <tr>
+                            <td><span>Jahresproduktion</span></td>
+                            <td style="text-align: right;"><span>22,1 GWh/a</span></td>
+                        </tr>
                         </tbody>
                     </table>
                     {% elif supplierId == 'Hydro2' %}
                     <table class="table table-sm" border="0" cellspacing="0" cellpadding="0">
                         <tbody>
-                            <tr>
-                                <td><span>Bruttofallhöhe</span></td>
-                                <td style="text-align: right;"><span>355 m</span></td>
-                            </tr>
-                            <tr>
-                                <td><span>Genutzte Wassermenge</span></td>
-                                <td style="text-align: right;"><span>16,5 m<sup>3</sup>/s</span></td>
-                            </tr>
-                            <tr>
-                                <td><span>Anzahl und Art der Turbinen</span></td>
-                                <td style="text-align: right;"><span>2 Doppelpelton horizontal</span></td>
-                            </tr>
-                            <tr>
-                                <td><span>Leistung</span></td>
-                                <td style="text-align: right;"><span>45 MW</span></td>
-                            </tr>
-                            <tr>
-                                <td><span>Jahresproduktion</span></td>
-                                <td style="text-align: right;"><span>178,2 GWh/a</span></td>
-                            </tr>
+                        <tr>
+                            <td><span>Bruttofallhöhe</span></td>
+                            <td style="text-align: right;"><span>355 m</span></td>
+                        </tr>
+                        <tr>
+                            <td><span>Genutzte Wassermenge</span></td>
+                            <td style="text-align: right;"><span>16,5 m<sup>3</sup>/s</span></td>
+                        </tr>
+                        <tr>
+                            <td><span>Anzahl und Art der Turbinen</span></td>
+                            <td style="text-align: right;"><span>2 Doppelpelton horizontal</span></td>
+                        </tr>
+                        <tr>
+                            <td><span>Leistung</span></td>
+                            <td style="text-align: right;"><span>45 MW</span></td>
+                        </tr>
+                        <tr>
+                            <td><span>Jahresproduktion</span></td>
+                            <td style="text-align: right;"><span>178,2 GWh/a</span></td>
+                        </tr>
                         </tbody>
                     </table>
                     {% elif supplierId == 'PV1' %}
@@ -139,38 +150,37 @@
                     {% elif supplierId == 'Biogas' %}
                     <table class="table table-sm" border="0" cellspacing="0" cellpadding="0">
                         <tbody>
-                            <tr>
-                                <td><span>Brennstoffeinsatz pro Jahr</span></td>
-                                <td style="text-align: right;"><span>250000 t Holzschnitzel
-12000 t Altholz</span></td>
-                            </tr>
-                            <tr>
-                                <td><span>Feuerungswärmeleistung</span></td>
-                                <td style="text-align: right;"><span>Block 1: 5,5 MW
-Block 2 und 3: jeweils 38MW</span></td>
-                            </tr>
-                            <tr>
-                                <td><span>Jahresproduktion</span></td>
-                                <td style="text-align: right;"><span>128000 MWh</span></td>
-                            </tr>
-                            <tr>
-                                <td><span>CO2-Einsparung pro Jahr</span></td>
-                                <td style="text-align: right;"><span>183 026 t</span></td>
-                            </tr>
-                            <tr>
-                                <td><span>Emissionen Staubausstoss</span></td>
-                                <td style="text-align: right;"><span>2,5–3,2 mg/m<sup>3</sup></span></td>
-                            </tr>
-                            <tr>
-                                <td><span>Beschäftigte</span></td>
-                                <td style="text-align: right;"><span>17 Mitarbeiterinnen und Mitarbeiter</span></td>
-                            </tr>
+                        <tr>
+                            <td><span>Brennstoffeinsatz pro Jahr</span></td>
+                            <td style="text-align: right;"><span>250000 t Holzschnitzel 12000 t Altholz</span></td>
+                        </tr>
+                        <tr>
+                            <td><span>Feuerungswärmeleistung</span></td>
+                            <td style="text-align: right;"><span>Block 1: 5,5 MW Block 2 und 3: jeweils 38MW</span></td>
+                        </tr>
+                        <tr>
+                            <td><span>Jahresproduktion</span></td>
+                            <td style="text-align: right;"><span>128000 MWh</span></td>
+                        </tr>
+                        <tr>
+                            <td><span>CO2-Einsparung pro Jahr</span></td>
+                            <td style="text-align: right;"><span>183 026 t</span></td>
+                        </tr>
+                        <tr>
+                            <td><span>Emissionen Staubausstoss</span></td>
+                            <td style="text-align: right;"><span>2,5–3,2 mg/m<sup>3</sup></span></td>
+                        </tr>
+                        <tr>
+                            <td><span>Beschäftigte</span></td>
+                            <td style="text-align: right;"><span>17 Mitarbeiterinnen und Mitarbeiter</span></td>
+                        </tr>
                         </tbody>
                     </table>
                     {% else %}
                         Leider noch keine technischen Daten vorhanden.
                     {% endif %}
-              </div>
+                </div>
+                {% endif %}
             </div>
         </div>
     </div>
