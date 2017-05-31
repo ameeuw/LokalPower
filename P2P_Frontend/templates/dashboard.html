@@ -51,11 +51,8 @@ Highcharts.chart('pie_chart_connections', {
 		type: 'pie'
 	},
 	title: {
-		text: 'Meine Stromquellen',
+		text: 'Verbrauch ({{ user.period['sum_consumption'] | round(1) }} kWh)',
 		align: 'left'
-	},
-	subtitle: {
-		text: '100 % = {{ user.period['sum_consumption'] }} kWh'
 	},
 	tooltip: {
 		pointFormat: '{series.name}: {point.y:.0f} kWh / <b>{point.percentage:.1f}%</b>'
@@ -85,7 +82,7 @@ Highcharts.chart('pie_chart_connections', {
 
 				{% for category, category_dict in user.period['categorized_connections'].iteritems() %}
 				{
-					name: '{{ category | replace("self","Selbstversorgung") | replace("local","Lokal") | replace("grisons","Graubünden") | replace("other","Sonstige") }}',
+					name: '{{ category | replace("self","Selbstversorgung") | replace("local","Bezug Lokal") | replace("grisons","Bezug Graubünden") | replace("other","Bezug Schweiz") }}',
 					y: {{ category_dict['sum'] }},
 					color: '{{ category | replace("self","var(--self-color)") | replace("local","var(--local-color)") | replace("grisons","var(--grisons-color)") | replace("other","var(--other-color)") }}',
 					legendIndex: {{ category | replace("self","0") | replace("local","1") | replace("grisons","2") | replace("other","3") }},
@@ -96,7 +93,8 @@ Highcharts.chart('pie_chart_connections', {
 	legend: {
 		layout: 'vertical',
 		align: 'right',
-		verticalAlign: 'bottom',
+		verticalAlign: 'middle',
+		itemMarginTop: 8,
 		labelFormatter: function() {
 			return this.name + " (" + this.percentage.toFixed(1) + " %)";
 		}
@@ -112,11 +110,8 @@ Highcharts.chart('pie_chart_deliveries', {
 		type: 'pie'
 	},
 	title: {
-		text: 'Meine Stromsenken',
+		text: 'Produktion ({{ user.period['sum_production'] | round(1) }} kWh)',
 		align: 'left'
-	},
-	subtitle: {
-		text: '100 % = {{ user.period['sum_production'] }} kWh'
 	},
 	tooltip: {
 		pointFormat: '{series.name}: {point.y:.0f} kWh / <b>{point.percentage:.1f}%</b>'
@@ -134,8 +129,11 @@ Highcharts.chart('pie_chart_deliveries', {
 					color: (Highcharts.theme && Highcharts.theme.contrastTextColor) || 'black'
 				}
 			},
+
 		showInLegend: true,
-		}
+
+		},
+
 	},
 	series: [{
 		name: 'Anteil',
@@ -146,7 +144,7 @@ Highcharts.chart('pie_chart_deliveries', {
 
 				{% for category, category_dict in user.period['categorized_deliveries'].iteritems() %}
 				{
-					name: '{{ category | replace("self","Eigenverbrauch") | replace("local","Lokal") | replace("grisons","Graubünden") | replace("other","Sonstige") }}',
+					name: '{{ category | replace("self","Eigenverbrauch") | replace("local","Einspeisung Lokal") | replace("grisons","Einspeisung Graubünden") | replace("other","Einspeisung Netz") }}',
 					y: {{ category_dict['sum'] }},
 					color: '{{ category | replace("self","var(--self-color)") | replace("local","var(--local-color)") | replace("grisons","var(--grisons-color)") | replace("other","var(--other-color)") }}',
 					legendIndex: {{ category | replace("self","0") | replace("local","1") | replace("grisons","2") | replace("other","3") }},
@@ -157,7 +155,8 @@ Highcharts.chart('pie_chart_deliveries', {
 	legend: {
 		layout: 'vertical',
 		align: 'right',
-		verticalAlign: 'bottom',
+		verticalAlign: 'middle',
+		itemMarginTop: 8,
 		labelFormatter: function() {
 			return this.name + " (" + this.percentage.toFixed(1) + " %)";
 		}
@@ -236,9 +235,9 @@ Highcharts.chart('overview_chart', {
 	},
 
 	tooltip: {
-		headerFormat: '<span style="font-size:14px">{{ user.period['resolution'] | replace("daily", "Tag") | replace("monthly", "Monat") }}: {point.key}</span><br><table>',
+		headerFormat: '<span style="font-size:14px">{{ user.period['resolution'] | replace("daily", "Tag") | replace("monthly", "Monat") | replace("minimal", "Uhrzeit") }}: {point.key}</span><br><table>',
 		pointFormat: '<tr><td style="color:{series.color};padding:0">{series.name}: </td>' +
-			'<td style="padding:5"><b>{point.y:.2f}</b> kWh</td></tr>',
+			'<td style="padding:5"><b>{point.y:.1f}</b></td><td style="padding-left:3px">kWh</td></tr>',
 		footerFormat: '</table>',
 		shared: true,
 		useHTML: true
@@ -255,6 +254,7 @@ Highcharts.chart('overview_chart', {
 		data: {{ user.period['demand'] | safe }},
 		showInLegend: true,
 		legendIndex: 0,
+		index: 3
 	},
 
 	{% if user.period['sum_production'] > 0 %}
@@ -266,6 +266,7 @@ Highcharts.chart('overview_chart', {
 		data: {{ user.period['production'] | safe }},
 		showInLegend: true,
 		legendIndex: 1,
+		index: 2
 	},
 
 	{
@@ -280,6 +281,7 @@ Highcharts.chart('overview_chart', {
 		showInLegend: true,
 		visible: false,
 		legendIndex: 3,
+		index: 0
 	},
 
 	{
@@ -292,6 +294,7 @@ Highcharts.chart('overview_chart', {
 		data: {{ user.period['self_consumption'] | safe }},
 		showInLegend: true,
 		legendIndex: 2,
+		index: 1
 	},
 	{% endif %}
 

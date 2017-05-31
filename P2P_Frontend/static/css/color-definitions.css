@@ -1,16 +1,18 @@
 :root{
-    --consumption-color: #FF463C;
-    --production-color: #f8b322;
-    --self-consumption-color: #a0ac12;
-    --self-consumption-fill-color: rgba(162,173,0,0.5);
-    --distance-color: rgb(51,154,188);
-    --battery-color: #bec64d;
-    --battery-fill-color: rgba(181,189,51,0.5);
+    --consumption-color: rgb(1, 129, 171);
+    --production-color: rgb(149, 81, 158);
+    --self-consumption-color: rgb(162, 173, 1);
+    --self-consumption-fill-color: rgba(162, 173, 1, 0.5);
 
-    --self-color: #a0ac12;
-    --local-color: #f8b322;
-    --grisons-color: rgb(191,151,197);
-    --other-color: #cb8f41;
+    --distance-color: rgb(255,70,60);
+
+    --battery-color: rgb(190,198,177);
+    --battery-fill-color: rgba(190,198,177,0.5);
+
+    --self-color: rgb(162, 173, 1);
+    --local-color: rgb(255, 192, 1);
+    --grisons-color: rgb(155, 2, 84);
+    --other-color: rgb(90, 88, 90);
 
     --chart-bg-color: rgb(240,240,240);
     --well-bg-color: rgb(240,240,240);

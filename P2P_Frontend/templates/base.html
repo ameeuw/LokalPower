@@ -98,7 +98,7 @@
 
 						<li>
 							<a href="{{ url_for('osmaps', type='sinks') }}">
-								<i class="material-icons">location_off</i>
+								<i class="material-icons">location_on</i>
 								<p>Produktion: Karte</p>
 							</a>
 						</li>
@@ -226,17 +226,14 @@
 							</center>
 						</div>
 
-
-						<div class="col-md-3"></div>
-						<!--
 						<div class="col-md-3" style="align: right">
 							<div class="btn-group" role="group" aria-label="Resolution">
-								<button type="button" class="btn btn" onclick="location.href='{{ url_for('setMinimalPeriod', day=244, origin='dashboard.html', type='') }}'">24h</button>
-								<button type="button" class="btn btn" onclick="location.href='{{ url_for('setResolution', resolution='daily') }}'">Monat</button>
-								<button type="button" class="btn btn" onclick="location.href='{{ url_for('setResolution', resolution='monthly') }}'">Jahr</button>
+								<button type="button" class="btn btn {% if user.period['resolution'] == 'minimal' %}active{% endif %}" onclick="location.href='{{ url_for('setMinimalPeriod', day=0, origin='dashboard.html', type='sources') }}'">24h</button>
+								<button type="button" class="btn btn {% if user.period['resolution'] == 'daily' %}active{% endif %}" onclick="location.href='{{ url_for('setDailyPeriod', month=0, origin='dashboard.html', type='sources') }}'">Monat</button>
+								<button type="button" class="btn btn {% if user.period['resolution'] == 'monthly' %}active{% endif %}" onclick="location.href='{{ url_for('setResolution', resolution='monthly') }}'">Jahr</button>
 							</div>
 						</div>
-						-->
+
 					</div>
                 </div>
 
@@ -244,7 +241,8 @@
 					<div class="col-md-3">
 						<div class="card card-stats">
 							<div class="card-header" style="background-color: var(--consumption-color);">
-								<i class="fa fa-bolt" aria-hidden="true"></i>
+								<img src="http://127.0.0.1:5000/static/img/consumption.png" style="height: 50px; width: 50px;">
+								<i class="" aria-hidden="true"></i>
 
 							</div>
 							<div class="card-content">
@@ -258,10 +256,10 @@
 					<div class="col-md-3">
 						<div class="card card-stats">
 							<div class="card-header" style="background-color: var(--production-color);">
-								<i class="fa fa-bolt" aria-hidden="true"></i>
+								<img src="http://127.0.0.1:5000/static/img/production.png" style="height: 50px; width: 50px;">
 							</div>
 							<div class="card-content">
-								<p class="category">Erzeugung</p>
+								<p class="category">Produktion</p>
 								<h4 class="title">{{ user.period['sum_production'] | round | int }}<small> kWh</small></h4>
 							</div>
 						</div>
@@ -271,7 +269,7 @@
 					<div class="col-md-3">
 						<div class="card card-stats">
 							<div class="card-header" style="background-color: var(--self-consumption-color);">
-								<i class="fa fa-windows" aria-hidden="true"></i>
+								<img src="http://127.0.0.1:5000/static/img/self_consumption.png" style="height: 50px; width: 50px;">
 							</div>
 							<div class="card-content">
 								<p class="category">Eigenverbrauch</p>
@@ -284,10 +282,10 @@
 					<div class="col-md-3">
 						<div class="card card-stats">
 							<div class="card-header" style="background-color: var(--distance-color);">
-								<i class="glyphicon glyphicon-road aria-hidden="true"></i>
+								<img src="http://127.0.0.1:5000/static/img/distance.png" style="height: 50px; width: 50px;">
 							</div>
 							<div class="card-content">
-								<p class="category">&#216; Distanz</p>
+								<p class="category">&#216; Quellendistanz</p>
 								<h4 class="title">{{ user.period['kpi_mean_distance'] | round(1) }}<small> km</small></h4>
 							</div>
 						</div>

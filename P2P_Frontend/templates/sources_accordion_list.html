@@ -1,10 +1,10 @@
 <div class="container" style="width: 100%;">
-    <h4>Meine Stromquellen</h4>
+    <h4>Verbrauch ({{ user.period['sum_consumption'] | round(1) }} kWh)</h4>
     <div class="panel-group">
 
     <!-- EIGENVERBRAUCH -->
-        <div class="panel panel-default" style="max-height: 45px">
-            <div class="panel-heading"  style="background-color: var(--self-color);">
+        <div class="panel panel-default" style="max-height: 50px">
+            <div class="panel-heading"  style="background-color: #ffffff; border: 5px solid var(--self-color); border-radius: 4px;">
                 <div class="container">
                     <div class="row">
                         <h4 class="panel-title">
@@ -28,11 +28,11 @@
 
         <!-- LOKAL -->
         <div class="panel panel-default">
-            <div class="panel-heading" style="background-color: var(--local-color);">
+            <div class="panel-heading" style="background-color: #ffffff; border: 5px solid var(--local-color); border-radius: 4px;">
                 <div class="container">
                     <div class="row">
                         <h4 class="panel-title">
-                            <a data-toggle="collapse" data-parent="#accordion" href="#collapse1"><div>Lokal</div></a>
+                            <a data-toggle="collapse" data-parent="#accordion" href="#collapse1"><div>Bezug Lokal (<10km)</div></a>
                         </h4>
                     </div>
                     <div class="row">
@@ -56,7 +56,8 @@
                         </tr>
                         {% for entry in user.period['categorized_connections']['local']['list'] %}
                         <tr>
-                            <td>{{ descriptions[entry['s_id']]['NAME'] }}</td>
+
+                            <td><img src="http://127.0.0.1:5000/static/img/markers/{{ descriptions[entry['s_id']]['TYPE'] }}.png" style="height: 20px; width: 20px;"> {{ descriptions[entry['s_id']]['NAME'] }}</td>
                             <td>{{ entry['distance'] }} km</td>
                             {% if (entry['energy'] / user.period['sum_consumption']) < 0.01 %}
                             <td> < 1 %</td>
@@ -74,11 +75,11 @@
 
         <!-- GRAUBÜNDEN -->
         <div class="panel panel-default">
-            <div class="panel-heading" style="background-color: var(--grisons-color)">
+            <div class="panel-heading" style="background-color: #ffffff; border: 5px solid var(--grisons-color); border-radius: 4px;">
                 <div class="container">
                     <div class="row">
                         <h4 class="panel-title">
-                            <a data-toggle="collapse" data-parent="#accordion" href="#collapse2">Graubünden</a>
+                            <a data-toggle="collapse" data-parent="#accordion" href="#collapse2">Bezug Graubünden</a>
                         </h4>
                     </div>
                     <div class="row">
@@ -106,7 +107,7 @@
                         </tr>
                         {% for entry in user.period['categorized_connections']['grisons']['list'] %}
                         <tr>
-                            <td>{{ descriptions[entry['s_id']]['NAME'] }}</td>
+                            <td><img src="http://127.0.0.1:5000/static/img/markers/{{ descriptions[entry['s_id']]['TYPE'] }}.png" style="height: 20px; width: 20px;">  {{ descriptions[entry['s_id']]['NAME'] }}</td>
                             <td>{{ entry['distance'] }} km</td>
                             {% if (entry['energy'] / user.period['sum_consumption']) < 0.01 %}
                             <td> < 1 %</td>
@@ -124,11 +125,11 @@
 
         <!-- SONSTIGE -->
         <div class="panel panel-default" style="max-height: 80px">
-            <div class="panel-heading" style="background-color: var(--other-color);">
+            <div class="panel-heading" style="background-color: #ffffff; border: 5px solid var(--other-color); border-radius: 4px;">
                 <div class="container">
                     <div class="row">
                         <h4 class="panel-title">
-                            Sonstige
+                            Bezug Schweiz
                         </h4>
                     </div>
 

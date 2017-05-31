@@ -164,14 +164,14 @@
         crosshair: true
     },
 
-    tooltip: {
-        headerFormat: '<span style="font-size:14px">{{ user.period['resolution'] | replace("daily", "Tag") | replace("monthly", "Monat") }}: {point.key}</span><br><table>',
-        pointFormat: '<tr><td style="color:{series.color};padding:0">{series.name}: </td>' +
-            '<td style="padding:0"><b>{point.y:.2f} kWh</b></td></tr>',
-        footerFormat: '</table>',
-        shared: true,
-        useHTML: true
-    },
+	tooltip: {
+		headerFormat: '<span style="font-size:14px">{{ user.period['resolution'] | replace("daily", "Tag") | replace("monthly", "Monat") | replace("minimal", "Uhrzeit") }}: {point.key}</span><br><table>',
+		pointFormat: '<tr><td style="color:{series.color};padding:0">{series.name}: </td>' +
+			'<td style="padding:5"><b>{point.y:.1f}</b></td><td style="padding-left:3px">kWh</td></tr>',
+		footerFormat: '</table>',
+		shared: true,
+		useHTML: true
+	},
 
     series: [
 
@@ -184,6 +184,7 @@
 				data: {{ category_dict['time_series'] }},
 				color: '{{ category | replace("self","var(--self-color)") | replace("local","var(--local-color)") | replace("grisons","var(--grisons-color)") | replace("other","var(--other-color)") }}',
 				legendIndex: {{ category | replace("self","0") | replace("local","1") | replace("grisons","2") | replace("other","3") }},
+				index: {{ category | replace("self","3") | replace("local","2") | replace("grisons","1") | replace("other","0") }},
 				showInLegend: true,
 				colorByPoint: false
 			},
@@ -198,6 +199,7 @@
 				data: {{ category_dict['time_series'] }},
 				color: '{{ category | replace("self","var(--self-color)") | replace("local","var(--local-color)") | replace("grisons","var(--grisons-color)") | replace("other","var(--other-color)") }}',
 				legendIndex: {{ category | replace("self","0") | replace("local","1") | replace("grisons","2") | replace("other","3") }},
+				index: {{ category | replace("self","3") | replace("local","2") | replace("grisons","1") | replace("other","0") }},
 				showInLegend: true,
 				colorByPoint: false
 			},

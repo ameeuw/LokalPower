@@ -1,10 +1,10 @@
 <div class="container" style="width: 100%;">
-    <h4>Meine Stromsenken</h4>
+    <h4>Produktion ({{ user.period['sum_production'] | round(1) }} kWh)</h4>
     <div class="panel-group">
 
     <!-- EIGENVERBRAUCH -->
-        <div class="panel panel-default" style="max-height: 45px">
-            <div class="panel-heading"  style="background-color: var(--self-color);">
+        <div class="panel panel-default" style="max-height: 50px">
+            <div class="panel-heading"  style="background-color: #ffffff; border: 5px solid var(--self-color); border-radius: 4px;">
                 <div class="container">
                     <div class="row">
                         <h4 class="panel-title">
@@ -30,11 +30,11 @@
 
         <!-- LOKAL -->
         <div class="panel panel-default">
-            <div class="panel-heading" style="background-color: var(--local-color);">
+            <div class="panel-heading" style="background-color: #ffffff; border: 5px solid var(--local-color); border-radius: 4px;">
                 <div class="container">
                     <div class="row">
                         <h4 class="panel-title">
-                            <a data-toggle="collapse" data-parent="#accordion" href="#collapse1"><div>Lokal</div></a>
+                            <a data-toggle="collapse" data-parent="#accordion" href="#collapse1"><div>Einspeisung Lokal (<10km)</div></a>
                         </h4>
                     </div>
                     <div class="row">
@@ -77,11 +77,11 @@
 
         <!-- GRAUBÜNDEN -->
         <div class="panel panel-default">
-            <div class="panel-heading" style="background-color: var(--grisons-color)">
+            <div class="panel-heading" style="background-color: #ffffff; border: 5px solid var(--grisons-color); border-radius: 4px;">
                 <div class="container">
                     <div class="row">
                         <h4 class="panel-title">
-                            <a data-toggle="collapse" data-parent="#accordion" href="#collapse2">Graubünden</a>
+                            <a data-toggle="collapse" data-parent="#accordion" href="#collapse2">Einspeisung Graubünden</a>
                         </h4>
                     </div>
                     <div class="row">
@@ -128,11 +128,11 @@
 
         <!-- SONSTIGE -->
         <div class="panel panel-default" style="max-height: 80px">
-            <div class="panel-heading" style="background-color: var(--other-color);">
+            <div class="panel-heading" style="background-color: #ffffff; border: 5px solid var(--other-color); border-radius: 4px;">
                 <div class="container">
                     <div class="row">
                         <h4 class="panel-title">
-                            Sonstige
+                            Einspeisung Schweiz
                         </h4>
                     </div>
 

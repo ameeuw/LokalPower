@@ -387,7 +387,7 @@ def generate_map(aggregated_connections, file_name='sources_map.html'):
     icon_size = (30, 30)
 
     iframe = folium.IFrame(html=render_template('tooltip.html', photo=descriptions_df.loc[user.index]['PHOTO'],
-                                                name=descriptions[user.index]['NAME'],
+                                                name=descriptions[user.index]['NAME'], share=0,
                                                 supplierId=user.index, kind='self'),
                             width=360, height=250)
 
@@ -405,7 +405,7 @@ def generate_map(aggregated_connections, file_name='sources_map.html'):
 
                 if (descriptions[supplierId]['KIND'] == 'plant'):
                     iframe = folium.IFrame(html=render_template('tooltip.html', photo=descriptions_df.loc[supplierId]['PHOTO'],
-                                                                name=descriptions[supplierId]['NAME'],
+                                                                name=descriptions[supplierId]['NAME'], share=aggregated_connections[supplierId]['energy'] / user.period['sum_consumption'] / 10,
                                                                 supplierId=supplierId, kind='plant'),
                                             width=360, height=250)
                 else:
@@ -415,7 +415,7 @@ def generate_map(aggregated_connections, file_name='sources_map.html'):
                         name = descriptions[supplierId]['NAME']
 
                     iframe = folium.IFrame(html=render_template('tooltip.html', photo=descriptions_df.loc[supplierId]['PHOTO'],
-                                                                name=name,
+                                                                name=name, share=aggregated_connections[supplierId]['energy'] / user.period['sum_consumption'] / 10,
                                                                 supplierId=supplierId, kind=descriptions_df.loc[supplierId]['KIND']),
                                             width=360, height=250)
 
