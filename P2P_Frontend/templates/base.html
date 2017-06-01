@@ -247,7 +247,7 @@
 							</div>
 							<div class="card-content">
 								<p class="category">Verbrauch</p>
-								<h4 class="title">{{ user.period['sum_consumption'] | round | int}}<small> kWh</small></h4>
+								<h4 class="title"><span id="sum_consumption"></span><small> kWh</small></h4>
 							</div>
 						</div>
 					</div>
@@ -260,7 +260,7 @@
 							</div>
 							<div class="card-content">
 								<p class="category">Produktion</p>
-								<h4 class="title">{{ user.period['sum_production'] | round | int }}<small> kWh</small></h4>
+								<h4 class="title"><span id="sum_production"></span><small> kWh</small></h4>
 							</div>
 						</div>
 					</div>
@@ -372,6 +372,16 @@
 		cb(start, end);
 
 	});
+
+
+	function numberWithCommas(x) {
+    	return x.toString().replace(/\B(?=(\d{3})+(?!\d))/g, "'");
+	}
+
+	$('#sum_consumption').text(numberWithCommas({{ user.period['sum_consumption'] | round | int}}));
+	$('#sum_production').text(numberWithCommas({{ user.period['sum_production'] | round | int }}));
+
+
 	</script>
 
 	<!-- Additional Footer Here -->

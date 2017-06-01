@@ -55,7 +55,9 @@ Highcharts.chart('pie_chart_connections', {
 		align: 'left'
 	},
 	tooltip: {
-		pointFormat: '{series.name}: {point.y:.0f} kWh / <b>{point.percentage:.1f}%</b>'
+		formatter: function() {
+			return '<b><span style="font-size: 130%">' + this.point.name + '</b></span><br>Anteil: ' + this.y.toFixed(1) + ' kWh (' + this.percentage.toFixed(1) + ' %)';
+		},
 	},
 	plotOptions: {
 		pie: {
@@ -82,7 +84,7 @@ Highcharts.chart('pie_chart_connections', {
 
 				{% for category, category_dict in user.period['categorized_connections'].iteritems() %}
 				{
-					name: '{{ category | replace("self","Selbstversorgung") | replace("local","Bezug Lokal") | replace("grisons","Bezug Graubünden") | replace("other","Bezug Schweiz") }}',
+					name: '{{ category | replace("self","Selbstversorgung") | replace("local","Bezug Lokal (<10km)") | replace("grisons","Bezug Graubünden") | replace("other","Bezug Schweiz") }}',
 					y: {{ category_dict['sum'] }},
 					color: '{{ category | replace("self","var(--self-color)") | replace("local","var(--local-color)") | replace("grisons","var(--grisons-color)") | replace("other","var(--other-color)") }}',
 					legendIndex: {{ category | replace("self","0") | replace("local","1") | replace("grisons","2") | replace("other","3") }},
@@ -114,7 +116,9 @@ Highcharts.chart('pie_chart_deliveries', {
 		align: 'left'
 	},
 	tooltip: {
-		pointFormat: '{series.name}: {point.y:.0f} kWh / <b>{point.percentage:.1f}%</b>'
+		formatter: function() {
+			return '<b><span style="font-size: 130%">' + this.point.name + '</b></span><br>Anteil: ' + this.y.toFixed(1) + ' kWh (' + this.percentage.toFixed(1) + ' %)';
+		},
 	},
 	plotOptions: {
 		pie: {
@@ -144,7 +148,7 @@ Highcharts.chart('pie_chart_deliveries', {
 
 				{% for category, category_dict in user.period['categorized_deliveries'].iteritems() %}
 				{
-					name: '{{ category | replace("self","Eigenverbrauch") | replace("local","Einspeisung Lokal") | replace("grisons","Einspeisung Graubünden") | replace("other","Einspeisung Netz") }}',
+					name: '{{ category | replace("self","Eigenverbrauch") | replace("local","Einspeisung Lokal (<10km)") | replace("grisons","Einspeisung Graubünden") | replace("other","Einspeisung Netz") }}',
 					y: {{ category_dict['sum'] }},
 					color: '{{ category | replace("self","var(--self-color)") | replace("local","var(--local-color)") | replace("grisons","var(--grisons-color)") | replace("other","var(--other-color)") }}',
 					legendIndex: {{ category | replace("self","0") | replace("local","1") | replace("grisons","2") | replace("other","3") }},
@@ -168,7 +172,7 @@ Highcharts.chart('pie_chart_deliveries', {
 {% if user.period['resolution'] == 'minimal' %}
 	Highcharts.Series.prototype.drawPoints = function() { };
 {% endif %}
-Highcharts.chart('overview_chart', {
+var overview_chart = Highcharts.chart('overview_chart', {
 	chart: {
 		backgroundColor: 'var(--chart-bg-color)'
 	},
@@ -237,10 +241,11 @@ Highcharts.chart('overview_chart', {
 	tooltip: {
 		headerFormat: '<span style="font-size:14px">{{ user.period['resolution'] | replace("daily", "Tag") | replace("monthly", "Monat") | replace("minimal", "Uhrzeit") }}: {point.key}</span><br><table>',
 		pointFormat: '<tr><td style="color:{series.color};padding:0">{series.name}: </td>' +
-			'<td style="padding:5"><b>{point.y:.1f}</b></td><td style="padding-left:3px">kWh</td></tr>',
+			'<td style="padding-right:5px;"><b> {point.y:.1f}</b></td><td style="padding-left:3px">kWh</td></tr>',
 		footerFormat: '</table>',
 		shared: true,
-		useHTML: true
+		useHTML: true,
+		borderColor: '#000000'
 	},
 
 	series: [
@@ -302,6 +307,15 @@ Highcharts.chart('overview_chart', {
 
 
 	});
+
+var legend = overview_chart.legend;
+for (var i = 0, len = legend.allItems.length; i < len; i++) {
+   (function(i) {
+       var t=legend.allItems[i],
+           content= '<b>'+ t.name +'</b>: '+ Math.round(t.percentage*100)/100 + ' %';
+           jQuery($(t.legendItem.element)).tooltip({title:content,html:true});
+   })(i);
+}
 
 </script>
 {% endblock %}

@@ -66,15 +66,28 @@
 			<div class="container-fluid">
 				<div class="row embed-responsive embed-responsive-16by9" style="">
 
-					<div class="col-md-8 embed-responsive-item" style="width: 65%;">
-						<div class="well" id="overview_chart" style="height: 75%"></div>
+					<div class="col-md-8 embed-responsive-item" style="width: 65%">
+						<div class="row ">
+							<div class="well" id="overview_chart" style=""></div>
+						</div>
+
+						<div class="row" style="">
+							<div class="well" style="">
+								<form role="form" method="post" action="{{ url_for('battery') }}">
+									<button name="BatteryCapacity" value="4">Batterie S (4 kWh)</button>
+									<button name="BatteryCapacity" value="8">Batterie M (8 kWh): ca. 10'000,- CHF</button>
+									<button name="BatteryCapacity" value="12">Batterie L (12 kWh)</button>
+									<button name="BatteryCapacity" value="16">Batterie XL (16 kWh)</button>
+								</form>
+							</div>
+						</div>
 					</div>
 
 					<div class="col-md-4 embed-responsive-item" style="left: 65%; max-width: 35%; max-height: 74.5%">
 						<div class="row" style="height: 100%;">
 							<div class="col-md-12" style="height: 100%">
 								<div class="well" style="height: 100%">
-									<div id="pie_chart" style="height: 100%"></div>
+									<div id="self_consumption_chart" style="height: 100%"></div>
 								</div>
 							</div>
 						</div>
@@ -82,16 +95,12 @@
 						<div class="row" style="height: 100%;">
 							<div class="col-md-12" style="height: 100%; top: 8%">
 								<div class="well" style="height: 100%;">
-									<form role="form" method="post" action="{{ url_for('battery') }}">
-										<button name="BatteryCapacity" value="4">Batterie S (4 kWh)</button><br><br>
-										<button name="BatteryCapacity" value="8">Batterie M (8 kWh): ca. 10'000,- CHF</button><br><br>
-										<button name="BatteryCapacity" value="12">Batterie L (12 kWh)</button><br><br>
-										<button name="BatteryCapacity" value="16">Batterie XL (16 kWh)</button><br><br>
-									</form>
+									<div id="autarky_chart"></div>
 								</div>
 							</div>
 						</div>
 					</div>
+
 				</div>
 			</div>
 		</div>
@@ -121,7 +130,7 @@ var monthly_pv = {{ user.battery_simulation['monthly_pv'] |safe }};
 var monthly_b2l = {{ user.battery_simulation['monthly_b2l'] |safe }};
 var monthly_demand = {{ user.demand_by_month |safe }};
 
-
+/*
 Highcharts.chart('pie_chart', {
     chart: {
     	backgroundColor: 'var(--chart-bg-color)',
@@ -193,7 +202,7 @@ Highcharts.chart('pie_chart', {
 			return this.name + " (" + this.percentage.toFixed(1) + " %)";
 		}
 	}
-});
+});*/
 
 
 Highcharts.chart('overview_chart', {
@@ -279,6 +288,128 @@ Highcharts.chart('overview_chart', {
 
 	]
 });
+
+
+
+
+var annual_demand = {{ user.annual_demand |safe }};
+var annual_production = {{ user.annual_production |safe }};
+
+var autarky = (solar_to_load) / annual_demand * 100;
+var autarky_bat = (solar_to_load + battery_to_load) / annual_demand * 100;
+var autarky_rest = 100 - autarky;
+var autarky_bat_rest = 100 - autarky_bat;
+
+var self_consumption = (solar_to_load) / annual_production * 100;
+var self_consumption_bat = (solar_to_load + battery_to_load) / annual_production * 100;
+var self_consumption_rest = 100 - self_consumption;
+var self_consumption_bat_rest = 100 - self_consumption_bat;
+
+
+Highcharts.chart('autarky_chart', {
+chart: {
+	backgroundColor: 'var(--chart-bg-color)',
+},
+
+title: {
+		text: 'Selbstversorgung'
+},
+
+subtitle: {
+	text: ''
+},
+
+yAxis: {
+	title: {
+		text: '%'
+	}
+},
+
+xAxis: {
+	categories: ['No Battery', 'With Battery'],
+	crosshair: true
+},
+
+tooltip: {
+},
+
+series: [
+
+		{
+			type: 'column',
+			stacking: true,
+			name: 'Selbstversorgung',
+			data: [autarky, autarky_bat],
+			color: 'var(--self-color)',
+			colorByPoint: false
+		},
+
+		{
+			type: 'column',
+			stacking: true,
+			name: 'Bezug Netz',
+			data: [autarky_rest, autarky_bat_rest],
+			color: 'var(--other-color)',
+			colorByPoint: false
+		},
+]
+
+
+});
+
+
+
+Highcharts.chart('self_consumption_chart', {
+	chart: {
+		backgroundColor: 'var(--chart-bg-color)',
+	},
+
+	title: {
+			text: 'Eigenverbrauch'
+	},
+
+	subtitle: {
+		text: ''
+	},
+
+	yAxis: {
+		title: {
+			text: '%'
+		}
+	},
+
+	xAxis: {
+		categories: ['No Battery', 'With Battery'],
+		crosshair: true
+	},
+
+	tooltip: {
+	},
+
+	series: [
+
+			{
+				type: 'column',
+				stacking: true,
+				name: 'Eigenverbrauch',
+				data: [self_consumption, self_consumption_bat],
+				color: 'var(--self-color)',
+				index: 2,
+				colorByPoint: false
+			},
+
+			{
+				type: 'column',
+				stacking: true,
+				name: 'Einspeisung Netz',
+				data: [self_consumption_rest, self_consumption_bat_rest],
+				color: 'var(--other-color)',
+				index: 3,
+				colorByPoint: false
+			},
+	]
+});
+
 
 </script>
 {% endblock %}

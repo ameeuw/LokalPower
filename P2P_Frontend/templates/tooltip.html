@@ -50,140 +50,134 @@
 </head>
 
 <body>
-<div class="container">
-    <div class="row">
-        <div class="col-sm-12">
-            <div class="panel panel-info">
-                <div class="panel-heading">
-                    <h3 class="panel-title">{{ name }} ( {{ share | round(1) }} %)</h3>
-                </div>
-
-                <div class="panel-body">
-                    <center><img class="img-responsive img-rounded" src="http://127.0.0.1:5000/static/img/photos/{{ photo }}"></center>
-
-                {% if kind=='plant' or kind=='prosumer' %}
-                    <br>
-                    <center>
-                        <button type="button" class="btn btn-default btn-warning btn-md" style="width: 100%">
-                            Zu meinen Versorgern hinzufügen <span class="glyphicon glyphicon-star" aria-hidden="true"></span>
-                        </button>
-                    </center>
-                {% endif %}
-                </div>
-
-                <div class="panel-heading">
-                    <h4 class="panel-title">Kurzbeschreibung</h4>
-                </div>
-                <div class="panel-body">
-                    {% if supplierId == 'Hydro1' %}
-                        Mit dem Bau des Kraftwerks Klosters wurde im August 1923 begonnen. Es wurden zwei Drehstrommaschinen mit je 10 000 PS Leistung versetzt. Im Jahr 1980 wurde eine Einphasengruppe mit einer Leistung von 8,5 Megawatt eingebaut. Mit zwei Peltonturbinen werden heute zweimal 8,5 Megawatt Leistung erzeugt. Die Druckleitung wurde vom Herbst 2001 bis im Frühjahr 2002 erneuert: In die alten Rohre wurden neue Stahlrohre eingezogen. Im Jahr 2008 wurde das Laufrad der Dreiphasenmaschinengruppe ersetzt und somit eine Wirkungsgraderhöhung von rund 5 Prozent erreicht.
-                    {% elif supplierId == 'Hydro2' %}
-                        Die gewählte Kreuzform des Kraftwerks Küblis hatte den Vorteil, dass vom Kommandoraum aus ein Fenster zum Maschinensaal eine optimale Übersicht ermöglichte. In den Gebäudearmen waren alle weiteren Anlageteile, die für den Kraftwerksbetrieb nötig sind, untergebracht. Beim Bau von 1919 - 1922 wurden drei Drehstrommaschinen, zwei Einphasengruppen, eine Eigenbedarfsgruppe sowie eine Umformergruppe eingebaut. Von März bis Dezember 2005 wurde der Maschinensaal komplett umgebaut und die sechs Maschinen durch zwei neue Maschinengruppen mit je zwei Peltonturbinen und einem Generator ersetzt. In Küblis wird das über die Kraftwerke Klosters und Schlappin eingeleitete Wasser zusammen mit Wasser aus den Fassungen der Landquart in Klosters und des Schanielabaches verarbeitet.
-                    {% elif supplierId == 'PV1' %}
-                        Die power-farm produziert seit Dezember 2008 ihren eigenen Solar-Power. Auf einer Fläche vom 514m² wird mit 401 Solarmodulen Strom produziert. Die Leistung der Anlage beträgt maximal 87 kWp. Der produzierte Solarstrom wird ins Netz der Repower eingespeist. Die von uns produzierte Strommenge reicht aus, um 25 Vierpersonenhaushalte das ganze Jahr mit Strom zu versorgen. Damit können wir mit Stolz sagen: <br><b>Wir produzieren mehr Strom als wir verbrauchen!</b>
-                    {% elif supplierId == 'PV2' %}
-                        Die Molkerei Pixel betreibt Klimaschutz aus Überzeugung. Die 204 Solarmodule auf dem Dach der Molkerei liefern Strom für die Verarbeitung und Kühlung von 1 Million Liter Bio Milch. Der überschüssige Strom wird in das regionale Netz gespeist. Die Wärme für die Pasteurisation wird seit 2001 durch die Verbrennung von Grünholzschnitzel erzeugt. Damit spart die Pixelmolkerei jährlich über 100'000 Liter Heizöl und reduziert den CO2-Ausstoss um mehr als 275'000 kg. Konsequenterweise gestaltet die Molkerei Pixel auch den Wassereinsatz, den Transport und die Verpackungen umweltverträglich.
-                    {% elif supplierId == 'Biogas' %}
-                        Seit Januar 2006 produziert die TEGRA AG Energie aus Holz und spart damit fossile Rohstoffe ein. Abnehmer von Prozessdampf hat das Bündner Unternehmen in der benachbarten Ems Chemie und der Sägerei Stallinger gefunden. Die Ems Chemie verringert ihren CO2-Ausstoss um rund zwei Drittel, indem sie Heizöl durch Holzenergie ersetzt. Dampf wird aber nicht nur für Produktionsprozesse und Holztrocknung genutzt, sondern auch für den Antrieb einer Kondensationsturbine. Ein Generator wandelt die mechanische Energie der Turbine in elektrische Energie um, die das öffentliche Netz speist.
-                    {% else %}
-                        Keine Beschreibung vorhanden.
-                    {% endif %}
-                </div>
-
-                {% if kind=='plant' %}
-                <div class="panel-footer">
-                    <h4 class="panel-title" style="">Technische Daten</h4>
-                    {% if supplierId == 'Hydro1' %}
-                    <table class="table table-sm" border="0" cellspacing="0" cellpadding="0">
-                        <tbody>
-                        <tr>
-                            <td><span>Bruttofallhöhe</span></td>
-                            <td style="text-align: right;"><span>366 m</span></td>
-                        </tr>
-                        <tr>
-                            <td><span>Genutzte Wassermenge</span></td>
-                            <td style="text-align: right;"><span>5,5 m<sup>3</sup>/s</span></td>
-                        </tr>
-                        <tr>
-                            <td><span>Anzahl und Art der Turbinen</span></td>
-                            <td style="text-align: right;"><span>2 Pelton horizontal</span></td>
-                        </tr>
-                        <tr>
-                            <td><span>Leistung</span></td>
-                            <td style="text-align: right;"><span>16,5 MW</span></td>
-                        </tr>
-                        <tr>
-                            <td><span>Jahresproduktion</span></td>
-                            <td style="text-align: right;"><span>22,1 GWh/a</span></td>
-                        </tr>
-                        </tbody>
-                    </table>
-                    {% elif supplierId == 'Hydro2' %}
-                    <table class="table table-sm" border="0" cellspacing="0" cellpadding="0">
-                        <tbody>
-                        <tr>
-                            <td><span>Bruttofallhöhe</span></td>
-                            <td style="text-align: right;"><span>355 m</span></td>
-                        </tr>
-                        <tr>
-                            <td><span>Genutzte Wassermenge</span></td>
-                            <td style="text-align: right;"><span>16,5 m<sup>3</sup>/s</span></td>
-                        </tr>
-                        <tr>
-                            <td><span>Anzahl und Art der Turbinen</span></td>
-                            <td style="text-align: right;"><span>2 Doppelpelton horizontal</span></td>
-                        </tr>
-                        <tr>
-                            <td><span>Leistung</span></td>
-                            <td style="text-align: right;"><span>45 MW</span></td>
-                        </tr>
-                        <tr>
-                            <td><span>Jahresproduktion</span></td>
-                            <td style="text-align: right;"><span>178,2 GWh/a</span></td>
-                        </tr>
-                        </tbody>
-                    </table>
-                    {% elif supplierId == 'PV1' %}
-                        Leider noch keine technischen Daten vorhanden.
-                    {% elif supplierId == 'PV2' %}
-                        Leider noch keine technischen Daten vorhanden.
-                    {% elif supplierId == 'Biogas' %}
-                    <table class="table table-sm" border="0" cellspacing="0" cellpadding="0">
-                        <tbody>
-                        <tr>
-                            <td><span>Brennstoffeinsatz pro Jahr</span></td>
-                            <td style="text-align: right;"><span>250000 t Holzschnitzel 12000 t Altholz</span></td>
-                        </tr>
-                        <tr>
-                            <td><span>Feuerungswärmeleistung</span></td>
-                            <td style="text-align: right;"><span>Block 1: 5,5 MW Block 2 und 3: jeweils 38MW</span></td>
-                        </tr>
-                        <tr>
-                            <td><span>Jahresproduktion</span></td>
-                            <td style="text-align: right;"><span>128000 MWh</span></td>
-                        </tr>
-                        <tr>
-                            <td><span>CO2-Einsparung pro Jahr</span></td>
-                            <td style="text-align: right;"><span>183 026 t</span></td>
-                        </tr>
-                        <tr>
-                            <td><span>Emissionen Staubausstoss</span></td>
-                            <td style="text-align: right;"><span>2,5–3,2 mg/m<sup>3</sup></span></td>
-                        </tr>
-                        <tr>
-                            <td><span>Beschäftigte</span></td>
-                            <td style="text-align: right;"><span>17 Mitarbeiterinnen und Mitarbeiter</span></td>
-                        </tr>
-                        </tbody>
-                    </table>
-                    {% else %}
-                        Leider noch keine technischen Daten vorhanden.
-                    {% endif %}
-                </div>
-                {% endif %}
-            </div>
+    <div class="panel panel-default">
+        <div class="panel-heading" style="">
+            <h3 class="panel-title">{{ name }} ( {{ share | round(1) }} %)</h3>
         </div>
+
+        <div class="panel-body">
+            <center><img class="img-responsive img-rounded" src="http://127.0.0.1:5000/static/img/photos/{{ photo }}"></center>
+
+        {% if kind=='plant' or kind=='prosumer' %}
+            <br>
+            <center>
+                <button type="button" class="btn btn-default btn-warning btn-md" style="width: 100%">
+                    Zu meinen Versorgern hinzufügen <span class="glyphicon glyphicon-star" aria-hidden="true"></span>
+                </button>
+            </center>
+        {% endif %}
+        </div>
+
+        <div class="panel-heading">
+            <h4 class="panel-title">Kurzbeschreibung</h4>
+        </div>
+        <div class="panel-body">
+            {% if supplierId == 'Hydro1' %}
+                Mit dem Bau des Kraftwerks Klosters wurde im August 1923 begonnen. Es wurden zwei Drehstrommaschinen mit je 10 000 PS Leistung versetzt. Im Jahr 1980 wurde eine Einphasengruppe mit einer Leistung von 8,5 Megawatt eingebaut. Mit zwei Peltonturbinen werden heute zweimal 8,5 Megawatt Leistung erzeugt. Die Druckleitung wurde vom Herbst 2001 bis im Frühjahr 2002 erneuert: In die alten Rohre wurden neue Stahlrohre eingezogen. Im Jahr 2008 wurde das Laufrad der Dreiphasenmaschinengruppe ersetzt und somit eine Wirkungsgraderhöhung von rund 5 Prozent erreicht.
+            {% elif supplierId == 'Hydro2' %}
+                Die gewählte Kreuzform des Kraftwerks Küblis hatte den Vorteil, dass vom Kommandoraum aus ein Fenster zum Maschinensaal eine optimale Übersicht ermöglichte. In den Gebäudearmen waren alle weiteren Anlageteile, die für den Kraftwerksbetrieb nötig sind, untergebracht. Beim Bau von 1919 - 1922 wurden drei Drehstrommaschinen, zwei Einphasengruppen, eine Eigenbedarfsgruppe sowie eine Umformergruppe eingebaut. Von März bis Dezember 2005 wurde der Maschinensaal komplett umgebaut und die sechs Maschinen durch zwei neue Maschinengruppen mit je zwei Peltonturbinen und einem Generator ersetzt. In Küblis wird das über die Kraftwerke Klosters und Schlappin eingeleitete Wasser zusammen mit Wasser aus den Fassungen der Landquart in Klosters und des Schanielabaches verarbeitet.
+            {% elif supplierId == 'PV1' %}
+                Die power-farm produziert seit Dezember 2008 ihren eigenen Solar-Power. Auf einer Fläche vom 514m² wird mit 401 Solarmodulen Strom produziert. Die Leistung der Anlage beträgt maximal 87 kWp. Der produzierte Solarstrom wird ins Netz der Repower eingespeist. Die von uns produzierte Strommenge reicht aus, um 25 Vierpersonenhaushalte das ganze Jahr mit Strom zu versorgen. Damit können wir mit Stolz sagen: <br><b>Wir produzieren mehr Strom als wir verbrauchen!</b>
+            {% elif supplierId == 'PV2' %}
+                Die Molkerei Pixel betreibt Klimaschutz aus Überzeugung. Die 204 Solarmodule auf dem Dach der Molkerei liefern Strom für die Verarbeitung und Kühlung von 1 Million Liter Bio Milch. Der überschüssige Strom wird in das regionale Netz gespeist. Die Wärme für die Pasteurisation wird seit 2001 durch die Verbrennung von Grünholzschnitzel erzeugt. Damit spart die Pixelmolkerei jährlich über 100'000 Liter Heizöl und reduziert den CO2-Ausstoss um mehr als 275'000 kg. Konsequenterweise gestaltet die Molkerei Pixel auch den Wassereinsatz, den Transport und die Verpackungen umweltverträglich.
+            {% elif supplierId == 'Biogas' %}
+                Seit Januar 2006 produziert die TEGRA AG Energie aus Holz und spart damit fossile Rohstoffe ein. Abnehmer von Prozessdampf hat das Bündner Unternehmen in der benachbarten Ems Chemie und der Sägerei Stallinger gefunden. Die Ems Chemie verringert ihren CO2-Ausstoss um rund zwei Drittel, indem sie Heizöl durch Holzenergie ersetzt. Dampf wird aber nicht nur für Produktionsprozesse und Holztrocknung genutzt, sondern auch für den Antrieb einer Kondensationsturbine. Ein Generator wandelt die mechanische Energie der Turbine in elektrische Energie um, die das öffentliche Netz speist.
+            {% else %}
+                Keine Beschreibung vorhanden.
+            {% endif %}
+        </div>
+
+        {% if kind=='plant' %}
+        <div class="panel-footer">
+            <h4 class="panel-title" style="">Technische Daten</h4>
+            {% if supplierId == 'Hydro1' %}
+            <table class="table table-sm" border="0" cellspacing="0" cellpadding="0">
+                <tbody>
+                <tr>
+                    <td><span>Bruttofallhöhe</span></td>
+                    <td style="text-align: right;"><span>366 m</span></td>
+                </tr>
+                <tr>
+                    <td><span>Genutzte Wassermenge</span></td>
+                    <td style="text-align: right;"><span>5,5 m<sup>3</sup>/s</span></td>
+                </tr>
+                <tr>
+                    <td><span>Anzahl und Art der Turbinen</span></td>
+                    <td style="text-align: right;"><span>2 Pelton horizontal</span></td>
+                </tr>
+                <tr>
+                    <td><span>Leistung</span></td>
+                    <td style="text-align: right;"><span>16,5 MW</span></td>
+                </tr>
+                <tr>
+                    <td><span>Jahresproduktion</span></td>
+                    <td style="text-align: right;"><span>22,1 GWh/a</span></td>
+                </tr>
+                </tbody>
+            </table>
+            {% elif supplierId == 'Hydro2' %}
+            <table class="table table-sm" border="0" cellspacing="0" cellpadding="0">
+                <tbody>
+                <tr>
+                    <td><span>Bruttofallhöhe</span></td>
+                    <td style="text-align: right;"><span>355 m</span></td>
+                </tr>
+                <tr>
+                    <td><span>Genutzte Wassermenge</span></td>
+                    <td style="text-align: right;"><span>16,5 m<sup>3</sup>/s</span></td>
+                </tr>
+                <tr>
+                    <td><span>Anzahl und Art der Turbinen</span></td>
+                    <td style="text-align: right;"><span>2 Doppelpelton horizontal</span></td>
+                </tr>
+                <tr>
+                    <td><span>Leistung</span></td>
+                    <td style="text-align: right;"><span>45 MW</span></td>
+                </tr>
+                <tr>
+                    <td><span>Jahresproduktion</span></td>
+                    <td style="text-align: right;"><span>178,2 GWh/a</span></td>
+                </tr>
+                </tbody>
+            </table>
+            {% elif supplierId == 'PV1' %}
+                Leider noch keine technischen Daten vorhanden.
+            {% elif supplierId == 'PV2' %}
+                Leider noch keine technischen Daten vorhanden.
+            {% elif supplierId == 'Biogas' %}
+            <table class="table table-sm" border="0" cellspacing="0" cellpadding="0">
+                <tbody>
+                <tr>
+                    <td><span>Brennstoffeinsatz pro Jahr</span></td>
+                    <td style="text-align: right;"><span>250000 t Holzschnitzel 12000 t Altholz</span></td>
+                </tr>
+                <tr>
+                    <td><span>Feuerungswärmeleistung</span></td>
+                    <td style="text-align: right;"><span>Block 1: 5,5 MW Block 2 und 3: jeweils 38MW</span></td>
+                </tr>
+                <tr>
+                    <td><span>Jahresproduktion</span></td>
+                    <td style="text-align: right;"><span>128000 MWh</span></td>
+                </tr>
+                <tr>
+                    <td><span>CO2-Einsparung pro Jahr</span></td>
+                    <td style="text-align: right;"><span>183 026 t</span></td>
+                </tr>
+                <tr>
+                    <td><span>Emissionen Staubausstoss</span></td>
+                    <td style="text-align: right;"><span>2,5–3,2 mg/m<sup>3</sup></span></td>
+                </tr>
+                <tr>
+                    <td><span>Beschäftigte</span></td>
+                    <td style="text-align: right;"><span>17 Mitarbeiterinnen und Mitarbeiter</span></td>
+                </tr>
+                </tbody>
+            </table>
+            {% else %}
+                Leider noch keine technischen Daten vorhanden.
+            {% endif %}
+        </div>
+        {% endif %}
     </div>
-</div>
 </body>
 </html>

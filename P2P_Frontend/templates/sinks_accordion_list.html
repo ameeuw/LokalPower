@@ -5,21 +5,19 @@
     <!-- EIGENVERBRAUCH -->
         <div class="panel panel-default" style="max-height: 50px">
             <div class="panel-heading"  style="background-color: #ffffff; border: 5px solid var(--self-color); border-radius: 4px;">
-                <div class="container">
-                    <div class="row">
-                        <h4 class="panel-title">
-                            Eigenverbrauch
-                        </h4>
-                    </div>
-                    <div class="row">
-                        <div class="col-sm-1">
+                <h4 class="panel-title">
+                    Eigenverbrauch
+                </h4>
+                <table>
+                    <tr>
+                        <td style="padding-right:5px;">
                             {{ user.period['sum_self_consumption'] | round(1) }} kWh
-                        </div>
-                        <div class="col-sm-1">
-                            {{ user.period['kpi_self_consumption'] | round(1)  }} %
-                        </div>
-                    </div>
-                </div>
+                        </td>
+                        <td>
+                            ({{ user.period['kpi_self_consumption'] | round(1)  }} %)
+                        </td>
+                    </tr>
+                </table>
             </div>
         </div>
     </div>
@@ -31,21 +29,19 @@
         <!-- LOKAL -->
         <div class="panel panel-default">
             <div class="panel-heading" style="background-color: #ffffff; border: 5px solid var(--local-color); border-radius: 4px;">
-                <div class="container">
-                    <div class="row">
-                        <h4 class="panel-title">
-                            <a data-toggle="collapse" data-parent="#accordion" href="#collapse1"><div>Einspeisung Lokal (<10km)</div></a>
-                        </h4>
-                    </div>
-                    <div class="row">
-                        <div class="col-sm-1">
+                <h4 class="panel-title">
+                    <a data-toggle="collapse" data-parent="#accordion" href="#collapse1"><div>Einspeisung Lokal (<10km)</div></a>
+                </h4>
+                <table>
+                    <tr>
+                        <td style="padding-right:5px;">
                             {{ user.period['categorized_deliveries']['local']['sum'] | round(1)  }} kWh
-                        </div>
-                        <div class="col-sm-1">
-                            {{ (user.period['categorized_deliveries']['local']['sum'] / user.period['sum_production'] * 100) | round(1)  }} %
-                        </div>
-                    </div>
-                </div>
+                        </td>
+                        <td>
+                            ({{ (user.period['categorized_deliveries']['local']['sum'] / user.period['sum_production'] * 100) | round(1)  }} %)
+                        </td>
+                    </tr>
+                </table>
             </div>
             {% if user.period['categorized_deliveries']['local']['sum'] > 0 %}
             <div id="collapse1" class="panel-collapse collapse in">
@@ -78,21 +74,19 @@
         <!-- GRAUBÜNDEN -->
         <div class="panel panel-default">
             <div class="panel-heading" style="background-color: #ffffff; border: 5px solid var(--grisons-color); border-radius: 4px;">
-                <div class="container">
-                    <div class="row">
-                        <h4 class="panel-title">
-                            <a data-toggle="collapse" data-parent="#accordion" href="#collapse2">Einspeisung Graubünden</a>
-                        </h4>
-                    </div>
-                    <div class="row">
-                        <div class="col-sm-1">
+                <h4 class="panel-title">
+                    <a data-toggle="collapse" data-parent="#accordion" href="#collapse2">Einspeisung Graubünden</a>
+                </h4>
+                <table>
+                    <tr>
+                        <td style="padding-right:5px;">
                             {{ user.period['categorized_deliveries']['grisons']['sum'] | round(1)  }} kWh
-                        </div>
-                        <div class="col-sm-1">
-                            {{ (user.period['categorized_deliveries']['grisons']['sum'] / user.period['sum_production'] * 100)|round(1)  }} %
-                        </div>
-                    </div>
-                </div>
+                        </td>
+                        <td>
+                            ({{ (user.period['categorized_deliveries']['grisons']['sum'] / user.period['sum_production'] * 100)|round(1)  }} %)
+                        </td>
+                    </tr>
+                </table>
             </div>
             {% if user.period['categorized_deliveries']['grisons']['sum'] > 0 %}
 
@@ -129,22 +123,19 @@
         <!-- SONSTIGE -->
         <div class="panel panel-default" style="max-height: 80px">
             <div class="panel-heading" style="background-color: #ffffff; border: 5px solid var(--other-color); border-radius: 4px;">
-                <div class="container">
-                    <div class="row">
-                        <h4 class="panel-title">
-                            Einspeisung Schweiz
-                        </h4>
-                    </div>
-
-                    <div class="row">
-                        <div class="col-sm-1">
+                <h4 class="panel-title">
+                    Einspeisung Schweiz
+                </h4>
+                <table>
+                    <tr>
+                        <td style="padding-right:5px;">
                             {{ user.period['categorized_deliveries']['other']['sum'] | round(1)  }} kWh
-                        </div>
-                        <div class="col-sm-1">
-                            {{ (user.period['categorized_deliveries']['other']['sum'] / user.period['sum_production'] * 100)|round(1)  }} %
-                        </div>
-                    </div>
-                </div>
+                        </td>
+                        <td>
+                            ({{ (user.period['categorized_deliveries']['other']['sum'] / user.period['sum_production'] * 100)|round(1)  }} %)
+                        </td>
+                    </tr>
+                </table>
             </div>
         </div>
     </div>
