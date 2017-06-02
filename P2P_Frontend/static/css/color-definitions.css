@@ -16,6 +16,8 @@
 
     --chart-bg-color: rgb(240,240,240);
     --well-bg-color: rgb(240,240,240);
+
+    --tooltip-title-color: rgb(200,200,200);
 }
 
 .well {
@@ -31,4 +33,16 @@
 .row > [class*='col-'] {
 	 display: flex;
 	 flex-direction: column;
+}
+
+div[comma-value]{
+    position:relative;
+}
+div[comma-value]:before{
+    content: attr(comma-value);
+    position:absolute;
+    left:0;
+}
+div[comma-value] input{
+    color:#fff;
 }

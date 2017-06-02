@@ -67,12 +67,12 @@
 				<div class="row embed-responsive embed-responsive-16by9" style="">
 
 					<div class="col-md-8 embed-responsive-item" style="width: 65%">
-						<div class="row ">
-							<div class="well" id="overview_chart" style=""></div>
+						<div class="row-fluid" style="height: 61.5%">
+							<div class="well" id="overview_chart" style="height: 100%"></div>
 						</div>
 
-						<div class="row" style="">
-							<div class="well" style="">
+						<div class="row-fluid" style="height: 30%; padding-top: 2%">
+							<div class="well" style="height: 30%;">
 								<form role="form" method="post" action="{{ url_for('battery') }}">
 									<button name="BatteryCapacity" value="4">Batterie S (4 kWh)</button>
 									<button name="BatteryCapacity" value="8">Batterie M (8 kWh): ca. 10'000,- CHF</button>
@@ -83,8 +83,8 @@
 						</div>
 					</div>
 
-					<div class="col-md-4 embed-responsive-item" style="left: 65%; max-width: 35%; max-height: 74.5%">
-						<div class="row" style="height: 100%;">
+					<div class="col-md-4 embed-responsive-item" style="left: 65%; max-width: 35%; max-height: 75%">
+						<div class="row" style="height: 90%;">
 							<div class="col-md-12" style="height: 100%">
 								<div class="well" style="height: 100%">
 									<div id="self_consumption_chart" style="height: 100%"></div>
@@ -92,10 +92,10 @@
 							</div>
 						</div>
 
-						<div class="row" style="height: 100%;">
-							<div class="col-md-12" style="height: 100%; top: 8%">
+						<div class="row" style="height: 90%;">
+							<div class="col-md-12" style="height: 100%;">
 								<div class="well" style="height: 100%;">
-									<div id="autarky_chart"></div>
+									<div id="autarky_chart" style="height: 100%"></div>
 								</div>
 							</div>
 						</div>
@@ -108,8 +108,6 @@
 	</div>
 </div>
 
-	</div>
-</div>
 
 
 
@@ -320,17 +318,38 @@ subtitle: {
 },
 
 yAxis: {
+	min: 0,
+	max: 100,
 	title: {
-		text: '%'
+		text: '%',
 	}
 },
 
 xAxis: {
-	categories: ['No Battery', 'With Battery'],
+	categories: ['Keine Batterie', 'Mit Batterie'],
 	crosshair: true
 },
 
+plotOptions: {
+	column: {
+		dataLabels: {
+			enabled: true,
+			formatter: function() {
+				return this.point.y.toFixed(1) + ' %';
+			}
+		},
+		enableMouseTracking: true
+	}
+},
+
 tooltip: {
+	formatter: function() {
+		return '<b><span style="font-size: 130%">' + this.series.name + '</b></span><br>Anteil: ' + this.y.toFixed(1) + ' %';
+	},
+},
+
+legend: {
+		enabled: false,
 },
 
 series: [
@@ -341,6 +360,7 @@ series: [
 			name: 'Selbstversorgung',
 			data: [autarky, autarky_bat],
 			color: 'var(--self-color)',
+			index: 1,
 			colorByPoint: false
 		},
 
@@ -350,6 +370,7 @@ series: [
 			name: 'Bezug Netz',
 			data: [autarky_rest, autarky_bat_rest],
 			color: 'var(--other-color)',
+			index: 0,
 			colorByPoint: false
 		},
 ]
@@ -373,17 +394,38 @@ Highcharts.chart('self_consumption_chart', {
 	},
 
 	yAxis: {
+		min: 0,
+		max: 100,
 		title: {
-			text: '%'
+			text: '%',
 		}
 	},
 
+    plotOptions: {
+        column: {
+            dataLabels: {
+                enabled: true,
+                formatter: function() {
+                    return this.point.y.toFixed(1) + ' %';
+                }
+            },
+            enableMouseTracking: true
+        }
+    },
+
 	xAxis: {
-		categories: ['No Battery', 'With Battery'],
+		categories: ['Keine Batterie', 'Mit Batterie'],
 		crosshair: true
 	},
 
 	tooltip: {
+		formatter: function() {
+			return '<b><span style="font-size: 130%">' + this.series.name + '</b></span><br>Anteil: ' + this.y.toFixed(1) + ' %';
+		},
+	},
+
+	legend: {
+			enabled: false,
 	},
 
 	series: [
@@ -394,7 +436,7 @@ Highcharts.chart('self_consumption_chart', {
 				name: 'Eigenverbrauch',
 				data: [self_consumption, self_consumption_bat],
 				color: 'var(--self-color)',
-				index: 2,
+				index: 1,
 				colorByPoint: false
 			},
 
@@ -404,7 +446,7 @@ Highcharts.chart('self_consumption_chart', {
 				name: 'Einspeisung Netz',
 				data: [self_consumption_rest, self_consumption_bat_rest],
 				color: 'var(--other-color)',
-				index: 3,
+				index: 0,
 				colorByPoint: false
 			},
 	]

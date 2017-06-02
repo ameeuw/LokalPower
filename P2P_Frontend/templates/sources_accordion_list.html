@@ -81,7 +81,7 @@
                             {{ user.period['categorized_connections']['grisons']['sum'] | round(1)  }} kWh
                         </td>
                         <td>
-                            ({{ (user.period['categorized_connections']['local']['sum'] / user.period['sum_consumption'] * 100) | round(1)  }} %)
+                            ({{ (user.period['categorized_connections']['grisons']['sum'] / user.period['sum_consumption'] * 100) | round(1)  }} %)
                         </td>
                     </tr>
                 </table>

@@ -40,6 +40,7 @@ def setup_data():
     descriptions_df = descriptions_df.set_index('ID')
 
     prosumer = 5
+    #prosumer = 3
     #userId = locations.keys()[prosumer]
     user_index = descriptions_df.index[prosumer]
     user_location = ast.literal_eval(descriptions_df.loc[user_index]['LOCATION'])
@@ -302,9 +303,9 @@ def get_period(resolution='monthly', month_index=None, day_index=None):
                 s_category = 'self'
             elif s_distance < 10:
                 s_category = 'local'
-            elif (s_distance > 10) and (s_distance < 30) and (s_id != 'GRID'):
+            elif (s_distance > 10) and (s_distance < 60) and (s_id != 'GRID'):
                 s_category = 'grisons'
-            elif (s_distance > 30) or (s_id == 'GRID'):
+            elif (s_distance > 60) or (s_id == 'GRID'):
                 s_category = 'other'
 
             categorized[s_category]['sum'] += sum(connections)
@@ -337,8 +338,10 @@ def get_period(resolution='monthly', month_index=None, day_index=None):
         kpi_self_consumption = round(sum_self_consumption / sum_production * 100, 2)
 
     kpi_autarky = 0
+    kpi_mean_distance = 0
     if sum_consumption > 0:
         kpi_autarky = round(sum_self_consumption / sum_consumption * 100, 2)
+        kpi_mean_distance = round(distance_energy_sum / sum_consumption, 2)
 
     distance_energy_sum = 0
     for s_id, connections in detail_connections.iteritems():
@@ -346,7 +349,7 @@ def get_period(resolution='monthly', month_index=None, day_index=None):
         energy_sum = sum(connections)
         distance_energy_sum += s_distance * energy_sum
 
-    kpi_mean_distance = round(distance_energy_sum / sum_consumption, 2)
+
 
 
     period['resolution'] = resolution
