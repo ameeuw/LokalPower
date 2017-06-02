@@ -22,8 +22,8 @@ def creatUserDicts(start=0, stop=35136):
 
     print(userFiles)
 
-    producerColumns = [12, 13, 14, 15, 16]
-    producerIds = ['Hydro1', 'Hydro2', 'Biogas', 'PV1', 'PV2']
+    producerColumns = [12, 13, 170, 15, 16, 195]
+    producerIds = ['Hydro1', 'Hydro2', 'Biogas', 'PV1', 'PV2', 'Wind1']
 
     numProducers = len(producerColumns)
     numUsers = len(userFiles)

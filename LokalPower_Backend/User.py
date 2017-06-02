@@ -16,7 +16,7 @@ class Producer(object):
         self.setLoadProfile(column)
 
     def loadProducerData(self, fname, column):
-        dat = pd.read_csv(fname, header=0, skiprows=[0], usecols=np.arange(20))
+        dat = pd.read_csv(fname, header=0, skiprows=[0], usecols=np.arange(205))
         dat = dat[dat.columns[column]].values * (-1000)
         return dat
 

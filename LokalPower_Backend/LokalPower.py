@@ -43,6 +43,9 @@ class LokalPower(object):
             _start = start_nodes[i]
             _end = end_nodes[i]
             _weight = (self.getGeoDistance(_start, _end, locations))
+            if _weight == 0:
+                _weight = -10
+
             _capacity = -G.node[_start]['demand']
             #print(_capacity)
             G.add_edge(_start, _end, weight=_weight, capacity=_capacity, distance=self.getGeoDistance(_start, _end, locations))
@@ -165,7 +168,7 @@ class LokalPower(object):
         #self.addBalanceUser(-sum(demands), 46.966638, 9.555431)
 
         demands.append(-sum(demands))
-        locations.append((46.746655, 9.841554))
+        locations.append((47.382083, 8.534653))
         ids.append('GRID')
 
         return demands, locations, ids
