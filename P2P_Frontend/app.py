@@ -40,7 +40,7 @@ def setup_data():
     descriptions_df = descriptions_df.set_index('ID')
 
     prosumer = 5
-    #prosumer = 3
+    #prosumer = 15
     #userId = locations.keys()[prosumer]
     user_index = descriptions_df.index[prosumer]
     user_location = ast.literal_eval(descriptions_df.loc[user_index]['LOCATION'])
@@ -380,7 +380,7 @@ def get_period(resolution='monthly', month_index=None, day_index=None):
 
     return period
 
-def generate_map(aggregated_connections, file_name='sources_map.html'):
+def generate_map(aggregated_connections, file_name='sources_map.html', root="http://127.0.0.1:5000/"):
     osmap = folium.Map(location=user.location, tiles='Stamen Terrain', zoom_start=11, min_zoom=10)
 
     #osmap = folium.Map(location=user.location, zoom_start=11, min_zoom=10,
@@ -391,7 +391,7 @@ def generate_map(aggregated_connections, file_name='sources_map.html'):
 
     iframe = folium.IFrame(html=render_template('tooltip.html', photo=descriptions_df.loc[user.index]['PHOTO'],
                                                 name=descriptions[user.index]['NAME'], share=0,
-                                                supplierId=user.index, kind='self'),
+                                                supplierId=user.index, kind='self', root=root),
                             width=360, height=250)
 
 
@@ -409,7 +409,7 @@ def generate_map(aggregated_connections, file_name='sources_map.html'):
                 if (descriptions[supplierId]['KIND'] == 'plant'):
                     iframe = folium.IFrame(html=render_template('tooltip.html', photo=descriptions_df.loc[supplierId]['PHOTO'],
                                                                 name=descriptions[supplierId]['NAME'], share=aggregated_connections[supplierId]['energy'] / user.period['sum_consumption'] / 10,
-                                                                supplierId=supplierId, kind='plant'),
+                                                                supplierId=supplierId, kind='plant', root=root),
                                             width=360, height=250)
                 else:
                     if descriptions[supplierId]['ANONYMITY'] == True:
@@ -419,7 +419,7 @@ def generate_map(aggregated_connections, file_name='sources_map.html'):
 
                     iframe = folium.IFrame(html=render_template('tooltip.html', photo=descriptions_df.loc[supplierId]['PHOTO'],
                                                                 name=name, share=aggregated_connections[supplierId]['energy'] / user.period['sum_consumption'] / 10,
-                                                                supplierId=supplierId, kind=descriptions_df.loc[supplierId]['KIND']),
+                                                                supplierId=supplierId, kind=descriptions_df.loc[supplierId]['KIND'], root=root),
                                             width=360, height=250)
 
                 popup = folium.Popup(iframe, max_width=2650)
@@ -472,19 +472,21 @@ def sinks_maps():
 @app.route("/osmaps/<string:type>/")
 def osmaps(type='sources'):
 
-    generate_map(user.period['aggregated_connections'], 'sources_map.html')
-    #print('\n\nGENERATING SOURCES MAP USING:\n\n{}\n\n'.format(user.period['aggregated_connections']))
-    generate_map(user.period['aggregated_deliveries'], 'sinks_map.html')
-    #print('\n\nGENERATING SINKS MAP USING:\n\n{}\n\n'.format(user.period['aggregated_deliveries']))
+    if type=="sinks":
+        generate_map(user.period['aggregated_deliveries'], 'sinks_map.html', root=request.url_root)
+        #print('\n\nGENERATING SINKS MAP USING:\n\n{}\n\n'.format(user.period['aggregated_deliveries']))
+    else:
+        generate_map(user.period['aggregated_connections'], 'sources_map.html', root=request.url_root)
+        #print('\n\nGENERATING SOURCES MAP USING:\n\n{}\n\n'.format(user.period['aggregated_connections']))
 
     #generateMap(user.period['aggregated_connections'])
-    return render_template('maps.html', user=user, descriptions=descriptions, type=type, origin='maps.html')
+    return render_template('maps.html', user=user, descriptions=descriptions, type=type, origin='maps.html', root=request.url_root)
 
 
 @app.route("/details/<string:type>/")
 def details(type='sources'):
 
-    return render_template('details.html', user=user, descriptions=descriptions, type=type, origin='details.html')
+    return render_template('details.html', user=user, descriptions=descriptions, type=type, origin='details.html', root=request.url_root)
 
 
 @app.route("/setResolution/<string:resolution>/")
@@ -560,6 +562,7 @@ def battery():
     user.prosumerSim(EbatR=EbatR)
 
     return render_template('batterySim.html', user=user, BatterySize=EbatR, origin='batterySim.html')
+
 
 if __name__ == "__main__":
     #setup_data()
