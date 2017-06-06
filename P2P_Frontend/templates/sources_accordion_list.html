@@ -101,7 +101,7 @@
                         </tr>
                         {% for entry in user.period['categorized_connections']['grisons']['list'] %}
                         <tr>
-                            <td><img src="http://127.0.0.1:5000/static/img/markers/{{ descriptions[entry['s_id']]['TYPE'] }}.png" style="height: 20px; width: 20px;">  {{ descriptions[entry['s_id']]['NAME'] }}</td>
+                            <td><img src="{{ root }}static/img/markers/{{ descriptions[entry['s_id']]['TYPE'] }}.png" style="height: 20px; width: 20px;">  {{ descriptions[entry['s_id']]['NAME'] }}</td>
                             <td>{{ entry['distance'] }} km</td>
                             {% if (entry['energy'] / user.period['sum_consumption']) < 0.01 %}
                             <td> < 1 %</td>
