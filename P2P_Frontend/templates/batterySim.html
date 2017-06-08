@@ -128,80 +128,6 @@ var monthly_pv = {{ user.battery_simulation['monthly_pv'] |safe }};
 var monthly_b2l = {{ user.battery_simulation['monthly_b2l'] |safe }};
 var monthly_demand = {{ user.demand_by_month |safe }};
 
-/*
-Highcharts.chart('pie_chart', {
-    chart: {
-    	backgroundColor: 'var(--chart-bg-color)',
-        plotBackgroundColor: null,
-        plotBorderWidth: null,
-        plotShadow: false,
-        type: 'pie'
-    },
-    title: {
-        text: 'Deckungsgrad Ihres Verbrauchs'
-    },
-
-	subtitle: {
-		text: '100 % = {{ user.period['sum_consumption'] }} kWh'
-	},
-    tooltip: {
-        pointFormat: '{series.name}: <b>{point.percentage:.1f}%</b>'
-    },
-    plotOptions: {
-        pie: {
-            allowPointSelect: true,
-            cursor: 'pointer',
-            dataLabels: {
-                enabled: false,
-                format: '<b>{point.name}</b>: {point.percentage:.1f} %',
-                style: {
-                    color: (Highcharts.theme && Highcharts.theme.contrastTextColor) || 'black'
-                }
-            },
-        showInLegend: true,
-        }
-    },
-
-	series: [{
-		name: 'Anteil',
-		colorByPoint: true,
-		size: '100%',
-		innerSize: '60%',
-		data: [
-			{
-				name: 'Solar (direkt)',
-				color: 'var(--local-color)',
-				y: solar_to_load,
-				showInLegend: true,
-				legendIndex: 0
-			},
-			{
-				name: 'Batterie',
-				color: 'var(--battery-color)',
-				y: battery_to_load,
-				sliced: true,
-				showInLegend: true,
-				legendIndex: 1
-			},
-			{
-				name: 'Netz',
-				color: 'var(--other-color)',
-				y: grid_to_load,
-				showInLegend: true,
-				legendIndex: 2
-			}
-		]
-	}],
-	legend: {
-		layout: 'vertical',
-		align: 'right',
-		verticalAlign: 'bottom',
-		labelFormatter: function() {
-			return this.name + " (" + this.percentage.toFixed(1) + " %)";
-		}
-	}
-});*/
-
 
 Highcharts.chart('overview_chart', {
 	chart: {
@@ -209,7 +135,7 @@ Highcharts.chart('overview_chart', {
 	},
 
 	title: {
-		text: 'Simulation'
+		text: 'Verbrauch'
 	},
 
 	subtitle: {
@@ -303,14 +229,25 @@ var self_consumption_bat = (solar_to_load + battery_to_load) / annual_production
 var self_consumption_rest = 100 - self_consumption;
 var self_consumption_bat_rest = 100 - self_consumption_bat;
 
+var text_self_consumption = 'Es handelt sich um den Anteil Ihres Verbrauchs, den Sie gerade dann verbrauchen, wenn Ihre Photovoltaik-Anlage produziert.<br>Der Grad des Eigenverbrauchs kann erhöht werden, wenn Verbraucher (z.B. Warmwasser-Boiler) dann eingeschalten werden, wenn die Sonne scheint.</div>';
+var text_autarky = 'Es handelt sich um den Anteil Ihres Jahresverbrauchs, den Sie mit dem Eigenverbrauch abdecken können.<br>Der Selbstversorgungsgrad kann entweder erhöht werden, wenn die Photovoltaik-Anlage vergrössert wird oder wenn der Eigenverbrauchsgrad erhöht wird (siehe Eigenverbrauch).<br>Ein Selbstversorgungsgrad von 100 % ist ökonomisch praktisch nicht zu erreichen, da die Photovoltaik-Anlage in den Wintermonaten viel weniger produziert als im Sommer.';
 
-Highcharts.chart('autarky_chart', {
+$('document').ready(function () {
+	tooltip_title = '<b><h4>' + 'Selbstversorgung' + '</h4></b><div style="text-align: justify;">' + text_autarky + '</div>';
+	$("#autarky_title").tooltip({placement: 'top', title: tooltip_title, html:true, container: 'body'});
+
+	tooltip_title = '<b><h4>' + 'Eigenverbrauch' + '</h4></b><div style="text-align: justify;">' + text_self_consumption + '</div>';
+	$("#self_consumption_title").tooltip({placement: 'top', title: tooltip_title, html:true, container: 'body'});
+});
+
+var autarky_chart = Highcharts.chart('autarky_chart', {
 chart: {
 	backgroundColor: 'var(--chart-bg-color)',
 },
 
 title: {
-		text: 'Selbstversorgung'
+	useHTML: true,
+	text: '<span id="autarky_title">Selbstversorgung</span>'
 },
 
 subtitle: {
@@ -364,7 +301,7 @@ series: [
 			colorByPoint: false
 		},
 
-		{
+		/*{
 			type: 'column',
 			stacking: true,
 			name: 'Bezug Netz',
@@ -372,13 +309,11 @@ series: [
 			color: 'var(--other-color)',
 			index: 0,
 			colorByPoint: false
-		},
+		},*/
 ]
 
 
 });
-
-
 
 Highcharts.chart('self_consumption_chart', {
 	chart: {
@@ -386,7 +321,8 @@ Highcharts.chart('self_consumption_chart', {
 	},
 
 	title: {
-			text: 'Eigenverbrauch'
+		useHTML: true,
+		text: '<span id="self_consumption_title">Eigenverbrauch</span>'
 	},
 
 	subtitle: {
@@ -440,7 +376,7 @@ Highcharts.chart('self_consumption_chart', {
 				colorByPoint: false
 			},
 
-			{
+			/*{
 				type: 'column',
 				stacking: true,
 				name: 'Einspeisung Netz',
@@ -448,7 +384,7 @@ Highcharts.chart('self_consumption_chart', {
 				color: 'var(--other-color)',
 				index: 0,
 				colorByPoint: false
-			},
+			},*/
 	]
 });
 
