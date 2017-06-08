@@ -40,9 +40,10 @@
 <script type="text/javascript" src="https://cdn.jsdelivr.net/momentjs/latest/moment.min.js"></script>
 <!--<script type="text/javascript" src="{{ url_for('static', filename='charts/overview_chart.js') }}"></script>-->
 
+
 <script type="text/javascript">
 
-Highcharts.chart('pie_chart_connections', {
+var pie_chart_connections = Highcharts.chart('pie_chart_connections', {
 	chart: {
 		backgroundColor: 'var(--chart-bg-color)',
 		plotBackgroundColor: null,
@@ -73,6 +74,13 @@ Highcharts.chart('pie_chart_connections', {
 				}
 			},
 		showInLegend: true,
+		point: {
+			events: {
+				legendItemClick: function() {
+				return false;
+					}
+				}
+			},
 		}
 	},
 	series: [{
@@ -84,7 +92,7 @@ Highcharts.chart('pie_chart_connections', {
 
 				{% for category, category_dict in user.period['categorized_connections'].iteritems() %}
 				{
-					name: '{{ category | replace("self","Selbstversorgung") | replace("local","Bezug Lokal (<10km)") | replace("grisons","Bezug Graubünden") | replace("other","Bezug Schweiz") }}',
+					name: '{{ category | replace("self",'Selbstversorgung') | replace("local","Bezug Lokal (<10km)") | replace("grisons","Bezug Graubünden") | replace("other","Bezug Schweiz") }}',
 					y: {{ category_dict['sum'] }},
 					color: '{{ category | replace("self","var(--self-color)") | replace("local","var(--local-color)") | replace("grisons","var(--grisons-color)") | replace("other","var(--other-color)") }}',
 					legendIndex: {{ category | replace("self","0") | replace("local","1") | replace("grisons","2") | replace("other","3") }},
@@ -100,13 +108,18 @@ Highcharts.chart('pie_chart_connections', {
 		align: 'right',
 		verticalAlign: 'middle',
 		itemMarginTop: 8,
+		useHTML: true,
 		labelFormatter: function() {
-			return this.name + " (" + this.percentage.toFixed(1) + " %)";
+			if (this.name == 'Selbstversorgung')
+				var info_icon = '<i class="glyphicon glyphicon-info-sign" style=""></i>';
+			else
+				info_icon = '';
+			return this.name + " (" + this.percentage.toFixed(1) + " %) " + info_icon;
 		}
 	}
 });
 
-Highcharts.chart('pie_chart_deliveries', {
+var pie_chart_deliveries = Highcharts.chart('pie_chart_deliveries', {
 	chart: {
 		backgroundColor: 'var(--chart-bg-color)',
 		plotBackgroundColor: null,
@@ -138,6 +151,13 @@ Highcharts.chart('pie_chart_deliveries', {
 			},
 
 		showInLegend: true,
+		point: {
+			events: {
+				legendItemClick: function() {
+				return false;
+					}
+				}
+			},
 
 		},
 
@@ -167,8 +187,13 @@ Highcharts.chart('pie_chart_deliveries', {
 		align: 'right',
 		verticalAlign: 'middle',
 		itemMarginTop: 8,
+		useHTML: true,
 		labelFormatter: function() {
-			return this.name + " (" + this.percentage.toFixed(1) + " %)";
+			if (this.name == 'Eigenverbrauch')
+				var info_icon = '<i class="glyphicon glyphicon-info-sign" style=""></i>';
+			else
+				info_icon = '';
+			return this.name + " (" + this.percentage.toFixed(1) + " %) " + info_icon;
 		}
 	}
 });
@@ -314,14 +339,37 @@ var overview_chart = Highcharts.chart('overview_chart', {
 
 	});
 
-var legend = overview_chart.legend;
-for (var i = 0, len = legend.allItems.length; i < len; i++) {
-   (function(i) {
-       var t=legend.allItems[i],
-           content= '<b>'+ t.name +'</b>: '+ Math.round(t.percentage*100)/100 + ' %';
-           jQuery($(t.legendItem.element)).tooltip({title:content,html:true});
-   })(i);
+
+var text_self_consumption = 'Es handelt sich um den Anteil Ihres Verbrauchs, den Sie gerade dann verbrauchen, wenn Ihre Photovoltaik-Anlage produziert.<br>Der Grad des Eigenverbrauchs kann erhöht werden, wenn Verbraucher (z.B. Warmwasser-Boiler) dann eingeschalten werden, wenn die Sonne scheint.</div>';
+var text_autarky = 'Es handelt sich um den Anteil Ihres Jahresverbrauchs, den Sie mit dem Eigenverbrauch abdecken können.<br>Der Selbstversorgungsgrad kann entweder erhöht werden, wenn die Photovoltaik-Anlage vergrössert wird oder wenn der Eigenverbrauchsgrad erhöht wird (siehe Eigenverbrauch).<br>Ein Selbstversorgungsgrad von 100 % ist ökonomisch praktisch nicht zu erreichen, da die Photovoltaik-Anlage in den Wintermonaten viel weniger produziert als im Sommer.';
+
+
+function build_tooltip(legend, keyword, text)
+{
+	for (var i = 0, len = legend.allItems.length; i < len; i++) {
+		if (legend.allItems[i].name == keyword)
+		{
+			(function(i) {
+				var t=legend.allItems[i],
+				//content= '<b>'+ t.name +'</b>: '+ Math.round(t.percentage*100)/100 + ' %';
+				tooltip_title = '<b><h4>' + t.name + '</h4></b><div style="text-align: justify;">' + text + '</div>';
+				jQuery($(t.legendItem.element)).tooltip({title:tooltip_title, html:true, container: 'body'});
+			})(i);
+		}
+	}
 }
+
+build_tooltip(pie_chart_connections.legend, 'Selbstversorgung', text_self_consumption);
+build_tooltip(pie_chart_deliveries.legend, 'Eigenverbrauch', text_autarky);
+
+
+$(document).ready(function () {
+  $("a").tooltip({
+    'selector': '',
+    'placement': 'top',
+    'container':'body'
+  });
+});
 
 </script>
 {% endblock %}

@@ -46,3 +46,8 @@ div[comma-value]:before{
 div[comma-value] input{
     color:#fff;
 }
+
+.tooltip > .tooltip-inner {
+    background-color: var(--self-consumption-color);
+    max-width: 300px;
+}

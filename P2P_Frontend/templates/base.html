@@ -15,7 +15,7 @@
     <meta name="viewport" content="width=device-width" />
 
     <!--  High-Charts    -->
-	<script src="https://code.jquery.com/jquery-3.1.1.min.js"></script>
+	<script src="https://ajax.googleapis.com/ajax/libs/jquery/3.2.1/jquery.min.js"></script>
 	<script src="https://code.highcharts.com/highcharts.js"></script>
 	<script src="https://code.highcharts.com/highcharts-more.js"></script>
 	<script src="https://code.highcharts.com/modules/exporting.js"></script>
@@ -61,7 +61,7 @@
 
 		{% block sidebar %}
 
-		<div class="sidebar" data-color="purple" data-image="../assets/img/sidebar-1.jpg">
+		<div class="sidebar" data-color="purple">
 			<!--
 				Tip 1: You can change the color of the sidebar using: data-color="purple | blue | green | orange | red"
 
@@ -309,8 +309,6 @@
 </body>
 
 	<!--   Core JS Files   -->
-	<script src="{{ url_for('static', filename='js/jquery-3.1.0.min.js') }}" type="text/javascript"></script>
-	<script src="{{ url_for('static', filename='js/bootstrap.min.js') }}" type="text/javascript"></script>
 	<script src="{{ url_for('static', filename='js/material.min.js') }}" type="text/javascript"></script>
 
 	<!--  Charts Plugin
@@ -332,7 +330,6 @@
 
 
 	<!-- Include Required Prerequisites -->
-	<script type="text/javascript" src="https://cdn.jsdelivr.net/jquery/1/jquery.min.js"></script>
 	<script type="text/javascript" src="https://cdn.jsdelivr.net/momentjs/latest/moment.min.js"></script>
 	<link rel="stylesheet" type="text/css" href="https://cdn.jsdelivr.net/bootstrap/3/css/bootstrap.css" />
 
