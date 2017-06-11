@@ -445,7 +445,7 @@ app.config['DEBUG'] = True
 
 @app.route("/")
 def home():
-    return render_template('dashboard.html', user=user, descriptions=descriptions, origin='dashboard.html')
+    return render_template('dashboard.html', user=user, descriptions=descriptions, type='sources', origin='dashboard.html')
 
 
 @app.after_request
@@ -489,27 +489,27 @@ def details(type='sources'):
     return render_template('details.html', user=user, descriptions=descriptions, type=type, origin='details.html', root=request.url_root)
 
 
-@app.route("/setResolution/<string:resolution>/")
-def setResolution(resolution='monthly'):
+@app.route("/setResolution/<string:resolution>/<string:origin>/<string:type>")
+def setResolution(resolution='monthly', origin='dashboard.html', type='sources'):
     set_period(resolution = resolution)
 
     print('Setting user resolution to {}'.format(resolution))
 
-    return render_template('dashboard.html', user=user, descriptions=descriptions, origin='dashboard.html')
+    return render_template(origin, user=user, descriptions=descriptions, origin=origin, type=type, root=request.url_root)
 
 
 @app.route("/setMinimalPeriod/<int:day>/<string:origin>/<string:type>/")
 def setMinimalPeriod(day=10, origin='dashboard.html', type=None):
     set_period('minimal', month_index=None, day_index=day)
 
-    return render_template(origin, type=type, user=user, descriptions=descriptions, origin=origin)
+    return render_template(origin, type=type, user=user, descriptions=descriptions, origin=origin, root=request.url_root)
 
 
 @app.route("/setDailyPeriod/<int:month>/<string:origin>/<string:type>/")
 def setDailyPeriod(month=0, origin='dashboard.html', type=None):
     set_period('daily', month_index=month)
 
-    return render_template(origin, type=type, user=user, descriptions=descriptions, origin=origin)
+    return render_template(origin, type=type, user=user, descriptions=descriptions, origin=origin, root=request.url_root)
 
 
 
@@ -549,13 +549,13 @@ def move():
             day_index = min(limit_value, day_index)
             set_period('minimal', day_index=day_index)
 
-    return render_template(origin, user=user, descriptions=descriptions, origin=origin, type=type)
+    return render_template(origin, user=user, descriptions=descriptions, origin=origin, type=type, root=request.url_root)
 
 
 @app.route("/battery", methods=["GET","POST"])
 def battery():
 
-    EbatR=0.0
+    EbatR=4.0
     if request.method=='POST':
         EbatR=float(request.form['BatteryCapacity'])
 

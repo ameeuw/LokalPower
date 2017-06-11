@@ -113,7 +113,7 @@
 						<li >
 							<a href="{{ url_for('battery') }}">
 								<i class="fa fa-battery-half" aria-hidden="true"></i>
-								<p>PV-Batteriesimulator</p>
+								<p>PV-Batterie Simulation</p>
 							</a>
 						</li>
 
@@ -212,15 +212,15 @@
 								<form role="form" method="post" action="{{ url_for('move') }}">
 									<input name="origin" value="{{ origin }}" type="hidden">
 									<input name="type" value="{{ type }}" type="hidden">
-									<button type="action" class="btn btn-default btn-md" name="direction" value="previous">
+									<button type="action" class="btn btn-default btn-md" name="direction" value="previous" style="height: 50px">
 									  <span class="glyphicon glyphicon-chevron-left" aria-hidden="true"></span>
 									</button>
 
-								<button type="action" class="btn btn-default btn-md" name="direction" value="up" style="width: 70%">
+								<button type="action" class="btn btn-default btn-md" name="direction" value="up" style="width: 70%; height: 50px; font-size: 130%">
 									{{ user.period['name'].decode('utf-8') }}
 								</button>
 
-									<button type="action" class="btn btn-default btn-md" name="direction" value="next">
+									<button type="action" class="btn btn-default btn-md" name="direction" value="next" style="height: 50px">
 									  <span class="glyphicon glyphicon-chevron-right" aria-hidden="true"></span>
 									</button>
 								</form>
@@ -229,9 +229,9 @@
 
 						<div class="col-md-3" style="align: right">
 							<div class="btn-group" role="group" aria-label="Resolution">
-								<button type="button" class="btn btn {% if user.period['resolution'] == 'minimal' %}active{% endif %}" onclick="location.href='{{ url_for('setMinimalPeriod', day=0, origin='dashboard.html', type='sources') }}'">24h</button>
-								<button type="button" class="btn btn {% if user.period['resolution'] == 'daily' %}active{% endif %}" onclick="location.href='{{ url_for('setDailyPeriod', month=0, origin='dashboard.html', type='sources') }}'">Monat</button>
-								<button type="button" class="btn btn {% if user.period['resolution'] == 'monthly' %}active{% endif %}" onclick="location.href='{{ url_for('setResolution', resolution='monthly') }}'">Jahr</button>
+								<button type="button" style="height: 50px; font-size: 110%" class="btn btn {% if user.period['resolution'] == 'minimal' %}active{% endif %}" onclick="location.href='{{ url_for('setMinimalPeriod', day=0, origin=origin, type=type) }}'">Tag</button>
+								<button type="button" style="height: 50px; font-size: 110%" class="btn btn {% if user.period['resolution'] == 'daily' %}active{% endif %}" onclick="location.href='{{ url_for('setDailyPeriod', month=0, origin=origin, type=type) }}'">Monat</button>
+								<button type="button" style="height: 50px; font-size: 110%" class="btn btn {% if user.period['resolution'] == 'monthly' %}active{% endif %}" onclick="location.href='{{ url_for('setResolution', resolution='monthly', origin=origin, type=type) }}'">Jahr</button>
 							</div>
 						</div>
 

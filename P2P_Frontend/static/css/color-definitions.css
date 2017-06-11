@@ -51,3 +51,7 @@ div[comma-value] input{
     background-color: var(--self-consumption-color);
     max-width: 300px;
 }
+
+.btn.active {
+    background-color: rgba(20,40,20,0.5);
+}

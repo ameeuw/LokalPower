@@ -4,7 +4,7 @@
 <div class="wrapper">
 	{% block sidebar %}
 
-		<div class="sidebar" data-color="purple" data-image="../assets/img/sidebar-1.jpg">
+		<div class="sidebar" data-color="purple">
 
 			<div class="logo">
 				<a href="" class="simple-text">
@@ -50,7 +50,7 @@
 						<li class="active">
 							<a href="{{ url_for('battery') }}">
 								<i class="fa fa-battery-half" aria-hidden="true"></i>
-								<p>PV-Batteriesimulator</p>
+								<p>PV-Batterie Simulation</p>
 							</a>
 						</li>
 					</ul>
@@ -71,15 +71,16 @@
 							<div class="well" id="overview_chart" style="height: 100%"></div>
 						</div>
 
-						<div class="row-fluid" style="height: 30%; padding-top: 2%">
-							<div class="well" style="height: 30%;">
-								<form role="form" method="post" action="{{ url_for('battery') }}">
-									<button name="BatteryCapacity" value="4">Batterie S (4 kWh)</button>
-									<button name="BatteryCapacity" value="8">Batterie M (8 kWh): ca. 10'000,- CHF</button>
-									<button name="BatteryCapacity" value="12">Batterie L (12 kWh)</button>
-									<button name="BatteryCapacity" value="16">Batterie XL (16 kWh)</button>
+						<div class="row-fluid" style="height: 28%; padding-top: 2%">
+							<center>
+								<form class="well" style="height: 28%;" role="form" method="post" action="{{ url_for('battery') }}">
+									<div class="btn-group" role="group" aria-label="Resolution">
+										<button name="BatteryCapacity" class="btn btn {% if BatterySize==4.0 %}active{% endif %}" value="4" action="submit">S ( 4 kWh, ca. 9'000.- )</button>
+										<button name="BatteryCapacity" class="btn btn {% if BatterySize==8.0 %}active{% endif %}" value="8">M ( 8 kWh, ca. 11'000.- )</button>
+										<button name="BatteryCapacity" class="btn btn {% if BatterySize==12.0 %}active{% endif %}" value="12">L ( 12 kWh, ca. 15'000.- )</button>
+									</div>
 								</form>
-							</div>
+							</center>
 						</div>
 					</div>
 
@@ -135,7 +136,7 @@ Highcharts.chart('overview_chart', {
 	},
 
 	title: {
-		text: 'Verbrauch'
+		text: 'PV-Batterie Simulation'
 	},
 
 	subtitle: {
@@ -149,16 +150,29 @@ Highcharts.chart('overview_chart', {
 	},
 
 	xAxis: {
-		crosshair: true
+		crosshair: true,
+		categories: ['Jan', 'Feb', 'Mär', 'Apr', 'Mai', 'Jun', 'Jul', 'Aug', 'Sep', 'Okt', 'Nov', 'Dez'],
 	},
 
 	tooltip: {
-		headerFormat: '<span style="font-size:14px">{{ user.period['resolution'] | replace("daily", "Tag") | replace("monthly", "Monat") | replace("minimal", "Uhrzeit") }}: {point.key}</span><br><table>',
-		pointFormat: '<tr><td style="color:{series.color};padding:0">{series.name}: </td>' +
-			'<td style="padding:5"><b>{point.y:.1f}</b></td><td style="padding-left:3px">kWh</td></tr>',
-		footerFormat: '</table>',
 		shared: true,
-		useHTML: true
+		useHTML: true,
+		borderColor: '#000000',
+
+		formatter: function() {
+           var s = '<span style="font-size:14px">Monat: '+ this.x +'</span><br><table>';
+
+           var sortedPoints = this.points.sort(function(a, b){
+                 return ((a.series.options.legendIndex < b.series.options.legendIndex) ? -1 : ((a.series.options.legendIndex > b.series.options.legendIndex) ? 1 : 0));
+             });
+
+           $.each(sortedPoints , function(i, point) {
+           s += '<tr><td style="color:' + point.series.options.color + '; padding:0">' + point.series.name + ': </td>' +
+			'<td style="padding-right:5px;"><b> '+ point.y.toFixed(1) +'</b></td><td style="padding-left:3px">kWh</td></tr>'
+           });
+           s += '</table>';
+
+           return s;},
 	},
 
 	series: [
@@ -247,7 +261,7 @@ chart: {
 
 title: {
 	useHTML: true,
-	text: '<span id="autarky_title">Selbstversorgung</span>'
+	text: '<span>Selbstversorgung <i id="autarky_title" class="glyphicon glyphicon-info-sign" style=""></i></span>'
 },
 
 subtitle: {
@@ -263,7 +277,7 @@ yAxis: {
 },
 
 xAxis: {
-	categories: ['Keine Batterie', 'Mit Batterie'],
+	categories: ['ohne Batterie', 'mit Batterie'],
 	crosshair: true
 },
 
@@ -271,8 +285,9 @@ plotOptions: {
 	column: {
 		dataLabels: {
 			enabled: true,
+			useHTML: true,
 			formatter: function() {
-				return this.point.y.toFixed(1) + ' %';
+				return '<h5>' + this.point.y.toFixed(1) + ' %</h5>';
 			}
 		},
 		enableMouseTracking: true
@@ -281,6 +296,7 @@ plotOptions: {
 
 tooltip: {
 	formatter: function() {
+		if(this.series.name == 'Bezug Netz') return false;
 		return '<b><span style="font-size: 130%">' + this.series.name + '</b></span><br>Anteil: ' + this.y.toFixed(1) + ' %';
 	},
 },
@@ -301,15 +317,16 @@ series: [
 			colorByPoint: false
 		},
 
-		/*{
+		{
 			type: 'column',
 			stacking: true,
 			name: 'Bezug Netz',
 			data: [autarky_rest, autarky_bat_rest],
 			color: 'var(--other-color)',
 			index: 0,
-			colorByPoint: false
-		},*/
+			colorByPoint: false,
+			dataLabels: { enabled: false }
+		},
 ]
 
 
@@ -322,7 +339,7 @@ Highcharts.chart('self_consumption_chart', {
 
 	title: {
 		useHTML: true,
-		text: '<span id="self_consumption_title">Eigenverbrauch</span>'
+		text: '<span>Eigenverbrauch <i id="self_consumption_title" class="glyphicon glyphicon-info-sign" style=""></i></span>'
 	},
 
 	subtitle: {
@@ -341,8 +358,9 @@ Highcharts.chart('self_consumption_chart', {
         column: {
             dataLabels: {
                 enabled: true,
+                useHTML: true,
                 formatter: function() {
-                    return this.point.y.toFixed(1) + ' %';
+                    return '<h5>' + this.point.y.toFixed(1) + ' %</h5>';
                 }
             },
             enableMouseTracking: true
@@ -350,12 +368,13 @@ Highcharts.chart('self_consumption_chart', {
     },
 
 	xAxis: {
-		categories: ['Keine Batterie', 'Mit Batterie'],
+		categories: ['ohne Batterie', 'mit Batterie'],
 		crosshair: true
 	},
 
 	tooltip: {
 		formatter: function() {
+			if(this.series.name == 'Einspeisung Netz') return false;
 			return '<b><span style="font-size: 130%">' + this.series.name + '</b></span><br>Anteil: ' + this.y.toFixed(1) + ' %';
 		},
 	},
@@ -376,15 +395,16 @@ Highcharts.chart('self_consumption_chart', {
 				colorByPoint: false
 			},
 
-			/*{
+			{
 				type: 'column',
 				stacking: true,
 				name: 'Einspeisung Netz',
 				data: [self_consumption_rest, self_consumption_bat_rest],
 				color: 'var(--other-color)',
 				index: 0,
-				colorByPoint: false
-			},*/
+				colorByPoint: false,
+				dataLabels: { enabled: false }
+			},
 	]
 });
 

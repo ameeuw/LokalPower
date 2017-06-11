@@ -62,7 +62,7 @@
 						<li>
 							<a href="{{ url_for('battery') }}">
 								<i class="fa fa-battery-half" aria-hidden="true"></i>
-								<p>PV-Batteriesimulator</p>
+								<p>PV-Batterie Simulation</p>
 							</a>
 						</li>
 					</ul>
@@ -110,9 +110,9 @@
 
     title: {
 		{% if type == 'sinks' %}
-			text: 'Produktion (Senken)',
+			text: 'Produktion',
 		{% else %}
-			text: 'Verbrauch (Quellen)',
+			text: 'Verbrauch',
 		{% endif %}
     },
 
@@ -180,11 +180,11 @@
 			{
 				type: 'column',
 				stacking: true,
-				name: '{{ category | replace("self","Eigenverbrauch") | replace("local","Lokal") | replace("grisons","Graubünden") | replace("other","Sonstige") }}',
+				name: '{{ category | replace("self",'Eigenverbrauch') | replace("local","Einspeisung Lokal (<10km)") | replace("grisons","Einspeisung Graubünden") | replace("other","Einspeisung Schweiz") }}',
 				data: {{ category_dict['time_series'] }},
 				color: '{{ category | replace("self","var(--self-color)") | replace("local","var(--local-color)") | replace("grisons","var(--grisons-color)") | replace("other","var(--other-color)") }}',
 				legendIndex: {{ category | replace("self","0") | replace("local","1") | replace("grisons","2") | replace("other","3") }},
-				index: {{ category | replace("self","3") | replace("local","2") | replace("grisons","1") | replace("other","0") }},
+				index: {{ category | replace("self","0") | replace("local","1") | replace("grisons","2") | replace("other","3") }},
 				showInLegend: true,
 				colorByPoint: false
 			},
@@ -195,11 +195,11 @@
 			{
 				type: 'column',
 				stacking: true,
-				name: '{{ category | replace("self","Selbstversorgung") | replace("local","Lokal") | replace("grisons","Graubünden") | replace("other","Sonstige") }}',
+				name: '{{ category | replace("self",'Selbstversorgung') | replace("local","Bezug Lokal (<10km)") | replace("grisons","Bezug Graubünden") | replace("other","Bezug Schweiz") }}',
 				data: {{ category_dict['time_series'] }},
 				color: '{{ category | replace("self","var(--self-color)") | replace("local","var(--local-color)") | replace("grisons","var(--grisons-color)") | replace("other","var(--other-color)") }}',
 				legendIndex: {{ category | replace("self","0") | replace("local","1") | replace("grisons","2") | replace("other","3") }},
-				index: {{ category | replace("self","3") | replace("local","2") | replace("grisons","1") | replace("other","0") }},
+				index: {{ category | replace("self","0") | replace("local","1") | replace("grisons","2") | replace("other","3") }},
 				showInLegend: true,
 				colorByPoint: false
 			},

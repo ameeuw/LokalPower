@@ -171,7 +171,7 @@ var pie_chart_deliveries = Highcharts.chart('pie_chart_deliveries', {
 
 				{% for category, category_dict in user.period['categorized_deliveries'].iteritems() %}
 				{
-					name: '{{ category | replace("self","Eigenverbrauch") | replace("local","Einspeisung Lokal (<10km)") | replace("grisons","Einspeisung Graubünden") | replace("other","Einspeisung Netz") }}',
+					name: '{{ category | replace("self","Eigenverbrauch") | replace("local","Einspeisung Lokal (<10km)") | replace("grisons","Einspeisung Graubünden") | replace("other","Einspeisung Schweiz") }}',
 					y: {{ category_dict['sum'] }},
 					color: '{{ category | replace("self","var(--self-color)") | replace("local","var(--local-color)") | replace("grisons","var(--grisons-color)") | replace("other","var(--other-color)") }}',
 					legendIndex: {{ category | replace("self","0") | replace("local","1") | replace("grisons","2") | replace("other","3") }},
@@ -270,13 +270,24 @@ var overview_chart = Highcharts.chart('overview_chart', {
 	},
 
 	tooltip: {
-		headerFormat: '<span style="font-size:14px">{{ user.period['resolution'] | replace("daily", "Tag") | replace("monthly", "Monat") | replace("minimal", "Uhrzeit") }}: {point.key}</span><br><table>',
-		pointFormat: '<tr><td style="color:{series.color};padding:0">{series.name}: </td>' +
-			'<td style="padding-right:5px;"><b> {point.y:.1f}</b></td><td style="padding-left:3px">kWh</td></tr>',
-		footerFormat: '</table>',
 		shared: true,
 		useHTML: true,
-		borderColor: '#000000'
+		borderColor: '#000000',
+
+		formatter: function() {
+           var s = '<span style="font-size:14px">{{ user.period['resolution'] | replace("daily", "Tag") | replace("monthly", "Monat") | replace("minimal", "Uhrzeit") }}: '+ this.x +'</span><br><table>';
+
+           var sortedPoints = this.points.sort(function(a, b){
+                 return ((a.series.options.legendIndex < b.series.options.legendIndex) ? -1 : ((a.series.options.legendIndex > b.series.options.legendIndex) ? 1 : 0));
+             });
+
+           $.each(sortedPoints , function(i, point) {
+           s += '<tr><td style="color:' + point.series.options.color + '; padding:0">' + point.series.name + ': </td>' +
+			'<td style="padding-right:5px;"><b> '+ point.y.toFixed(1) +'</b></td><td style="padding-left:3px">kWh</td></tr>'
+           });
+           s += '</table>';
+
+           return s;},
 	},
 
 	series: [
@@ -305,7 +316,7 @@ var overview_chart = Highcharts.chart('overview_chart', {
 		index: 2
 	},
 
-	{
+	/*{
 		type: 'areaspline',
 		fillOpacity: 0.5,
 		stacking: true,
@@ -318,7 +329,7 @@ var overview_chart = Highcharts.chart('overview_chart', {
 		visible: false,
 		legendIndex: 3,
 		index: 0
-	},
+	},*/
 
 	{
 		type: 'areaspline',
