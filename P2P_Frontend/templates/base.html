@@ -229,8 +229,8 @@
 
 						<div class="col-md-3" style="align: right">
 							<div class="btn-group" role="group" aria-label="Resolution">
-								<button type="button" style="height: 50px; font-size: 110%" class="btn btn {% if user.period['resolution'] == 'minimal' %}active{% endif %}" onclick="location.href='{{ url_for('setMinimalPeriod', day=0, origin=origin, type=type) }}'">Tag</button>
-								<button type="button" style="height: 50px; font-size: 110%" class="btn btn {% if user.period['resolution'] == 'daily' %}active{% endif %}" onclick="location.href='{{ url_for('setDailyPeriod', month=0, origin=origin, type=type) }}'">Monat</button>
+								<button type="button" style="height: 50px; font-size: 110%" class="btn btn {% if user.period['resolution'] == 'minimal' %}active{% endif %}" onclick="location.href='{{ url_for('setResolution', resolution='minimal', origin=origin, type=type) }}'">Tag</button>
+								<button type="button" style="height: 50px; font-size: 110%" class="btn btn {% if user.period['resolution'] == 'daily' %}active{% endif %}"   onclick="location.href='{{ url_for('setResolution', resolution='daily', origin=origin, type=type) }}'">Monat</button>
 								<button type="button" style="height: 50px; font-size: 110%" class="btn btn {% if user.period['resolution'] == 'monthly' %}active{% endif %}" onclick="location.href='{{ url_for('setResolution', resolution='monthly', origin=origin, type=type) }}'">Jahr</button>
 							</div>
 						</div>

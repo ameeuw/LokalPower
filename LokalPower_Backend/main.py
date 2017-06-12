@@ -45,13 +45,14 @@ def creatUserDicts(start=0, stop=35136):
 
     # consumerDicts = lp.getConsumerDicts(start, stop)
     consumerDicts, producerDicts = lp.getDicts(start, stop)
-
+    print("Saving complete consumerDicts file")
     lp.saveDictsToFile(consumerDicts, '../Daten/dicts/consumerDicts.pickle')
+    print("Saving complete producerDicts file")
     lp.saveDictsToFile(producerDicts, '../Daten/dicts/producerDicts.pickle')
 
     print("Saving consumer_dicts")
     for i in range(len(userFiles)):
-        print('{} / {} = {:.2f} %'.format(i, len(userFiles), (float(i) / len(userFiles)) * 100))
+        print('{} / {} = {:.2f} %'.format(i+1, len(userFiles), (float(i+1) / len(userFiles)) * 100))
         userFile = userFiles[i]
         userId = os.path.basename(userFile).split('.')[0]
         userDict = lp.getUserDicts(consumerDicts, userId)
@@ -59,7 +60,7 @@ def creatUserDicts(start=0, stop=35136):
 
     print("Saving producer_dicts")
     for i in range(len(userFiles)):
-        print('{} / {} = {:.2f} %'.format(i, len(userFiles), (float(i) / len(userFiles)) * 100))
+        print('{} / {} = {:.2f} %'.format(i+1, len(userFiles), (float(i+1) / len(userFiles)) * 100))
         userFile = userFiles[i]
         producerId = os.path.basename(userFile).split('.')[0]
         producerDict = lp.getUserDicts(producerDicts, producerId)
@@ -67,7 +68,7 @@ def creatUserDicts(start=0, stop=35136):
 
     print("Saving plant producer_dicts")
     for i in range(len(producerIds)):
-        print('{} / {} = {:.2f} %'.format(i, len(producerIds), (float(i) / len(producerIds)) * 100))
+        print('{} / {} = {:.2f} %'.format(i+1, len(producerIds), (float(i+1) / len(producerIds)) * 100))
         producerId = producerIds[i]
         producerDict = lp.getUserDicts(producerDicts, producerId)
         lp.saveDictsToFile(producerDict, '../Daten/dicts/prod_{}.pickle'.format(producerId))

@@ -18,9 +18,12 @@ class LokalPower(object):
         self.users.append(LokalPower_Backend.User.User(fname, location, id))
 
     def getGeoDistance(self, start, end, locations):
-        dFloat = (vincenty(locations[start], locations[end]).kilometers)
-        dInt = int(dFloat*1000)
-        return dInt
+        if locations[start] == locations[end]:
+            return -10000
+        else:
+            dFloat = (vincenty(locations[start], locations[end]).kilometers)
+            dInt = int(dFloat*1000)
+            return dInt
 
     def generateGraph(self, demands, locations, ids):
         G = nx.DiGraph()
@@ -43,9 +46,6 @@ class LokalPower(object):
             _start = start_nodes[i]
             _end = end_nodes[i]
             _weight = (self.getGeoDistance(_start, _end, locations))
-            if _weight == 0:
-                _weight = -10
-
             _capacity = -G.node[_start]['demand']
             #print(_capacity)
             G.add_edge(_start, _end, weight=_weight, capacity=_capacity, distance=self.getGeoDistance(_start, _end, locations))
@@ -102,7 +102,7 @@ class LokalPower(object):
         print('Getting dicts from {} to {}'.format(start, stop))
         for currentSlice in range(start, stop):
             if (currentSlice % 500 == 0):
-                print('{} / {} = {} %'.format(currentSlice, stop, (float(currentSlice)/stop)*100))
+                print('{} / {} = {:.2f} %'.format(currentSlice, stop, (float(currentSlice)/stop)*100))
 
             _demands, _locations, _ids = self.getTimeSliceData(currentSlice)
             G = self.generateGraph(_demands, _locations, _ids)

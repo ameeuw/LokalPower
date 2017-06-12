@@ -84,8 +84,6 @@ def setup_data():
     print('Done.')
 
     set_period()
-    # build_periods()
-
 
 def build_periods():
 
@@ -105,21 +103,23 @@ def build_periods():
     periods['minimal'] = {}
     for month_index in range(0, 12):
         last_day_in_month = calendar.monthrange(year, month_index+1)[1]
-        periods['minimal'][month_index] = {}
         for day_index in range(0, last_day_in_month):
             date = datetime.strptime('{} {} {}'.format(day_index+1, month_index+1, year), '%d %m %Y')
             day_index = date.timetuple().tm_yday-1
+            print("day_index = {}".format(day_index))
             periods['minimal'][day_index] = get_period(resolution='minimal', day_index=day_index)
 
     user.periods = periods
 
-    print('user.periods.keys() = {}'.format(user.periods.keys()))
-    print('user.periods["daily"].keys() = {}'.format(user.periods['daily'].keys()))
+    #print('user.periods.keys() = {}'.format(user.periods.keys()))
+    #print('user.periods["daily"].keys() = {}'.format(user.periods['daily'].keys()))
 
 
 def set_period(resolution='monthly', month_index=None, day_index=None):
 
     if resolution == 'daily':
+        if month_index is None:
+            month_index = 6
         if hasattr(user, 'periods') :
             if resolution in user.periods.keys():
                 if month_index in user.periods[resolution].keys():
@@ -128,6 +128,8 @@ def set_period(resolution='monthly', month_index=None, day_index=None):
                 user.period = get_period(resolution, month_index=month_index)
 
     elif resolution == 'minimal':
+        if day_index is None:
+            day_index=150
         if hasattr(user, 'periods'):
             if resolution in user.periods.keys():
                 if day_index in user.periods[resolution].keys():
@@ -218,9 +220,7 @@ def get_period(resolution='monthly', month_index=None, day_index=None):
         start = int((start_date.timetuple().tm_yday - 1) * 24 / DELTAT)
 
         name = datetime.strftime(start_date, '%A %-d. %B %Y')
-
-        # print(name)
-        # print("start = {} ; stop = {}".format(start, stop))
+        #print(name)
 
         categories = []
         for time_slice in range(start, stop):
@@ -339,11 +339,11 @@ def get_period(resolution='monthly', month_index=None, day_index=None):
 
     kpi_autarky = 0
     kpi_mean_distance = 0
+    distance_energy_sum = 0
     if sum_consumption > 0:
         kpi_autarky = round(sum_self_consumption / sum_consumption * 100, 2)
         kpi_mean_distance = round(distance_energy_sum / sum_consumption, 2)
 
-    distance_energy_sum = 0
     for s_id, connections in detail_connections.iteritems():
         s_distance = round(vincenty(user.location, locations[s_id]).km, 2)
         energy_sum = sum(connections)
@@ -491,7 +491,7 @@ def details(type='sources'):
 
 @app.route("/setResolution/<string:resolution>/<string:origin>/<string:type>")
 def setResolution(resolution='monthly', origin='dashboard.html', type='sources'):
-    set_period(resolution = resolution)
+    set_period(resolution=resolution)
 
     print('Setting user resolution to {}'.format(resolution))
 
@@ -561,7 +561,7 @@ def battery():
 
     user.prosumerSim(EbatR=EbatR)
 
-    return render_template('batterySim.html', user=user, BatterySize=EbatR, origin='batterySim.html')
+    return render_template('batterySim.html', user=user, BatterySize=EbatR, origin='batterySim.html', type='sources')
 
 
 if __name__ == "__main__":
