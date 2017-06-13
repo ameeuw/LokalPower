@@ -7,8 +7,7 @@ import pandas as pd
 import ast
 import math
 from operator import itemgetter
-import time
-
+from time import sleep
 import numpy as np
 from flask import Flask, render_template, url_for, request, send_file
 from flask_googlemaps import Map, GoogleMaps
@@ -337,19 +336,18 @@ def get_period(resolution='monthly', month_index=None, day_index=None):
     if sum_production > 0:
         kpi_self_consumption = round(sum_self_consumption / sum_production * 100, 2)
 
-    kpi_autarky = 0
-    kpi_mean_distance = 0
-    distance_energy_sum = 0
-    if sum_consumption > 0:
-        kpi_autarky = round(sum_self_consumption / sum_consumption * 100, 2)
-        kpi_mean_distance = round(distance_energy_sum / sum_consumption, 2)
 
+    distance_energy_sum = 0
     for s_id, connections in detail_connections.iteritems():
         s_distance = round(vincenty(user.location, locations[s_id]).km, 2)
         energy_sum = sum(connections)
         distance_energy_sum += s_distance * energy_sum
 
-
+    kpi_autarky = 0
+    kpi_mean_distance = 0
+    if sum_consumption > 0:
+        kpi_autarky = round(sum_self_consumption / sum_consumption * 100, 2)
+        kpi_mean_distance = round(distance_energy_sum / sum_consumption, 2)
 
 
     period['resolution'] = resolution
@@ -380,7 +378,7 @@ def get_period(resolution='monthly', month_index=None, day_index=None):
 
     return period
 
-def generate_map(aggregated_connections, file_name='sources_map.html', root="http://127.0.0.1:5000/"):
+def generate_map(aggregated_connections, file_name='sources_map.html', type='sources', root="http://127.0.0.1:5000/"):
     osmap = folium.Map(location=user.location, tiles='Stamen Terrain', zoom_start=11, min_zoom=10)
 
     #osmap = folium.Map(location=user.location, zoom_start=11, min_zoom=10,
@@ -388,9 +386,13 @@ def generate_map(aggregated_connections, file_name='sources_map.html', root="htt
     #                   attr = 'XXX Mapbox Attribution')
 
     icon_size = (30, 30)
+    if type=="sinks":
+        share = aggregated_connections[user.index]['energy'] / user.period['sum_production'] / 10
+    else:
+        share = aggregated_connections[user.index]['energy'] / user.period['sum_consumption'] / 10
 
     iframe = folium.IFrame(html=render_template('tooltip.html', photo=descriptions_df.loc[user.index]['PHOTO'],
-                                                name=descriptions[user.index]['NAME'], share=0,
+                                                name=descriptions[user.index]['NAME'], share=share,
                                                 supplierId=user.index, kind='self', root=root),
                             width=360, height=250)
 
@@ -406,9 +408,14 @@ def generate_map(aggregated_connections, file_name='sources_map.html', root="htt
                 icon = folium.features.CustomIcon('static/img/markers/{}.png'.format(descriptions[supplierId]['TYPE']),
                                                   icon_size=icon_size)
 
+                if type == "sinks":
+                    share = aggregated_connections[supplierId]['energy'] / user.period['sum_production'] / 10
+                else:
+                    share = aggregated_connections[supplierId]['energy'] / user.period['sum_consumption'] / 10
+
                 if (descriptions[supplierId]['KIND'] == 'plant'):
                     iframe = folium.IFrame(html=render_template('tooltip.html', photo=descriptions_df.loc[supplierId]['PHOTO'],
-                                                                name=descriptions[supplierId]['NAME'], share=aggregated_connections[supplierId]['energy'] / user.period['sum_consumption'] / 10,
+                                                                name=descriptions[supplierId]['NAME'], share=share,
                                                                 supplierId=supplierId, kind='plant', root=root),
                                             width=360, height=250)
                 else:
@@ -418,7 +425,7 @@ def generate_map(aggregated_connections, file_name='sources_map.html', root="htt
                         name = descriptions[supplierId]['NAME']
 
                     iframe = folium.IFrame(html=render_template('tooltip.html', photo=descriptions_df.loc[supplierId]['PHOTO'],
-                                                                name=name, share=aggregated_connections[supplierId]['energy'] / user.period['sum_consumption'] / 10,
+                                                                name=name, share=share,
                                                                 supplierId=supplierId, kind=descriptions_df.loc[supplierId]['KIND'], root=root),
                                             width=360, height=250)
 
@@ -473,12 +480,12 @@ def sinks_maps():
 def osmaps(type='sources'):
 
     if type=="sinks":
-        generate_map(user.period['aggregated_deliveries'], 'sinks_map.html', root=request.url_root)
+        generate_map(user.period['aggregated_deliveries'], 'sinks_map.html', type='sinks', root=request.url_root)
         #print('\n\nGENERATING SINKS MAP USING:\n\n{}\n\n'.format(user.period['aggregated_deliveries']))
     else:
-        generate_map(user.period['aggregated_connections'], 'sources_map.html', root=request.url_root)
+        generate_map(user.period['aggregated_connections'], 'sources_map.html', type='sources', root=request.url_root)
         #print('\n\nGENERATING SOURCES MAP USING:\n\n{}\n\n'.format(user.period['aggregated_connections']))
-
+    sleep(2)
     #generateMap(user.period['aggregated_connections'])
     return render_template('maps.html', user=user, descriptions=descriptions, type=type, origin='maps.html', root=request.url_root)
 

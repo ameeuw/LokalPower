@@ -18,12 +18,9 @@ class LokalPower(object):
         self.users.append(LokalPower_Backend.User.User(fname, location, id))
 
     def getGeoDistance(self, start, end, locations):
-        if locations[start] == locations[end]:
-            return -10000
-        else:
-            dFloat = (vincenty(locations[start], locations[end]).kilometers)
-            dInt = int(dFloat*1000)
-            return dInt
+        dFloat = (vincenty(locations[start], locations[end]).kilometers)
+        dInt = int(dFloat*1000)
+        return dInt
 
     def generateGraph(self, demands, locations, ids):
         G = nx.DiGraph()
@@ -45,7 +42,12 @@ class LokalPower(object):
         for i in range(len(start_nodes)):
             _start = start_nodes[i]
             _end = end_nodes[i]
-            _weight = (self.getGeoDistance(_start, _end, locations))
+
+            if locations[_start] == locations[_end]:
+                _weight = -10000
+            else:
+                _weight = (self.getGeoDistance(_start, _end, locations))
+
             _capacity = -G.node[_start]['demand']
             #print(_capacity)
             G.add_edge(_start, _end, weight=_weight, capacity=_capacity, distance=self.getGeoDistance(_start, _end, locations))
