@@ -55,3 +55,14 @@ div[comma-value] input{
 .btn.active {
     background-color: rgba(20,40,20,0.5);
 }
+
+.map_polyline {
+    stroke: orange;
+    fill: none;
+    opacity: 0.6;
+    stroke-dasharray: 20,14,2,14;
+    stroke-width: 8;
+}
+
+.map_popup {
+}

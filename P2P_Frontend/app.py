@@ -1,21 +1,20 @@
 # -*- coding: utf-8 -*-
 
 import glob
-import folium
 import os.path
 import pandas as pd
 import ast
 import math
 from operator import itemgetter
-from time import sleep
 import numpy as np
 from flask import Flask, render_template, url_for, request, send_file
-from flask_googlemaps import Map, GoogleMaps
 from geopy.distance import vincenty
 import pickle
 from datetime import datetime
 import calendar
 import locale
+import base64
+import json
 
 locale.setlocale(locale.LC_ALL, 'de_CH')
 
@@ -378,66 +377,55 @@ def get_period(resolution='monthly', month_index=None, day_index=None):
 
     return period
 
-def generate_map(aggregated_connections, file_name='sources_map.html', type='sources', root="http://127.0.0.1:5000/"):
-    osmap = folium.Map(location=user.location, tiles='Stamen Terrain', zoom_start=11, min_zoom=10)
+def generate_map_json(aggregated, type='sources', root='http://127.0.0.1:5000/'):
+    map_dictionary = {'markers':[],'paths':[]}
 
-    #osmap = folium.Map(location=user.location, zoom_start=11, min_zoom=10,
-    #                   tiles = 'https://api.mapbox.com/styles/v1/tscheng805/cj2a7l00s004j2sn0f4a938in/tiles/256/{z}/{x}/{y}?access_token=pk.eyJ1IjoidHNjaGVuZzgwNSIsImEiOiJjajJhNzJ1cGIwMDBkMzNvNXdtbDJ5OHhyIn0.veVS3rSwK4U0NoHEWxXK1g',
-    #                   attr = 'XXX Mapbox Attribution')
-
-    icon_size = (30, 30)
-    if type=="sinks":
-        share = aggregated_connections[user.index]['energy'] / user.period['sum_production'] / 10
-    else:
-        share = aggregated_connections[user.index]['energy'] / user.period['sum_consumption'] / 10
-
-    iframe = folium.IFrame(html=render_template('tooltip.html', photo=descriptions_df.loc[user.index]['PHOTO'],
-                                                name=descriptions[user.index]['NAME'], share=share,
-                                                supplierId=user.index, kind='self', root=root),
-                            width=360, height=250)
-
-
-    popup = folium.Popup(iframe, max_width=2650)
-    icon = folium.Icon(icon='home', color='green')
-    folium.Marker(user.location, popup=popup, icon=icon).add_to(osmap)
-
-
-    for supplierId, supplyDict in aggregated_connections.iteritems():
-        if supplierId != 'GRID':
-            if (locations[supplierId] != user.location):
-                icon = folium.features.CustomIcon('static/img/markers/{}.png'.format(descriptions[supplierId]['TYPE']),
-                                                  icon_size=icon_size)
+    for s_id, supplyDict in aggregated.iteritems():
+        if s_id != 'GRID':
+            if (locations[s_id] != user.location):
 
                 if type == "sinks":
-                    share = aggregated_connections[supplierId]['energy'] / user.period['sum_production'] / 10
+                    share = aggregated[s_id]['energy'] / user.period['sum_production'] / 10
                 else:
-                    share = aggregated_connections[supplierId]['energy'] / user.period['sum_consumption'] / 10
+                    share = aggregated[s_id]['energy'] / user.period['sum_consumption'] / 10
 
-                if (descriptions[supplierId]['KIND'] == 'plant'):
-                    iframe = folium.IFrame(html=render_template('tooltip.html', photo=descriptions_df.loc[supplierId]['PHOTO'],
-                                                                name=descriptions[supplierId]['NAME'], share=share,
-                                                                supplierId=supplierId, kind='plant', root=root),
-                                            width=360, height=250)
+                if (descriptions[s_id]['KIND'] == 'plant'):
+                    iframe = render_template('tooltip.html', photo=descriptions_df.loc[s_id]['PHOTO'],
+                                             name=descriptions[s_id]['NAME'], share=share,
+                                             supplierId=s_id, kind='plant', root=root)
                 else:
-                    if descriptions[supplierId]['ANONYMITY'] == True:
+                    if descriptions[s_id]['ANONYMITY'] == True:
                         name = 'Nachbar'
                     else:
-                        name = descriptions[supplierId]['NAME']
+                        name = descriptions[s_id]['NAME']
 
-                    iframe = folium.IFrame(html=render_template('tooltip.html', photo=descriptions_df.loc[supplierId]['PHOTO'],
-                                                                name=name, share=share,
-                                                                supplierId=supplierId, kind=descriptions_df.loc[supplierId]['KIND'], root=root),
-                                            width=360, height=250)
+                    iframe = render_template('tooltip.html', photo=descriptions_df.loc[s_id]['PHOTO'],
+                                             name=name, share=share,
+                                             supplierId=s_id, kind=descriptions_df.loc[s_id]['KIND'], root=root)
 
-                popup = folium.Popup(iframe, max_width=2650)
+                marker_dictionary = {}
+                marker_dictionary['icon'] = '{}.png'.format(descriptions[s_id]['TYPE'])
+                marker_dictionary['location'] = locations[s_id]
+                marker_dictionary['iframe_b64'] = base64.b64encode(iframe.encode('utf-8'))
+                map_dictionary['markers'].append(marker_dictionary)
+                map_dictionary['paths'].append([user.location, locations[s_id]])
 
-                folium.Marker(locations[supplierId], popup=popup, icon=icon).add_to(osmap)
+    if type=="sinks":
+        share = aggregated[user.index]['energy'] / user.period['sum_production'] / 10
+    else:
+        share = aggregated[user.index]['energy'] / user.period['sum_consumption'] / 10
 
-                folium.PolyLine([user.location, locations[supplierId]], color="red", weight=2.5, opacity=.6).add_to(osmap)
+    iframe = render_template('tooltip.html', photo=descriptions_df.loc[user.index]['PHOTO'],
+                             name=descriptions[user.index]['NAME'], share=share,
+                             supplierId=user.index, kind='self', root=root)
 
-    osmap.save(file_name)
+    marker_dictionary = {}
+    marker_dictionary['icon'] = 'house.png'
+    marker_dictionary['location'] = user.location
+    marker_dictionary['iframe_b64'] = base64.b64encode(iframe)
+    map_dictionary['markers'].append(marker_dictionary)
 
-    return 0
+    return json.dumps(map_dictionary)
 
 
 app = Flask(__name__)
@@ -457,7 +445,8 @@ def home():
 
 @app.after_request
 def add_header(response):
-    response.cache_control.max_age = 30
+    response.cache_control.max_age = 0
+    response.headers['Access-Control-Allow-Origin'] = "null"
     return response
 
 
@@ -466,27 +455,22 @@ def os_maps():
     return send_file('osmaps.html')
 
 
-@app.route('/sources_maps')
-def sources_maps():
-    return send_file('sources_map.html')
+@app.route('/leaflet')
+def leaflet():
+    return send_file('leaflet.html')
 
 
-@app.route('/sinks_maps')
-def sinks_maps():
-    return send_file('sinks_map.html')
+@app.route('/map_json/<string:type>/')
+def maps_json(type='sources'):
+    if type=="sinks":
+        maps_json = generate_map_json(user.period['aggregated_deliveries'], type, request.url_root)
+    else:
+        maps_json = generate_map_json(user.period['aggregated_connections'], 'sources', request.url_root)
 
+    return maps_json
 
 @app.route("/osmaps/<string:type>/")
 def osmaps(type='sources'):
-
-    if type=="sinks":
-        generate_map(user.period['aggregated_deliveries'], 'sinks_map.html', type='sinks', root=request.url_root)
-        #print('\n\nGENERATING SINKS MAP USING:\n\n{}\n\n'.format(user.period['aggregated_deliveries']))
-    else:
-        generate_map(user.period['aggregated_connections'], 'sources_map.html', type='sources', root=request.url_root)
-        #print('\n\nGENERATING SOURCES MAP USING:\n\n{}\n\n'.format(user.period['aggregated_connections']))
-    sleep(2)
-    #generateMap(user.period['aggregated_connections'])
     return render_template('maps.html', user=user, descriptions=descriptions, type=type, origin='maps.html', root=request.url_root)
 
 
