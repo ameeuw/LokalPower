@@ -387,7 +387,7 @@ $( document ).ready(function() {
 
     $.get( "/period_json", function( data ) {
         period = JSON.parse(data);
-        console.log(period);
+        // console.log(period);
 
         init_charts();
         build_tooltip(pie_chart_connections.legend, 'Selbstversorgung', text_self_consumption);

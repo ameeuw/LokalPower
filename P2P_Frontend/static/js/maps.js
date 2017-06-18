@@ -22,7 +22,7 @@ function init_map() {
 
 function get_icon(icon) {
     return L.icon({
-        iconUrl: 'http://127.0.0.1:5000/static/img/markers/' + icon,
+        iconUrl: '/static/img/markers/' + icon,
         iconSize: [30, 30],
         iconAnchor: [16, 16],
         popupAnchor: [0, -16],
@@ -68,7 +68,7 @@ function build_map(map_json)
         }
 
         speed = factor * lokalpower_map.distance(map_json.paths[i][0], map_json.paths[i][1]);
-        console.log("Speed: "+ speed)
+        // console.log("Speed: "+ speed)
         paths.push(L.curve(['M',map_json.paths[i][0],
                             'L',map_json.paths[i][1]], {className: 'map_polyline', dashArray: 1, animate: {duration: speed, iterations: Infinity, direction: direction}}).addTo(lokalpower_map));
     }
