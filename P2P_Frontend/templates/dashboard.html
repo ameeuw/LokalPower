@@ -42,161 +42,163 @@
 
 
 <script type="text/javascript">
-
-var pie_chart_connections = Highcharts.chart('pie_chart_connections', {
-	chart: {
-		backgroundColor: 'var(--chart-bg-color)',
-		plotBackgroundColor: null,
-		plotBorderWidth: null,
-		plotShadow: false,
-		type: 'pie'
-	},
-	title: {
-		text: 'Verbrauch ({{ user.period['sum_consumption'] | round(1) }} kWh)',
-		align: 'left'
-	},
-	tooltip: {
-		formatter: function() {
-			return '<b><span style="font-size: 130%">' + this.point.name + '</b></span><br>Anteil: ' + this.y.toFixed(1) + ' kWh (' + this.percentage.toFixed(1) + ' %)';
+function init_charts()
+{
+	pie_chart_connections = Highcharts.chart('pie_chart_connections', {
+		chart: {
+			backgroundColor: 'var(--chart-bg-color)',
+			plotBackgroundColor: null,
+			plotBorderWidth: null,
+			plotShadow: false,
+			type: 'pie'
 		},
-	},
-	plotOptions: {
-		pie: {
-			allowPointSelect: true,
-			cursor: 'pointer',
-			align: 'left',
-			dataLabels: {
-				enabled: false,
-				name: 'Anteile',
-				format: '<b>{point.name}</b>: {point.percentage:.1f} %',
-				style: {
-					color: (Highcharts.theme && Highcharts.theme.contrastTextColor) || 'black'
-				}
+		title: {
+			text: 'Verbrauch (' + numberWithCommas(period.sum_consumption.toFixed(1)) + ' kWh)',
+			align: 'left'
+		},
+		tooltip: {
+			formatter: function() {
+				return '<b><span style="font-size: 130%">' + this.point.name + '</b></span><br>Anteil: ' + this.y.toFixed(1) + ' kWh (' + this.percentage.toFixed(1) + ' %)';
 			},
-		showInLegend: true,
-		point: {
-			events: {
-				legendItemClick: function() {
-				return false;
+		},
+		plotOptions: {
+			pie: {
+				allowPointSelect: true,
+				cursor: 'pointer',
+				align: 'left',
+				dataLabels: {
+					enabled: false,
+					name: 'Anteile',
+					format: '<b>{point.name}</b>: {point.percentage:.1f} %',
+					style: {
+						color: (Highcharts.theme && Highcharts.theme.contrastTextColor) || 'black'
 					}
-				}
-			},
-		}
-	},
-	series: [{
-		name: 'Anteil',
-		colorByPoint: true,
-		size: '100%',
-		innerSize: '60%',
-		data: [
-
-				{% for category, category_dict in user.period['categorized_connections'].iteritems() %}
-				{
-					name: '{{ category | replace("self",'Selbstversorgung') | replace("local","Bezug Lokal (<10km)") | replace("grisons","Bezug Graubünden") | replace("other","Bezug Schweiz") }}',
-					y: {{ category_dict['sum'] }},
-					color: '{{ category | replace("self","var(--self-color)") | replace("local","var(--local-color)") | replace("grisons","var(--grisons-color)") | replace("other","var(--other-color)") }}',
-					legendIndex: {{ category | replace("self","0") | replace("local","1") | replace("grisons","2") | replace("other","3") }},
 				},
-				{% endfor %}
-		]
-	}],
-	legend: {
-		itemStyle: {
-			fontSize:'13px'
-		},
-		layout: 'vertical',
-		align: 'right',
-		verticalAlign: 'middle',
-		itemMarginTop: 8,
-		useHTML: true,
-		labelFormatter: function() {
-			if (this.name == 'Selbstversorgung')
-				var info_icon = '<i class="glyphicon glyphicon-info-sign" style=""></i>';
-			else
-				info_icon = '';
-			return this.name + " (" + this.percentage.toFixed(1) + " %) " + info_icon;
-		}
-	}
-});
-
-var pie_chart_deliveries = Highcharts.chart('pie_chart_deliveries', {
-	chart: {
-		backgroundColor: 'var(--chart-bg-color)',
-		plotBackgroundColor: null,
-		plotBorderWidth: null,
-		plotShadow: false,
-		type: 'pie'
-	},
-	title: {
-		text: 'Produktion ({{ user.period['sum_production'] | round(1) }} kWh)',
-		align: 'left'
-	},
-	tooltip: {
-		formatter: function() {
-			return '<b><span style="font-size: 130%">' + this.point.name + '</b></span><br>Anteil: ' + this.y.toFixed(1) + ' kWh (' + this.percentage.toFixed(1) + ' %)';
-		},
-	},
-	plotOptions: {
-		pie: {
-			allowPointSelect: true,
-			cursor: 'pointer',
-			align: 'left',
-			dataLabels: {
-				enabled: false,
-				name: 'Anteile',
-				format: '<b>{point.name}</b>: {point.percentage:.1f} %',
-				style: {
-					color: (Highcharts.theme && Highcharts.theme.contrastTextColor) || 'black'
-				}
-			},
-
-		showInLegend: true,
-		point: {
-			events: {
-				legendItemClick: function() {
-				return false;
+			showInLegend: true,
+			point: {
+				events: {
+					legendItemClick: function() {
+					return false;
+						}
 					}
-				}
+				},
+			}
+		},
+		series: [{
+			name: 'Anteil',
+			colorByPoint: true,
+			size: '100%',
+			innerSize: '60%',
+			data: [
+
+					{% for category, category_dict in user.period['categorized_connections'].iteritems() %}
+					{
+						name: '{{ category | replace("self",'Selbstversorgung') | replace("local","Bezug Lokal (<10km)") | replace("grisons","Bezug Graubünden") | replace("other","Bezug Schweiz") }}',
+						y: {{ category_dict['sum'] }},
+						color: '{{ category | replace("self","var(--self-color)") | replace("local","var(--local-color)") | replace("grisons","var(--grisons-color)") | replace("other","var(--other-color)") }}',
+						legendIndex: {{ category | replace("self","0") | replace("local","1") | replace("grisons","2") | replace("other","3") }},
+					},
+					{% endfor %}
+			]
+		}],
+		legend: {
+			itemStyle: {
+				fontSize:'13px'
+			},
+			layout: 'vertical',
+			align: 'right',
+			verticalAlign: 'middle',
+			itemMarginTop: 8,
+			useHTML: true,
+			labelFormatter: function() {
+				if (this.name == 'Selbstversorgung')
+					var info_icon = '<i class="glyphicon glyphicon-info-sign" style=""></i>';
+				else
+					info_icon = '';
+				return this.name + " (" + this.percentage.toFixed(1) + " %) " + info_icon;
+			}
+		}
+	});
+
+	pie_chart_deliveries = Highcharts.chart('pie_chart_deliveries', {
+		chart: {
+			backgroundColor: 'var(--chart-bg-color)',
+			plotBackgroundColor: null,
+			plotBorderWidth: null,
+			plotShadow: false,
+			type: 'pie'
+		},
+		title: {
+			text: 'Produktion (' + numberWithCommas(period.sum_production.toFixed(1)) + ' kWh)',
+			align: 'left'
+		},
+		tooltip: {
+			formatter: function() {
+				return '<b><span style="font-size: 130%">' + this.point.name + '</b></span><br>Anteil: ' + this.y.toFixed(1) + ' kWh (' + this.percentage.toFixed(1) + ' %)';
+			},
+		},
+		plotOptions: {
+			pie: {
+				allowPointSelect: true,
+				cursor: 'pointer',
+				align: 'left',
+				dataLabels: {
+					enabled: false,
+					name: 'Anteile',
+					format: '<b>{point.name}</b>: {point.percentage:.1f} %',
+					style: {
+						color: (Highcharts.theme && Highcharts.theme.contrastTextColor) || 'black'
+					}
+				},
+
+			showInLegend: true,
+			point: {
+				events: {
+					legendItemClick: function() {
+					return false;
+						}
+					}
+				},
+
 			},
 
 		},
+		series: [{
+			name: 'Anteil',
+			colorByPoint: true,
+			size: '100%',
+			innerSize: '60%',
+			data: [
 
-	},
-	series: [{
-		name: 'Anteil',
-		colorByPoint: true,
-		size: '100%',
-		innerSize: '60%',
-		data: [
-
-				{% for category, category_dict in user.period['categorized_deliveries'].iteritems() %}
-				{
-					name: '{{ category | replace("self","Eigenverbrauch") | replace("local","Einspeisung Lokal (<10km)") | replace("grisons","Einspeisung Graubünden") | replace("other","Einspeisung Schweiz") }}',
-					y: {{ category_dict['sum'] }},
-					color: '{{ category | replace("self","var(--self-color)") | replace("local","var(--local-color)") | replace("grisons","var(--grisons-color)") | replace("other","var(--other-color)") }}',
-					legendIndex: {{ category | replace("self","0") | replace("local","1") | replace("grisons","2") | replace("other","3") }},
-				},
-				{% endfor %}
-		]
-	}],
-	legend: {
-		itemStyle: {
-			fontSize:'13px'
-		},
-		layout: 'vertical',
-		align: 'right',
-		verticalAlign: 'middle',
-		itemMarginTop: 8,
-		useHTML: true,
-		labelFormatter: function() {
-			if (this.name == 'Eigenverbrauch')
-				var info_icon = '<i class="glyphicon glyphicon-info-sign" style=""></i>';
-			else
-				info_icon = '';
-			return this.name + " (" + this.percentage.toFixed(1) + " %) " + info_icon;
+					{% for category, category_dict in user.period['categorized_deliveries'].iteritems() %}
+					{
+						name: '{{ category | replace("self","Eigenverbrauch") | replace("local","Einspeisung Lokal (<10km)") | replace("grisons","Einspeisung Graubünden") | replace("other","Einspeisung Schweiz") }}',
+						y: {{ category_dict['sum'] }},
+						color: '{{ category | replace("self","var(--self-color)") | replace("local","var(--local-color)") | replace("grisons","var(--grisons-color)") | replace("other","var(--other-color)") }}',
+						legendIndex: {{ category | replace("self","0") | replace("local","1") | replace("grisons","2") | replace("other","3") }},
+					},
+					{% endfor %}
+			]
+		}],
+		legend: {
+			itemStyle: {
+				fontSize:'13px'
+			},
+			layout: 'vertical',
+			align: 'right',
+			verticalAlign: 'middle',
+			itemMarginTop: 8,
+			useHTML: true,
+			labelFormatter: function() {
+				if (this.name == 'Eigenverbrauch')
+					var info_icon = '<i class="glyphicon glyphicon-info-sign" style=""></i>';
+				else
+					info_icon = '';
+				return this.name + " (" + this.percentage.toFixed(1) + " %) " + info_icon;
+			}
 		}
-	}
-});
+	});
+}
 
 
 
@@ -370,9 +372,6 @@ function build_tooltip(legend, keyword, text)
 	}
 }
 
-build_tooltip(pie_chart_connections.legend, 'Selbstversorgung', text_self_consumption);
-build_tooltip(pie_chart_deliveries.legend, 'Eigenverbrauch', text_autarky);
-
 
 $(document).ready(function () {
   $("a").tooltip({
@@ -380,6 +379,22 @@ $(document).ready(function () {
     'placement': 'top',
     'container':'body'
   });
+});
+
+
+$( document ).ready(function() {
+    console.log( "Document ready. Loading period_json." );
+
+    $.get( "/period_json", function( data ) {
+        period = JSON.parse(data);
+        console.log(period);
+
+        init_charts();
+        build_tooltip(pie_chart_connections.legend, 'Selbstversorgung', text_self_consumption);
+		build_tooltip(pie_chart_deliveries.legend, 'Eigenverbrauch', text_autarky);
+
+
+    });
 });
 
 </script>

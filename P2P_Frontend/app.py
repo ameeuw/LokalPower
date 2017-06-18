@@ -450,14 +450,14 @@ def add_header(response):
     return response
 
 
-@app.route('/os_maps')
-def os_maps():
-    return send_file('osmaps.html')
-
-
 @app.route('/leaflet')
 def leaflet():
     return send_file('leaflet.html')
+
+
+@app.route('/period_json/')
+def period_json():
+    return json.dumps(user.period)
 
 
 @app.route('/map_json/<string:type>/')
@@ -501,7 +501,6 @@ def setDailyPeriod(month=0, origin='dashboard.html', type=None):
     set_period('daily', month_index=month)
 
     return render_template(origin, type=type, user=user, descriptions=descriptions, origin=origin, root=request.url_root)
-
 
 
 @app.route("/move", methods=['GET','POST'])

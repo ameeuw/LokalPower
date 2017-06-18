@@ -125,7 +125,7 @@ $( document ).ready(function() {
 
     init_map();
 
-    $.get( "http://127.0.0.1:5000/map_json/"+type, function( data ) {
+    $.get( "/map_json/"+type, function( data ) {
         build_map(JSON.parse(data));
     });
 });
