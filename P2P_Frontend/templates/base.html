@@ -72,54 +72,63 @@
 				<a href="" class="simple-text">
 					Lokal Power
 				</a>
-			</div>
-
-				<div class="sidebar-wrapper">
-					<ul class="nav">
-						<li class="active">
-							<a href="{{ url_for('home') }}">
-								<i class="material-icons">dashboard</i>
-
-								<p>Übersicht</p>
-							</a>
-						</li>
-
-						<li>
-							<a href="{{ url_for('osmaps', type='sources') }}">
-								<i class="material-icons">location_on</i>
-								<p>Verbrauch: Karte</p>
-							</a>
-						</li>
-						<li >
-							<a href="{{ url_for('details', type='sources') }}">
-								<i class="fa fa-share-alt" aria-hidden="true"></i>
-								<p>Verbrauch: Details</p>
-							</a>
-						</li>
-
-						<li>
-							<a href="{{ url_for('osmaps', type='sinks') }}">
-								<i class="material-icons">location_on</i>
-								<p>Produktion: Karte</p>
-							</a>
-						</li>
-						<li >
-							<a href="{{ url_for('details', type='sinks') }}">
-								<i class="fa fa-share-alt" aria-hidden="true"></i>
-								<p>Produktion: Details</p>
-							</a>
-						</li>
-						
-						<li >
-							<a href="{{ url_for('battery') }}">
-								<i class="fa fa-battery-half" aria-hidden="true"></i>
-								<p>PV-Batterie Simulation</p>
-							</a>
-						</li>
-
-					</ul>
+				<br>
+				<div class="simple-text" style="align-self: center;">
+					<img src="/static/img/logos/repower.png" style="align-self: center; width: 170px"></img>
+				</div>
+				<div class="simple-text" style="align-self: center;">
+					<img src="/static/img/logos/unisg.jpg" style="align-self: center; width: 210px"></img>
 				</div>
 			</div>
+
+			<div class="sidebar-wrapper">
+				<ul class="nav">
+					<li class="active">
+						<a href="{{ url_for('home') }}">
+							<i class="material-icons">dashboard</i>
+
+							<p>Übersicht</p>
+						</a>
+					</li>
+
+					<li>
+						<a href="{{ url_for('osmaps', type='sources') }}">
+							<i class="material-icons">location_on</i>
+							<p>Verbrauch: Karte</p>
+						</a>
+					</li>
+					<li >
+						<a href="{{ url_for('details', type='sources') }}">
+							<i class="fa fa-share-alt" aria-hidden="true"></i>
+							<p>Verbrauch: Details</p>
+						</a>
+					</li>
+
+					<li>
+						<a href="{{ url_for('osmaps', type='sinks') }}">
+							<i class="material-icons">location_on</i>
+							<p>Produktion: Karte</p>
+						</a>
+					</li>
+					<li >
+						<a href="{{ url_for('details', type='sinks') }}">
+							<i class="fa fa-share-alt" aria-hidden="true"></i>
+							<p>Produktion: Details</p>
+						</a>
+					</li>
+
+					<li >
+						<a href="{{ url_for('battery') }}">
+							<i class="fa fa-battery-half" aria-hidden="true"></i>
+							<p>PV-Batterie Simulation</p>
+						</a>
+					</li>
+
+				</ul>
+
+			</div>
+
+		</div>
 
 		{% endblock %}
 
@@ -136,64 +145,6 @@
 							<span class="icon-bar"></span>
 							<span class="icon-bar"></span>
 						</button>
-
-						<div class="row">
-
-							{% if user.annual_production > 0 %}
-							{% else %}
-
-
-							<div class="col-lg-2 col-md-6 col-sm-6">
-								<div class="card card-stats">
-									<div class="card-header" data-background-color="orange">
-										<i class="fa fa-bolt" aria-hidden="true"></i>
-
-									</div>
-									<div class="card-content">
-										<p class="category">Jahresverbrauch</p>
-										<h4 class="title">{{ user.annualDemand }}<small> kWh</small></h4>
-									</div>
-									<div class="card-footer">
-										<div class="stats">
-											<i class="material-icons text-danger">warning</i> <a href="#pablo">Analysieren</a>
-										</div>
-									</div>
-								</div>
-							</div>
-							<div class="col-lg-2 col-md-6 col-sm-6">
-								<div class="card card-stats">
-									<div class="card-header" data-background-color="green">
-										<i class="fa fa-money" aria-hidden="true"></i>
-									</div>
-									<div class="card-content">
-										<p class="category">Kosten Total</p>
-										<h4 class="title">Fr. {{ user.totalCost }}</h4>
-									</div>
-									<div class="card-footer">
-										<div class="stats">
-											<i class="material-icons">date_range</i> ..
-										</div>
-									</div>
-								</div>
-							</div>
-							<div class="col-lg-2 col-md-6 col-sm-6">
-								<div class="card card-stats">
-									<div class="card-header" data-background-color="green">
-										<i class="fa fa-money" aria-hidden="true"></i>
-									</div>
-									<div class="card-content">
-										<p class="category">Kilometer pro kWh</p>
-										<h4 class="title">{{ user.totalCost }} km/kWh</h4>
-									</div>
-									<div class="card-footer">
-										<div class="stats">
-											<i class="material-icons">date_range</i> ..
-										</div>
-									</div>
-								</div>
-							</div>
-							{% endif %}
-						</div>
 					</div>
 
 				</div>
@@ -216,8 +167,7 @@
 									  <span class="glyphicon glyphicon-chevron-left" aria-hidden="true"></span>
 									</button>
 
-								<button type="action" class="btn btn-default btn-md" name="direction" value="up" style="width: 70%; height: 50px; font-size: 130%">
-									{{ user.period['name'].decode('utf-8') }}
+								<button type="action" class="btn btn-default btn-md" id="period_name" name="direction" value="up" style="width: 70%; height: 50px; font-size: 130%">
 								</button>
 
 									<button type="action" class="btn btn-default btn-md" name="direction" value="next" style="height: 50px">
@@ -274,7 +224,7 @@
 							</div>
 							<div class="card-content">
 								<p class="category">Eigenverbrauch</p>
-								<h4 class="title">{{ user.period['kpi_self_consumption'] | round(1) }}<small> %</small></h4>
+								<h4 class="title"><span id="self_consumption"></span><small> %</small></h4>
 							</div>
 						</div>
 					</div>
@@ -287,7 +237,7 @@
 							</div>
 							<div class="card-content">
 								<p class="category">&#216; Quellendistanz</p>
-								<h4 class="title">{{ user.period['kpi_mean_distance'] | round(1) }}<small> km</small></h4>
+								<h4 class="title"><span id="mean_distance"></span><small> km</small></h4>
 							</div>
 						</div>
 					</div>
@@ -376,8 +326,22 @@
     	return x.toString().replace(/\B(?=(\d{3})+(?!\d))/g, "'");
 	}
 
-	$('#sum_consumption').text(numberWithCommas({{ user.period['sum_consumption'] | round | int}}));
-	$('#sum_production').text(numberWithCommas({{ user.period['sum_production'] | round | int }}));
+	$( document ).ready(function() {
+		console.log( "Document ready. Loading period_json." );
+
+		$.getJSON( "/period_json", function( data ) {
+			$('#sum_consumption').text(numberWithCommas(data.sum_consumption.toFixed(0)));
+			$('#sum_production').text(numberWithCommas(data.sum_production.toFixed(0)));
+			$('#self_consumption').text(numberWithCommas(data.kpi_self_consumption.toFixed(1)));
+			$('#mean_distance').text(numberWithCommas(data.kpi_mean_distance.toFixed(1)));
+
+			$('#period_name').text(data.name);
+
+		});
+	});
+
+
+
 
 
 	</script>

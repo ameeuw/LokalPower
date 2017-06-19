@@ -5,7 +5,7 @@
 <div class="wrapper">
 	{% block sidebar %}
 
-		<div class="sidebar" data-color="purple" data-image="../assets/img/sidebar-1.jpg">
+		<div class="sidebar" data-color="purple">
 			<!--
 				Tip 1: You can change the color of the sidebar using: data-color="purple | blue | green | orange | red"
 
@@ -16,6 +16,13 @@
 				<a href="" class="simple-text">
 					Lokal Power
 				</a>
+				<br>
+				<div class="simple-text" style="align-self: center;">
+					<img src="/static/img/logos/repower.png" style="align-self: center; width: 170px"></img>
+				</div>
+				<div class="simple-text" style="align-self: center;">
+					<img src="/static/img/logos/unisg.jpg" style="align-self: center; width: 210px"></img>
+				</div>
 			</div>
 
 				<div class="sidebar-wrapper">
@@ -76,11 +83,7 @@
 		<div class="container-fluid">
 			<div class="row embed-responsive embed-responsive-16by9" style="">
 				<div class="col-md-8 embed-responsive-item" style="width: 65%;">
-					{% if type == 'sinks' %}
-					<div class="well" id="bar_chart" style="height: 75%"></div>
-					{% else %}
-					<div class="well" id="bar_chart" style="height: 75%"></div>
-					{% endif %}
+					<div class="well" id="details_chart" style="height: 75%"></div>
 				</div>
 
 				<div class="col-md-4 embed-responsive-item" style="left: 65%; max-width: 35%; height: 77.5%">
@@ -99,117 +102,22 @@
 </div>
 
 
-	{% block footer %}
-	<script type="text/javascript" src="https://cdn.jsdelivr.net/momentjs/latest/moment.min.js"></script>
-	<script>
+{% block footer %}
+<script src="/static/js/details_chart.js"></script>
 
-	Highcharts.chart('bar_chart', {
-	chart: {
-		backgroundColor: 'var(--chart-bg-color)',
-	},
+<script>
+type = '{{ type }}';
+origin = '{{ origin }}';
 
-    title: {
-		{% if type == 'sinks' %}
-			text: 'Produktion',
-		{% else %}
-			text: 'Verbrauch',
-		{% endif %}
-    },
+$( document ).ready(function() {
+    console.log( "Document ready. Loading period_json." );
 
-    subtitle: {
-        text: ''
-    },
+    $.getJSON( "/period_json", function( data ) {
+    	period = data;
+        init_details_chart();
+        reload_details_chart();
 
-	{% if user.period['resolution'] == 'monthly' %}
-    plotOptions: {
-    	series: {
-    		cursor: 'pointer',
-    		point: {
-    			events: {
-    				click: function() {
-    					location.href='/setDailyPeriod/' + this.index + '/' + '{{ origin }}' + '/' + '{{ type }}';
-    				}
-    			}
-    		}
-    	}
-    },
-    {% endif %}
-
-	{% if user.period['resolution'] == 'daily' %}
-	plotOptions: {
-		series: {
-			cursor: 'pointer',
-			point: {
-				events: {
-					click: function() {
-						// add up start of period and clicked day in month
-						day = {{ user.period['start'] }} + this.index;
-						location.href='/setMinimalPeriod/' + day + '/' + '{{ origin }}' + '/' + '{{ type }}';
-					}
-				}
-			}
-		}
-	},
-	{% endif %}
-
-
-    yAxis: {
-        title: {
-            text: 'kWh'
-        }
-    },
-
-    xAxis: {
-    	categories: {{ user.period['categories'] | safe }},
-        crosshair: true
-    },
-
-	tooltip: {
-		headerFormat: '<span style="font-size:14px">{{ user.period['resolution'] | replace("daily", "Tag") | replace("monthly", "Monat") | replace("minimal", "Uhrzeit") }}: {point.key}</span><br><table>',
-		pointFormat: '<tr><td style="color:{series.color};padding:0">{series.name}: </td>' +
-			'<td style="padding:5"><b>{point.y:.1f}</b></td><td style="padding-left:3px">kWh</td></tr>',
-		footerFormat: '</table>',
-		shared: true,
-		useHTML: true
-	},
-
-    series: [
-
-	{% if type == 'sinks' %}
-		{% for category, category_dict in user.period['categorized_deliveries'].iteritems() %}
-			{
-				type: 'column',
-				stacking: true,
-				name: '{{ category | replace("self",'Eigenverbrauch') | replace("local","Einspeisung Lokal (<10km)") | replace("grisons","Einspeisung Graubünden") | replace("other","Einspeisung Schweiz") }}',
-				data: {{ category_dict['time_series'] }},
-				color: '{{ category | replace("self","var(--self-color)") | replace("local","var(--local-color)") | replace("grisons","var(--grisons-color)") | replace("other","var(--other-color)") }}',
-				legendIndex: {{ category | replace("self","0") | replace("local","1") | replace("grisons","2") | replace("other","3") }},
-				index: {{ category | replace("self","0") | replace("local","1") | replace("grisons","2") | replace("other","3") }},
-				showInLegend: true,
-				colorByPoint: false
-			},
-		{% endfor %}
-
-	{% else %}
-		{% for category, category_dict in user.period['categorized_connections'].iteritems() %}
-			{
-				type: 'column',
-				stacking: true,
-				name: '{{ category | replace("self",'Selbstversorgung') | replace("local","Bezug Lokal (<10km)") | replace("grisons","Bezug Graubünden") | replace("other","Bezug Schweiz") }}',
-				data: {{ category_dict['time_series'] }},
-				color: '{{ category | replace("self","var(--self-color)") | replace("local","var(--local-color)") | replace("grisons","var(--grisons-color)") | replace("other","var(--other-color)") }}',
-				legendIndex: {{ category | replace("self","0") | replace("local","1") | replace("grisons","2") | replace("other","3") }},
-				index: {{ category | replace("self","0") | replace("local","1") | replace("grisons","2") | replace("other","3") }},
-				showInLegend: true,
-				colorByPoint: false
-			},
-		{% endfor %}
-
-	{% endif %}
-    ]
-
-
-	});
-
-	</script>
-	{% endblock %}
+    });
+});
+</script>
+{% endblock %}
