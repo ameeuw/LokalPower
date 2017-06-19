@@ -1,4 +1,4 @@
-<div class="container" style="width: 100%;">
+<div class="container" style="width: 100%; height: 65%">
     <h4>Verbrauch ({{ user.period['sum_consumption'] | round(1) }} kWh)</h4>
     <div class="panel-group">
 
@@ -22,7 +22,7 @@
         </div>
     </div>
 
-    <div class="panel-group" id="accordion">
+    <div class="panel-group" id="accordion" style="height: 100%">
 
         <!-- LOKAL -->
         <div class="panel panel-default">
@@ -52,6 +52,7 @@
                         </tr>
                         {% for entry in user.period['categorized_connections']['local']['list'] %}
                         <tr>
+
                             <td><img src="{{ root }}static/img/markers/{{ descriptions[entry['s_id']]['TYPE'] }}.png" style="height: 20px; width: 20px;"> {{ descriptions[entry['s_id']]['NAME'] }}</td>
                             <td>{{ entry['distance'] }} km</td>
                             {% if (entry['energy'] / user.period['sum_consumption']) < 0.01 %}

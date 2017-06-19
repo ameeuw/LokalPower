@@ -22,13 +22,26 @@ function init_details_chart()
 
 		yAxis: {
 			title: {
-				text: 'kWh'
+				text: 'kWh',
+				style: {
+				    fontSize: '16px'
+				}
+			},
+			labels: {
+			    style: {
+			        fontSize: '16px'
+			    }
 			}
 		},
 
 		xAxis: {
 			categories: period.categories,
-			crosshair: true
+			crosshair: true,
+			labels: {
+			    style: {
+			        fontSize: '16px'
+			    }
+			}
 		},
 
 		tooltip: {
