@@ -17,6 +17,13 @@ function init_map() {
         id: 'lokalpower.sources.map',
         accessToken: 'your.mapbox.public.access.token'
     }).addTo(lokalpower_map);
+
+    period_layer = L.layerGroup().addTo(lokalpower_map);
+}
+
+function deinit_map() {
+    lokalpower_map.removeLayer(period_layer);
+    period_layer = L.layerGroup().addTo(lokalpower_map);
 }
 
 
@@ -43,7 +50,7 @@ function build_map(map_json)
         // console.log(map_json.markers[i]);
         current_marker = map_json.markers[i];
 
-        markers.push(L.marker(current_marker.location, {icon: get_icon(current_marker.icon)}).addTo(lokalpower_map));
+        markers.push(L.marker(current_marker.location, {icon: get_icon(current_marker.icon)}).addTo(period_layer));
         popups.push(L.popup({className: 'map_popup', minWidth: '360'}));
         //var iframe = $('<iframe src="data:text/html;charset=utf-8;base64,' + current_marker.iframe_b64 + '" width="360" style="border:none !important;" height="250"></iframe>')[0];
         //console.log(iframe);
@@ -70,7 +77,7 @@ function build_map(map_json)
         speed = factor * lokalpower_map.distance(map_json.paths[i][0], map_json.paths[i][1]);
         // console.log("Speed: "+ speed)
         paths.push(L.curve(['M',map_json.paths[i][0],
-                            'L',map_json.paths[i][1]], {className: 'map_polyline', dashArray: 1, animate: {duration: speed, iterations: Infinity, direction: direction}}).addTo(lokalpower_map));
+                            'L',map_json.paths[i][1]], {className: 'map_polyline', dashArray: 1, animate: {duration: speed, iterations: Infinity, direction: direction}}).addTo(period_layer));
     }
 }
 // console.log(map_json);

@@ -1,4 +1,4 @@
-function init_overview_chart()
+function init_overview_chart(period_json)
 {
 	overview_chart_options =
 	{
@@ -35,7 +35,7 @@ function init_overview_chart()
 		},
 
 		xAxis: {
-			categories: period.categories,
+			categories: period_json.categories,
 			crosshair: true,
 			labels: {
 			    style: {
@@ -50,7 +50,7 @@ function init_overview_chart()
 			borderColor: '#000000',
 
 			formatter: function() {
-			   var s = '<span style="font-size:14px">' + period.resolution.replace("daily", "Tag").replace("monthly", "Monat").replace("minimal", "Uhrzeit") + ' : ' + this.x +'</span><br><table>';
+			   var s = '<span style="font-size:14px">' + period_json.resolution.replace("daily", "Tag").replace("monthly", "Monat").replace("minimal", "Uhrzeit") + ' : ' + this.x +'</span><br><table>';
 
 			   var sortedPoints = this.points.sort(function(a, b){
 					 return ((a.series.options.legendIndex < b.series.options.legendIndex) ? -1 : ((a.series.options.legendIndex > b.series.options.legendIndex) ? 1 : 0));
@@ -73,10 +73,13 @@ function init_overview_chart()
 			name: 'Verbrauch',
 			colorByPoint: false,
 			color: 'var(--consumption-color)',
-			data: period.demand,
+			data: period_json.demand,
 			showInLegend: true,
 			legendIndex: 0,
-			index: 3
+			index: 3,
+            marker: {
+                enabled: true
+            },
 		},
 
 		{
@@ -84,10 +87,13 @@ function init_overview_chart()
 			name: 'Produktion',
 			colorByPoint: false,
 			color: 'var(--production-color)',
-			data: period.production,
+			data: period_json.production,
 			showInLegend: true,
 			legendIndex: 1,
-			index: 2
+			index: 2,
+            marker: {
+                enabled: true
+            },
 		},
 
 		/*{
@@ -98,7 +104,7 @@ function init_overview_chart()
 			colorByPoint: false,
 			color: 'var(--battery-color)',
 			fillColor: 'var(--battery-fill-color)',
-			data: period.battery_simulation.battery_to_load,
+			data: period_json.battery_simulation.battery_to_load,
 			showInLegend: true,
 			visible: false,
 			legendIndex: 3,
@@ -112,10 +118,13 @@ function init_overview_chart()
 			colorByPoint: false,
 			color: 'var(--self-consumption-color)',
 			fillColor: 'var(--self-consumption-fill-color)',
-			data: period.self_consumption,
+			data: period_json.self_consumption,
 			showInLegend: true,
 			legendIndex: 2,
-			index: 1
+			index: 1,
+            marker: {
+                enabled: true
+            },
 		},
 
 		]
@@ -125,32 +134,35 @@ function init_overview_chart()
 }
 
 
-function reload_overview_chart()
+function reload_overview_chart(period_json)
 {
-    if (period.sum_production > 0)
+    if (period_json.sum_production > 0)
         overview_chart_options.title.text = 'Verbrauch und Produktion';
     else
         overview_chart_options.title.text = 'Verbrauch';
 
-    if (period.resolution == 'monthly')
+    if (period_json.resolution == 'monthly')
     {
         overview_chart_options.plotOptions.series.point.events.click = function() {
-                                                                            location.href='/setDailyPeriod/' + this.index + '/' + origin + '/' + 'all';
+                                                                            // location.href='/setDailyPeriod/' + this.index + '/' + origin + '/' + 'all';
+                                                                            get_form('/setDailyPeriod/' + this.index + '/' + origin + '/' + 'all');
                                                                             };
     }
-    else if (period.resolution == 'daily')
+    else if (period_json.resolution == 'daily')
     {
-
         overview_chart_options.plotOptions.series.point.events.click = function() {
                                                                             // add up start of period and clicked day in month
-                                                                            day = period.start + this.index;
-                                                                            location.href='/setMinimalPeriod/' + day + '/' + origin + '/' + 'all';
+                                                                            day = period_json.start + this.index;
+                                                                            // location.href='/setMinimalPeriod/' + day + '/' + origin + '/' + 'all';
+                                                                            get_form('/setMinimalPeriod/' + day + '/' + origin + '/' + 'all');
                                                                             };
     }
-    else if (period.resolution == 'minimal')
+    else if (period_json.resolution == 'minimal')
     {
         overview_chart_options.xAxis.labels = {step: 4, rotation: 45};
-		Highcharts.Series.prototype.drawPoints = function() { };
+        overview_chart_options.series[0].marker.enabled = false;
+        overview_chart_options.series[1].marker.enabled = false;
+        overview_chart_options.series[2].marker.enabled = false;
     }
 
     overview_chart = Highcharts.chart('overview_chart', overview_chart_options);

@@ -88,11 +88,7 @@
 
 				<div class="col-md-4 embed-responsive-item" style="left: 65%; max-width: 35%; height: 77.5%">
 					<div class="well" style="height: 100%">
-						{% if type == 'sinks' %}
-						{% include 'sinks_accordion_list.html' %}
-						{% else %}
-						{% include 'sources_accordion_list.html' %}
-						{% endif %}
+						{% include 'accordion_list.html' %}
 					</div>
 				</div>
 			</div>
@@ -108,16 +104,5 @@
 <script>
 type = '{{ type }}';
 origin = '{{ origin }}';
-
-$( document ).ready(function() {
-    console.log( "Document ready. Loading period_json." );
-
-    $.getJSON( "/period_json", function( data ) {
-    	period = data;
-        init_details_chart();
-        reload_details_chart();
-
-    });
-});
 </script>
 {% endblock %}

@@ -98,11 +98,7 @@
 
                     <div class="col-md-4" style="height: 100%;">
                         <div class="well" style="height: 100%">
-                            {% if type == 'sinks' %}
-                            {% include 'sinks_accordion_list.html' %}
-                            {% else %}
-                            {% include 'sources_accordion_list.html' %}
-                            {% endif %}
+                            {% include 'accordion_list.html' %}
                         </div>
                     </div>
 
@@ -127,15 +123,7 @@
 <script>
 
 type = '{{ type }}';
-$( document ).ready(function() {
-    console.log( "Document ready. Loading map." );
-
-    init_map();
-
-    $.get( "/map_json/"+type, function( data ) {
-        build_map(JSON.parse(data));
-    });
-});
+init_map();
 </script>
 
 {% endblock %}

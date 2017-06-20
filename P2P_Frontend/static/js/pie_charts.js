@@ -156,13 +156,13 @@ function build_tooltip(legend, keyword, text)
 	}
 }
 
-function reload_pie_charts()
+function reload_pie_charts(period_json)
 {
 	var data = []
-	for (var key in period.categorized_connections)
+	for (var key in period_json.categorized_connections)
 	{
 		var data_json = {};
-		var category_json = period.categorized_connections[key];
+		var category_json = period_json.categorized_connections[key];
 		data_json.name = key.replace("self", "Selbstversorgung").replace("local","Bezug Lokal (<10km)").replace("grisons","Bezug Graubünden").replace("other","Bezug Schweiz");
 		data_json.y = category_json.sum;
 		data_json.color = key.replace("self","var(--self-color)").replace("local","var(--local-color)").replace("grisons","var(--grisons-color)").replace("other","var(--other-color)");
@@ -170,17 +170,17 @@ function reload_pie_charts()
 		data.push(data_json);
 	}
 	pie_chart_connections_options.series[0].data = data;
-	pie_chart_connections_options.title.text = 'Verbrauch (' + numberWithCommas(period.sum_consumption.toFixed(1)) + ' kWh)';
+	pie_chart_connections_options.title.text = 'Verbrauch (' + numberWithCommas(period_json.sum_consumption.toFixed(1)) + ' kWh)';
 	pie_chart_connections = Highcharts.chart('pie_chart_connections', pie_chart_connections_options);
 
     build_tooltip(pie_chart_connections.legend, 'Selbstversorgung', text_self_consumption);
 
 
 	var data = []
-	for (var key in period.categorized_deliveries)
+	for (var key in period_json.categorized_deliveries)
 	{
 		var data_json = {};
-		var category_json = period.categorized_deliveries[key];
+		var category_json = period_json.categorized_deliveries[key];
 		data_json.name = key.replace("self", "Eigenverbrauch").replace("local","Einspeisung Lokal (<10km)").replace("grisons","Einspeisung Graubünden").replace("other","Einspeisung Schweiz");
 		data_json.y = category_json.sum;
 		data_json.color = key.replace("self","var(--self-color)").replace("local","var(--local-color)").replace("grisons","var(--grisons-color)").replace("other","var(--other-color)");
@@ -188,7 +188,7 @@ function reload_pie_charts()
 		data.push(data_json);
 	}
 	pie_chart_deliveries_options.series[0].data = data;
-	pie_chart_deliveries_options.title.text = 'Produktion (' + numberWithCommas(period.sum_production.toFixed(1)) + ' kWh)';
+	pie_chart_deliveries_options.title.text = 'Produktion (' + numberWithCommas(period_json.sum_production.toFixed(1)) + ' kWh)';
 	pie_chart_deliveries = Highcharts.chart('pie_chart_deliveries', pie_chart_deliveries_options);
 
 	build_tooltip(pie_chart_deliveries.legend, 'Eigenverbrauch', text_autarky);

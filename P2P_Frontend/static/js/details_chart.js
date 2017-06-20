@@ -35,7 +35,7 @@ function init_details_chart()
 		},
 
 		xAxis: {
-			categories: period.categories,
+			categories: [],
 			crosshair: true,
 			labels: {
 			    style: {
@@ -45,7 +45,7 @@ function init_details_chart()
 		},
 
 		tooltip: {
-			headerFormat: '<span style="font-size:14px">' + period.resolution.replace("daily", "Tag").replace("monthly", "Monat").replace("minimal", "Uhrzeit") + ' : {point.key}</span><br><table>',
+			headerFormat: '<span style="font-size:14px">Monat : {point.key}</span><br><table>',
 			pointFormat: '<tr><td style="color:{series.color};padding:0">{series.name}: </td>' +
 				'<td style="padding:5"><b>{point.y:.1f}</b></td><td style="padding-left:3px">kWh</td></tr>',
 			footerFormat: '</table>',
@@ -58,38 +58,44 @@ function init_details_chart()
 }
 
 
-function reload_details_chart()
+function reload_details_chart(period_json)
 {
     if (type == 'sinks')
         details_chart_options.title.text = 'Produktion';
     else
         details_chart_options.title.text = 'Verbrauch';
 
-    if (period.resolution == 'monthly')
+    details_chart_options.xAxis.categories = period_json.categories;
+    details_chart_options.tooltip.headerFormat = '<span style="font-size:14px">' + period_json.resolution.replace("daily", "Tag").replace("monthly", "Monat").replace("minimal", "Uhrzeit") + ' : {point.key}</span><br><table>';
+
+
+    if (period_json.resolution == 'monthly')
     {
         details_chart_options.plotOptions.series.point.events.click = function() {
-                                                                            location.href='/setDailyPeriod/' + this.index + '/' + origin + '/' + 'all';
+                                                                            // location.href='/setDailyPeriod/' + this.index + '/' + origin + '/' + 'all';
+                                                                            get_form('/setDailyPeriod/' + this.index + '/' + origin + '/' + 'all');
                                                                             };
     }
-    else if (period.resolution == 'daily')
+    else if (period_json.resolution == 'daily')
     {
 
         details_chart_options.plotOptions.series.point.events.click = function() {
                                                                             // add up start of period and clicked day in month
-                                                                            day = period.start + this.index;
-                                                                            location.href='/setMinimalPeriod/' + day + '/' + origin + '/' + 'all';
+                                                                            day = period_json.start + this.index;
+                                                                            // location.href='/setMinimalPeriod/' + day + '/' + origin + '/' + 'all';
+                                                                            get_form('/setMinimalPeriod/' + day + '/' + origin + '/' + 'all');
                                                                             };
     }
-    else if (period.resolution == 'minimal')
+    else if (period_json.resolution == 'minimal')
     {
         details_chart_options.xAxis.labels = {step: 4, rotation: 45};
     }
 
 
     if (type == 'sinks')
-        var categorized = period.categorized_deliveries;
+        var categorized = period_json.categorized_deliveries;
     else
-        var categorized = period.categorized_connections;
+        var categorized = period_json.categorized_connections;
 
 	var series = []
 	for (var key in categorized)

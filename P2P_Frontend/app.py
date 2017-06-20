@@ -455,6 +455,16 @@ def leaflet():
     return send_file('leaflet.html')
 
 
+@app.route('/descriptions_json/')
+def descriptions_json():
+    desc = {}
+    for s_id, description in descriptions.iteritems():
+        desc[s_id] = {}
+        desc[s_id]['name'] = description['NAME']
+        desc[s_id]['type'] = description['TYPE']
+    return json.dumps(desc)
+
+
 @app.route('/period_json/')
 def period_json():
     return json.dumps(user.period)
@@ -486,31 +496,32 @@ def setResolution(resolution='monthly', origin='dashboard.html', type='sources')
 
     print('Setting user resolution to {}'.format(resolution))
 
-    return render_template(origin, user=user, descriptions=descriptions, origin=origin, type=type, root=request.url_root)
-
+    # return render_template(origin, user=user, descriptions=descriptions, origin=origin, type=type, root=request.url_root)
+    return json.dumps(user.period)
 
 @app.route("/setMinimalPeriod/<int:day>/<string:origin>/<string:type>/")
 def setMinimalPeriod(day=10, origin='dashboard.html', type=None):
     set_period('minimal', month_index=None, day_index=day)
 
-    return render_template(origin, type=type, user=user, descriptions=descriptions, origin=origin, root=request.url_root)
-
+    # return render_template(origin, type=type, user=user, descriptions=descriptions, origin=origin, root=request.url_root)
+    return json.dumps(user.period)
 
 @app.route("/setDailyPeriod/<int:month>/<string:origin>/<string:type>/")
 def setDailyPeriod(month=0, origin='dashboard.html', type=None):
     set_period('daily', month_index=month)
 
-    return render_template(origin, type=type, user=user, descriptions=descriptions, origin=origin, root=request.url_root)
-
+    # return render_template(origin, type=type, user=user, descriptions=descriptions, origin=origin, root=request.url_root)
+    return json.dumps(user.period)
 
 @app.route("/move", methods=['GET','POST'])
 def move():
     origin = 'dashboard.html'
     direction = 'next'
     if request.method=='POST':
-        type = request.form['type']
-        origin = request.form['origin']
+        print(request.form)
         direction = request.form['direction']
+
+        print(direction)
 
     if direction == 'up':
         if user.period['resolution'] == 'minimal':
@@ -539,8 +550,8 @@ def move():
             day_index = min(limit_value, day_index)
             set_period('minimal', day_index=day_index)
 
-    return render_template(origin, user=user, descriptions=descriptions, origin=origin, type=type, root=request.url_root)
-
+    # return render_template(origin, user=user, descriptions=descriptions, origin=origin, type=type, root=request.url_root)
+    return json.dumps(user.period)
 
 @app.route("/battery", methods=["GET","POST"])
 def battery():

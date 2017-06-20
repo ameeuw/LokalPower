@@ -57,7 +57,7 @@ div[comma-value] input{
 }
 
 .map_polyline {
-    stroke: orange;
+    stroke: rgb(255,70,60);
     fill: none;
     opacity: 0.6;
     stroke-dasharray: 20,14,2,14;

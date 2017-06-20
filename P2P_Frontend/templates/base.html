@@ -160,28 +160,27 @@
 
 						<div class="col-md-6">
 							<center>
-								<form role="form" method="post" action="{{ url_for('move') }}">
 									<input name="origin" value="{{ origin }}" type="hidden">
 									<input name="type" value="{{ type }}" type="hidden">
-									<button type="action" class="btn btn-default btn-md" name="direction" value="previous" style="height: 50px">
+									<input name="direction" value="next" type="hidden">
+									<button id="btn_previous" class="btn btn-default btn-md" name="direction" value="previous" style="height: 50px">
 									  <span class="glyphicon glyphicon-chevron-left" aria-hidden="true"></span>
 									</button>
 
-								<button type="action" class="btn btn-default btn-md" id="period_name" name="direction" value="up" style="width: 70%; height: 50px; font-size: 130%">
-								</button>
+									<button class="btn btn-default btn-md" id="period_name" name="direction" value="up" style="width: 70%; height: 50px; font-size: 130%"></button>
 
-									<button type="action" class="btn btn-default btn-md" name="direction" value="next" style="height: 50px">
+									<button id="btn_next" class="btn btn-default btn-md" name="direction" value="next" style="height: 50px">
 									  <span class="glyphicon glyphicon-chevron-right" aria-hidden="true"></span>
 									</button>
-								</form>
 							</center>
 						</div>
 
 						<div class="col-md-3" style="align: right">
+							<!--<button id="post_btn" class="btn" name="direction" value="next">ABSCHICKEN!</button>-->
 							<div class="btn-group" role="group" aria-label="Resolution">
-								<button type="button" style="height: 50px; font-size: 110%" class="btn btn {% if user.period['resolution'] == 'minimal' %}active{% endif %}" onclick="location.href='{{ url_for('setResolution', resolution='minimal', origin=origin, type=type) }}'">Tag</button>
-								<button type="button" style="height: 50px; font-size: 110%" class="btn btn {% if user.period['resolution'] == 'daily' %}active{% endif %}"   onclick="location.href='{{ url_for('setResolution', resolution='daily', origin=origin, type=type) }}'">Monat</button>
-								<button type="button" style="height: 50px; font-size: 110%" class="btn btn {% if user.period['resolution'] == 'monthly' %}active{% endif %}" onclick="location.href='{{ url_for('setResolution', resolution='monthly', origin=origin, type=type) }}'">Jahr</button>
+								<button id="btn_day" type="button" style="height: 50px; font-size: 110%" class="btn btn">Tag</button>
+								<button id="btn_month" type="button" style="height: 50px; font-size: 110%" class="btn btn">Monat</button>
+								<button id="btn_year" type="button" style="height: 50px; font-size: 110%" class="btn btn">Jahr</button>
 							</div>
 						</div>
 
@@ -258,97 +257,68 @@
 
 </body>
 
-	<!--   Core JS Files   -->
-	<script src="{{ url_for('static', filename='js/material.min.js') }}" type="text/javascript"></script>
+<!--   Core JS Files   -->
+<script src="{{ url_for('static', filename='js/material.min.js') }}" type="text/javascript"></script>
 
-	<!--  Charts Plugin
-	<script src="../assets/js/chartist.min.js"></script>
-	-->
+<!--  Charts Plugin
+<script src="../assets/js/chartist.min.js"></script>
+-->
 
-	<!--  Notifications Plugin    -->
-	<script src="{{ url_for('static', filename='js/bootstrap-notify.js') }}"></script>
+<!--  Notifications Plugin    -->
+<script src="{{ url_for('static', filename='js/bootstrap-notify.js') }}"></script>
 
-	<!--  Google Maps Plugin    -->
-	<!--<script type="text/javascript" src="https://maps.googleapis.com/maps/api/js"></script>-->
+<!--  Google Maps Plugin    -->
+<!--<script type="text/javascript" src="https://maps.googleapis.com/maps/api/js"></script>-->
 
-	<!-- Material Dashboard javascript methods -->
-	<script src="{{ url_for('static', filename='js/material-dashboard.js') }}"></script>
+<!-- Material Dashboard javascript methods -->
+<script src="{{ url_for('static', filename='js/material-dashboard.js') }}"></script>
 
-	<!-- Material Dashboard DEMO methods, don't include it in your project!
-	<script src="../assets/js/demo.js"></script>
+<!-- Material Dashboard DEMO methods, don't include it in your project!
+<script src="../assets/js/demo.js"></script>
 -->
 
 
-	<!-- Include Required Prerequisites -->
-	<script type="text/javascript" src="https://cdn.jsdelivr.net/momentjs/latest/moment.min.js"></script>
-	<link rel="stylesheet" type="text/css" href="https://cdn.jsdelivr.net/bootstrap/3/css/bootstrap.css" />
+<!-- Include Required Prerequisites -->
+<script type="text/javascript" src="https://cdn.jsdelivr.net/momentjs/latest/moment.min.js"></script>
+<link rel="stylesheet" type="text/css" href="https://cdn.jsdelivr.net/bootstrap/3/css/bootstrap.css" />
 
-	<!-- Include Date Range Picker -->
-	<script type="text/javascript" src="https://cdn.jsdelivr.net/bootstrap.daterangepicker/2/daterangepicker.js"></script>
-	<link rel="stylesheet" type="text/css" href="https://cdn.jsdelivr.net/bootstrap.daterangepicker/2/daterangepicker.css" />
+<!-- Include Date Range Picker -->
+<script type="text/javascript" src="https://cdn.jsdelivr.net/bootstrap.daterangepicker/2/daterangepicker.js"></script>
+<link rel="stylesheet" type="text/css" href="https://cdn.jsdelivr.net/bootstrap.daterangepicker/2/daterangepicker.css" />
 
-	<script type="text/javascript">
-	$(function() {
 
-		var start = moment().subtract(29, 'days');
-		var end = moment();
 
-		function cb(start, end) {
-			$('#reportrange span').html(start.format('MMMM D, YYYY') + ' - ' + end.format('MMMM D, YYYY'));
+<script src="/static/js/base.js"></script>
 
-		}
+<script type="text/javascript">
+$( document ).ready(function() {
+	console.log( "Document ready. Loading period_json." );
 
-		$('#reportrange').daterangepicker({
-			startDate: start,
-			endDate: end,
-			autoApply: true,
-			"startDate": "01/01/2016",
-			"endDate": "12/31/2016",
-			"minDate": "01/01/2016",
-			"maxDate": "12/31/2016",
-			ranges: {
-			   'Today': [moment().subtract(1, 'year'), moment().subtract(1, 'year')],
-			   'Yesterday': [moment().subtract(1, 'days').subtract(1, 'year'), moment().subtract(1, 'days').subtract(1, 'year')],
-			   'Last 7 Days': [moment().subtract(6, 'days').subtract(1, 'year'), moment().subtract(1, 'year')],
-			   'Last 30 Days': [moment().subtract(29, 'days').subtract(1, 'year'), moment().subtract(1, 'year')],
-			   'This Month': [moment().startOf('month').subtract(1, 'year'), moment().endOf('month').subtract(1, 'year')],
-			   'Last Month': [moment().subtract(1, 'month').startOf('month').subtract(1, 'year'), moment().subtract(1, 'month').endOf('month').subtract(1, 'year')],
-			   'Last Year': [moment().startOf('year').subtract(1, 'year'), moment().endOf('year').subtract(1, 'year')]
-			}
-		}, cb);
-
-		cb(start, end);
-
+	$.getJSON( "/period_json", function( period_json ) {
+		update_ui(period_json);
 	});
+});
 
+$("#btn_day").click( function()
+{
+    get_form("{{ url_for('setResolution', resolution='minimal', origin=origin, type=type) }}");
+});
 
-	function numberWithCommas(x) {
-    	return x.toString().replace(/\B(?=(\d{3})+(?!\d))/g, "'");
-	}
+$("#btn_month").click( function()
+{
+    get_form("{{ url_for('setResolution', resolution='daily', origin=origin, type=type) }}");
+});
 
-	$( document ).ready(function() {
-		console.log( "Document ready. Loading period_json." );
+$("#btn_year").click( function()
+{
+    get_form("{{ url_for('setResolution', resolution='monthly', origin=origin, type=type) }}");
+});
 
-		$.getJSON( "/period_json", function( data ) {
-			$('#sum_consumption').text(numberWithCommas(data.sum_consumption.toFixed(0)));
-			$('#sum_production').text(numberWithCommas(data.sum_production.toFixed(0)));
-			$('#self_consumption').text(numberWithCommas(data.kpi_self_consumption.toFixed(1)));
-			$('#mean_distance').text(numberWithCommas(data.kpi_mean_distance.toFixed(1)));
+</script>
 
-			$('#period_name').text(data.name);
+<!-- Additional Footer Here -->
+{% block footer %}
 
-		});
-	});
-
-
-
-
-
-	</script>
-
-	<!-- Additional Footer Here -->
-	{% block footer %}
-
-	{% endblock %}
+{% endblock %}
 
 </html>

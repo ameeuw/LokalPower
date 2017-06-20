@@ -48,30 +48,5 @@
 
 origin = '{{ origin }}';
 
-$(document).ready(function () {
-  $("a").tooltip({
-    'selector': '',
-    'placement': 'top',
-    'container':'body'
-  });
-});
-
-
-$( document ).ready(function() {
-    console.log( "Document ready. Loading period_json." );
-
-    $.getJSON( "/period_json", function( data ) {
-    	period = data;
-        // console.log(period);
-
-		init_pie_charts();
-		reload_pie_charts();
-
-		init_overview_chart();
-		reload_overview_chart();
-
-    });
-});
-
 </script>
 {% endblock %}
