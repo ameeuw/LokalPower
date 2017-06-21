@@ -38,7 +38,7 @@ def setup_data():
     descriptions_df = pd.read_excel('../Daten/users/descriptions.xlsx')
     descriptions_df = descriptions_df.set_index('ID')
 
-    prosumer = 21
+    prosumer = 5
     #prosumer = 15
     #userId = locations.keys()[prosumer]
     user_index = descriptions_df.index[prosumer]
