@@ -44,21 +44,14 @@
 	<div class="wrapper">
 
 		{% block sidebar %}
-		<div class="sidebar" data-color="purple" style="top: 1%; height: 98%;">
+		<div class="sidebar" data-color="purple" style="top: 1%; height: 94%;">
 			<div class="logo">
 				<a href="" class="simple-text">
-					Lokal Power
+					<img src="/static/img/logos/lokalpower.png" style="align-self: center; width: 170px">
 				</a>
-				<br>
-				<div class="simple-text" style="align-self: center;">
-					<img src="/static/img/logos/repower.png" style="align-self: center; width: 170px"></img>
-				</div>
-				<div class="simple-text" style="align-self: center;">
-					<img src="/static/img/logos/unisg.jpg" style="align-self: center; width: 210px"></img>
-				</div>
 			</div>
 
-			<div class="sidebar-wrapper">
+			<div class="sidebar-wrapper" style="height: 78%">
 				<ul class="nav">
 
 					<li id="link_dashboard">
@@ -106,7 +99,20 @@
 				</ul>
 			</div>
 
+
+
+			<div style="position: relative; left: 20px;">
+				<a href="https://www.repower.com"><img src="/static/img/logos/repower.png" style="width: 200px"></a>
+			</div>
+			<div style="position: relative; left: 20px; top: 10px;">
+				<a href="https://unisg.ch/">
+					<img src="/static/img/logos/unisg.png" style="width: 200px">
+				</a>
+			</div>
+
+
 		</div>
+
 		{% endblock %}
 
 	    <div class="main-panel">
