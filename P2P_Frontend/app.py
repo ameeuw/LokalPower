@@ -11,6 +11,7 @@ from flask import Flask, render_template, url_for, request, send_file
 from geopy.distance import vincenty
 import pickle
 from datetime import datetime
+from datetime import timedelta
 import calendar
 import locale
 import base64
@@ -37,7 +38,7 @@ def setup_data():
     descriptions_df = pd.read_excel('../Daten/users/descriptions.xlsx')
     descriptions_df = descriptions_df.set_index('ID')
 
-    prosumer = 5
+    prosumer = 21
     #prosumer = 15
     #userId = locations.keys()[prosumer]
     user_index = descriptions_df.index[prosumer]
@@ -184,7 +185,12 @@ def get_period(resolution='monthly', month_index=None, day_index=None):
         name = datetime.strftime(start_date, '%B %Y')
         # print(name)
 
-        categories = range(1, last_day_in_month+1)
+        categories = []
+        for day in range(0, last_day_in_month):
+            current_date = start_date + timedelta(days=day)
+            categories.append(datetime.strftime(current_date, '%a, %d.%m.'))
+
+        # categories = range(1, last_day_in_month+1)
 
         demand = user.demand_by_day[start:stop]
         production = user.production_by_day[start:stop]
@@ -410,10 +416,15 @@ def generate_map_json(aggregated, type='sources', root='http://127.0.0.1:5000/')
                 map_dictionary['markers'].append(marker_dictionary)
                 map_dictionary['paths'].append([user.location, locations[s_id]])
 
-    if type=="sinks":
-        share = aggregated[user.index]['energy'] / user.period['sum_production'] / 10
+
+    if user.period['sum_production'] > 0:
+
+        if type=="sinks":
+            share = aggregated[user.index]['energy'] / user.period['sum_production'] / 10
+        else:
+            share = aggregated[user.index]['energy'] / user.period['sum_consumption'] / 10
     else:
-        share = aggregated[user.index]['energy'] / user.period['sum_consumption'] / 10
+        share = 0
 
     iframe = render_template('tooltip.html', photo=descriptions_df.loc[user.index]['PHOTO'],
                              name=descriptions[user.index]['NAME'], share=share,
@@ -438,11 +449,6 @@ def startup():
 app.config['DEBUG'] = True
 
 
-@app.route("/")
-def home():
-    return render_template('dashboard.html', user=user, descriptions=descriptions, type='sources', origin='dashboard.html')
-
-
 @app.after_request
 def add_header(response):
     response.cache_control.max_age = 0
@@ -450,9 +456,31 @@ def add_header(response):
     return response
 
 
-@app.route('/leaflet')
-def leaflet():
-    return send_file('leaflet.html')
+@app.route("/")
+def home():
+    return render_template('dashboard.html', user=user, descriptions=descriptions, type='sources', origin='dashboard.html')
+
+
+@app.route("/osmaps/<string:type>/")
+def osmaps(type='sources'):
+    return render_template('maps.html', user=user, descriptions=descriptions, type=type, origin='maps.html', root=request.url_root)
+
+
+@app.route("/details/<string:type>/")
+def details(type='sources'):
+    return render_template('details.html', user=user, descriptions=descriptions, type=type, origin='details.html', root=request.url_root)
+
+
+@app.route("/battery", methods=["GET","POST"])
+def battery():
+    set_period()
+    EbatR=4.0
+    if request.method=='POST':
+        EbatR=float(request.form['BatteryCapacity'])
+
+    user.prosumerSim(EbatR=EbatR)
+
+    return render_template('batterySim.html', user=user, BatterySize=EbatR, origin='batterySim.html', type='sources')
 
 
 @app.route('/descriptions_json/')
@@ -479,49 +507,28 @@ def maps_json(type='sources'):
 
     return maps_json
 
-@app.route("/osmaps/<string:type>/")
-def osmaps(type='sources'):
-    return render_template('maps.html', user=user, descriptions=descriptions, type=type, origin='maps.html', root=request.url_root)
 
-
-@app.route("/details/<string:type>/")
-def details(type='sources'):
-
-    return render_template('details.html', user=user, descriptions=descriptions, type=type, origin='details.html', root=request.url_root)
-
-
-@app.route("/setResolution/<string:resolution>/<string:origin>/<string:type>")
-def setResolution(resolution='monthly', origin='dashboard.html', type='sources'):
+@app.route("/setResolution/<string:resolution>/")
+def setResolution(resolution='monthly'):
     set_period(resolution=resolution)
-
     print('Setting user resolution to {}'.format(resolution))
-
-    # return render_template(origin, user=user, descriptions=descriptions, origin=origin, type=type, root=request.url_root)
     return json.dumps(user.period)
 
-@app.route("/setMinimalPeriod/<int:day>/<string:origin>/<string:type>/")
-def setMinimalPeriod(day=10, origin='dashboard.html', type=None):
+@app.route("/setMinimalPeriod/<int:day>/")
+def setMinimalPeriod(day=10):
     set_period('minimal', month_index=None, day_index=day)
-
-    # return render_template(origin, type=type, user=user, descriptions=descriptions, origin=origin, root=request.url_root)
     return json.dumps(user.period)
 
-@app.route("/setDailyPeriod/<int:month>/<string:origin>/<string:type>/")
-def setDailyPeriod(month=0, origin='dashboard.html', type=None):
+@app.route("/setDailyPeriod/<int:month>/")
+def setDailyPeriod(month=0):
     set_period('daily', month_index=month)
-
-    # return render_template(origin, type=type, user=user, descriptions=descriptions, origin=origin, root=request.url_root)
     return json.dumps(user.period)
 
 @app.route("/move", methods=['GET','POST'])
 def move():
-    origin = 'dashboard.html'
     direction = 'next'
     if request.method=='POST':
-        print(request.form)
         direction = request.form['direction']
-
-        print(direction)
 
     if direction == 'up':
         if user.period['resolution'] == 'minimal':
@@ -550,20 +557,7 @@ def move():
             day_index = min(limit_value, day_index)
             set_period('minimal', day_index=day_index)
 
-    # return render_template(origin, user=user, descriptions=descriptions, origin=origin, type=type, root=request.url_root)
     return json.dumps(user.period)
-
-@app.route("/battery", methods=["GET","POST"])
-def battery():
-
-    EbatR=4.0
-    if request.method=='POST':
-        EbatR=float(request.form['BatteryCapacity'])
-
-    user.prosumerSim(EbatR=EbatR)
-
-    return render_template('batterySim.html', user=user, BatterySize=EbatR, origin='batterySim.html', type='sources')
-
 
 if __name__ == "__main__":
     #setup_data()

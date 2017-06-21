@@ -2,6 +2,10 @@ $("#btn_previous").click(function() { post_form("/move", {direction: 'previous'}
 $("#btn_next").click(    function() { post_form("/move", {direction: 'next'}); });
 $("#period_name").click( function() { post_form("/move", {direction: 'up'}); });
 
+$("#btn_day").click( function() { get_form("/setResolution/minimal"); });
+$("#btn_month").click( function() { get_form("/setResolution/daily"); });
+$("#btn_year").click( function() { get_form("/setResolution/monthly"); });
+
 
 function numberWithCommas(x) {
     return x.toString().replace(/\B(?=(\d{3})+(?!\d))/g, "'");
@@ -30,6 +34,37 @@ function reload_ui_elements(period_json)
         $("#btn_year").addClass("active");
     else
         $("#btn_year").removeClass("active");
+
+
+    if (origin == 'dashboard.html')
+        $('#link_dashboard').addClass('active');
+    else
+        $('#link_dashboard').removeClass('active');
+
+    if ( (origin == 'maps.html') && (type == 'sources') )
+        $('#link_maps_consumption').addClass('active');
+    else
+        $('#link_maps_consumption').removeClass('active');
+
+    if ( (origin == 'details.html') && (type == 'sources') )
+        $('#link_details_consumption').addClass('active');
+    else
+        $('#link_details_consumption').removeClass('active');
+
+    if ( (origin == 'maps.html') && (type == 'sinks') )
+        $('#link_maps_production').addClass('active');
+    else
+        $('#link_maps_production').removeClass('active');
+
+    if ( (origin == 'details.html') && (type == 'sinks') )
+        $('#link_details_production').addClass('active');
+    else
+        $('#link_details_production').removeClass('active');
+
+    if (origin == 'batterySim.html')
+        $('#link_battery_simulator').addClass('active');
+    else
+        $('#link_battery_simulator').removeClass('active');
 }
 
 function get_form(url)

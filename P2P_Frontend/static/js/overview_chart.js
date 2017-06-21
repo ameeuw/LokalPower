@@ -145,7 +145,7 @@ function reload_overview_chart(period_json)
     {
         overview_chart_options.plotOptions.series.point.events.click = function() {
                                                                             // location.href='/setDailyPeriod/' + this.index + '/' + origin + '/' + 'all';
-                                                                            get_form('/setDailyPeriod/' + this.index + '/' + origin + '/' + 'all');
+                                                                            get_form('/setDailyPeriod/' + this.index + '/');
                                                                             };
     }
     else if (period_json.resolution == 'daily')
@@ -154,7 +154,7 @@ function reload_overview_chart(period_json)
                                                                             // add up start of period and clicked day in month
                                                                             day = period_json.start + this.index;
                                                                             // location.href='/setMinimalPeriod/' + day + '/' + origin + '/' + 'all';
-                                                                            get_form('/setMinimalPeriod/' + day + '/' + origin + '/' + 'all');
+                                                                            get_form('/setMinimalPeriod/' + day + '/');
                                                                             };
     }
     else if (period_json.resolution == 'minimal')

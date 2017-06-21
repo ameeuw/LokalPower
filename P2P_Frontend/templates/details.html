@@ -3,81 +3,6 @@
 {% block title %}Dashboard{% endblock %}
 
 <div class="wrapper">
-	{% block sidebar %}
-
-		<div class="sidebar" data-color="purple">
-			<!--
-				Tip 1: You can change the color of the sidebar using: data-color="purple | blue | green | orange | red"
-
-				Tip 2: you can also add an image using data-image tag
-			-->
-
-			<div class="logo">
-				<a href="" class="simple-text">
-					Lokal Power
-				</a>
-				<br>
-				<div class="simple-text" style="align-self: center;">
-					<img src="/static/img/logos/repower.png" style="align-self: center; width: 170px"></img>
-				</div>
-				<div class="simple-text" style="align-self: center;">
-					<img src="/static/img/logos/unisg.jpg" style="align-self: center; width: 210px"></img>
-				</div>
-			</div>
-
-				<div class="sidebar-wrapper">
-					<ul class="nav">
-						<li>
-							<a href="{{ url_for('home') }}">
-								<i class="material-icons">dashboard</i>
-								<p>Übersicht</p>
-							</a>
-						</li>
-
-						<li>
-							<a href="{{ url_for('osmaps', type='sources') }}">
-								<i class="material-icons">location_on</i>
-								<p>Verbrauch: Karte</p>
-							</a>
-						</li>
-						<li
-						{% if type == 'sources' %}
-						 class="active"
-						{% endif %}>
-							<a href="{{ url_for('details', type='sources') }}">
-								<i class="fa fa-share-alt" aria-hidden="true"></i>
-								<p>Verbrauch: Details</p>
-							</a>
-						</li>
-
-						<li>
-							<a href="{{ url_for('osmaps', type='sinks') }}">
-								<i class="material-icons">location_on</i>
-								<p>Produktion: Karte</p>
-							</a>
-						</li>
-						<li
-						{% if type == 'sinks' %}
-						 class="active"
-						{% endif %}>
-							<a href="{{ url_for('details', type='sinks') }}">
-								<i class="fa fa-share-alt" aria-hidden="true"></i>
-								<p>Produktion: Details</p>
-							</a>
-						</li>
-
-						<li>
-							<a href="{{ url_for('battery') }}">
-								<i class="fa fa-battery-half" aria-hidden="true"></i>
-								<p>PV-Batterie Simulation</p>
-							</a>
-						</li>
-					</ul>
-				</div>
-			</div>
-
-	{% endblock %}
-
 	<div class="main-panel">
 		{% block body %}
 		<div class="container-fluid">
@@ -100,9 +25,4 @@
 
 {% block footer %}
 <script src="/static/js/details_chart.js"></script>
-
-<script>
-type = '{{ type }}';
-origin = '{{ origin }}';
-</script>
 {% endblock %}

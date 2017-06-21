@@ -2,70 +2,6 @@
 {% block title %}Dashboard{% endblock %}
 
 <div class="wrapper">
-	{% block sidebar %}
-
-		<div class="sidebar" data-color="purple">
-
-			<div class="logo">
-				<a href="" class="simple-text">
-					Lokal Power
-				</a>
-				<br>
-				<div class="simple-text" style="align-self: center;">
-					<img src="/static/img/logos/repower.png" style="align-self: center; width: 170px"></img>
-				</div>
-				<div class="simple-text" style="align-self: center;">
-					<img src="/static/img/logos/unisg.jpg" style="align-self: center; width: 210px"></img>
-				</div>
-			</div>
-
-				<div class="sidebar-wrapper">
-					<ul class="nav">
-						<li>
-							<a href="{{ url_for('home') }}">
-								<i class="material-icons">dashboard</i>
-								<p>Übersicht</p>
-							</a>
-						</li>
-
-						<li>
-							<a href="{{ url_for('osmaps', type='sources') }}">
-								<i class="material-icons">location_on</i>
-								<p>Verbrauch: Karte</p>
-							</a>
-						</li>
-						<li >
-							<a href="{{ url_for('details', type='sources') }}">
-								<i class="fa fa-share-alt" aria-hidden="true"></i>
-								<p>Verbrauch: Details</p>
-							</a>
-						</li>
-
-						<li>
-							<a href="{{ url_for('osmaps', type='sinks') }}">
-								<i class="material-icons">location_on</i>
-								<p>Produktion: Karte</p>
-							</a>
-						</li>
-						<li >
-							<a href="{{ url_for('details', type='sinks') }}">
-								<i class="fa fa-share-alt" aria-hidden="true"></i>
-								<p>Produktion: Details</p>
-							</a>
-						</li>
-
-						<li class="active">
-							<a href="{{ url_for('battery') }}">
-								<i class="fa fa-battery-half" aria-hidden="true"></i>
-								<p>PV-Batterie Simulation</p>
-							</a>
-						</li>
-					</ul>
-				</div>
-			</div>
-
-	{% endblock %}
-
 	<div class="main-panel">
 		<div class="content">
 		{% block body %}
@@ -82,7 +18,7 @@
 							<center>
 								<form class="well" style="height: 28%;" role="form" method="post" action="{{ url_for('battery') }}">
 									<div class="" role="group">
-										<span style="vertical-align: middle;">Batterie</span>
+										<span style="vertical-align: bottom; font-size: 20px; font-weight: bold;">Batterie: </span>
 										<button name="BatteryCapacity" class="btn {% if BatterySize==4.0  %}active{% endif %}" value="4"  style="text-transform: none;">S ( 4 kWh, ca. 9'000.- )</button>
 										<button name="BatteryCapacity" class="btn {% if BatterySize==8.0  %}active{% endif %}" value="8"  style="text-transform: none;">M ( 8 kWh, ca. 11'000.- )</button>
 										<button name="BatteryCapacity" class="btn {% if BatterySize==12.0 %}active{% endif %}" value="12" style="text-transform: none;">L ( 12 kWh, ca. 15'000.- )</button>

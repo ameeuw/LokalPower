@@ -9,8 +9,6 @@
 	<link rel="apple-touch-icon" sizes="76x76" href="../assets/img/apple-icon.png" />
 	<link rel="icon" type="image/png" href="../assets/img/favicon.png" />
 	<meta http-equiv="X-UA-Compatible" content="IE=edge,chrome=1" />
-
-
 	<meta content='width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=0' name='viewport' />
     <meta name="viewport" content="width=device-width" />
 
@@ -26,48 +24,27 @@
 	<!-- Color Definitions -->
 	<link href="{{ url_for('static', filename='css/color-definitions.css' ) }}" rel="stylesheet"/>
 
-    <!--  CSS for Demo Purpose, don't include it in your project
-    <link href="../assets/css/demo.css" rel="stylesheet" />
- -->
-
-
 	<!-- Latest compiled and minified CSS -->
 	<link rel="stylesheet" href="https://maxcdn.bootstrapcdn.com/bootstrap/3.3.7/css/bootstrap.min.css"
 		integrity="sha384-BVYiiSIFeK1dGmJRAkycuHAHRg32OmUcww7on3RYdg4Va+PmSTsz/K68vbdEjh4u" crossorigin="anonymous">
-
-
 
 	<!-- Latest compiled and minified JavaScript -->
 	<script src="https://maxcdn.bootstrapcdn.com/bootstrap/3.3.7/js/bootstrap.min.js"
 		integrity="sha384-Tc5IQib027qvyjSMfHjOMaLkfuWVxZxUPnCJA7l2mCWNIpG9mGCD8wGNIcPD7Txa" crossorigin="anonymous"></script>
 
-
     <!--     Fonts and icons     -->
     <link href="https://maxcdn.bootstrapcdn.com/font-awesome/latest/css/font-awesome.min.css" rel="stylesheet">
     <link href='https://fonts.googleapis.com/css?family=Roboto:400,700,300|Material+Icons' rel='stylesheet' type='text/css'>
-    
-    
-   <script src="https://use.fontawesome.com/a0a5a9decc.js"></script>
-
-   {% block header %} {% endblock %}
-
+	<script src="https://use.fontawesome.com/a0a5a9decc.js"></script>
+	{% block header %}
+	{% endblock %}
 </head>
 
 <body>
-
-
-
 	<div class="wrapper">
 
 		{% block sidebar %}
-
-		<div class="sidebar" data-color="purple">
-			<!--
-				Tip 1: You can change the color of the sidebar using: data-color="purple | blue | green | orange | red"
-
-				Tip 2: you can also add an image using data-image tag
-			-->
-
+		<div class="sidebar" data-color="purple" style="top: 1%; height: 98%;">
 			<div class="logo">
 				<a href="" class="simple-text">
 					Lokal Power
@@ -83,41 +60,43 @@
 
 			<div class="sidebar-wrapper">
 				<ul class="nav">
-					<li class="active">
+
+					<li id="link_dashboard">
 						<a href="{{ url_for('home') }}">
 							<i class="material-icons">dashboard</i>
-
 							<p>Übersicht</p>
 						</a>
 					</li>
 
-					<li>
+					<li id="link_maps_consumption">
 						<a href="{{ url_for('osmaps', type='sources') }}">
 							<i class="material-icons">location_on</i>
 							<p>Verbrauch: Karte</p>
 						</a>
 					</li>
-					<li >
+
+					<li id="link_details_consumption">
 						<a href="{{ url_for('details', type='sources') }}">
 							<i class="fa fa-share-alt" aria-hidden="true"></i>
 							<p>Verbrauch: Details</p>
 						</a>
 					</li>
 
-					<li>
+					<li id="link_maps_production">
 						<a href="{{ url_for('osmaps', type='sinks') }}">
 							<i class="material-icons">location_on</i>
 							<p>Produktion: Karte</p>
 						</a>
 					</li>
-					<li >
+
+					<li id="link_details_production">
 						<a href="{{ url_for('details', type='sinks') }}">
 							<i class="fa fa-share-alt" aria-hidden="true"></i>
 							<p>Produktion: Details</p>
 						</a>
 					</li>
 
-					<li >
+					<li id="link_battery_simulator">
 						<a href="{{ url_for('battery') }}">
 							<i class="fa fa-battery-half" aria-hidden="true"></i>
 							<p>PV-Batterie Simulation</p>
@@ -125,14 +104,10 @@
 					</li>
 
 				</ul>
-
 			</div>
 
 		</div>
-
 		{% endblock %}
-
-
 
 	    <div class="main-panel">
 			{% block navheader %}
@@ -146,7 +121,6 @@
 							<span class="icon-bar"></span>
 						</button>
 					</div>
-
 				</div>
 			</nav>
 
@@ -160,23 +134,19 @@
 
 						<div class="col-md-6">
 							<center>
-									<input name="origin" value="{{ origin }}" type="hidden">
-									<input name="type" value="{{ type }}" type="hidden">
-									<input name="direction" value="next" type="hidden">
-									<button id="btn_previous" class="btn btn-default btn-md" name="direction" value="previous" style="height: 50px">
-									  <span class="glyphicon glyphicon-chevron-left" aria-hidden="true"></span>
-									</button>
+								<button id="btn_previous" class="btn btn-default btn-md" name="direction" value="previous" style="height: 50px">
+								  <span class="glyphicon glyphicon-chevron-left" aria-hidden="true"></span>
+								</button>
 
-									<button class="btn btn-default btn-md" id="period_name" name="direction" value="up" style="width: 70%; height: 50px; font-size: 130%"></button>
+								<button class="btn btn-default btn-md" id="period_name" name="direction" value="up" style="width: 70%; height: 50px; font-size: 130%"></button>
 
-									<button id="btn_next" class="btn btn-default btn-md" name="direction" value="next" style="height: 50px">
-									  <span class="glyphicon glyphicon-chevron-right" aria-hidden="true"></span>
-									</button>
+								<button id="btn_next" class="btn btn-default btn-md" name="direction" value="next" style="height: 50px">
+								  <span class="glyphicon glyphicon-chevron-right" aria-hidden="true"></span>
+								</button>
 							</center>
 						</div>
 
 						<div class="col-md-3" style="align: right">
-							<!--<button id="post_btn" class="btn" name="direction" value="next">ABSCHICKEN!</button>-->
 							<div class="btn-group" role="group" aria-label="Resolution">
 								<button id="btn_day" type="button" style="height: 50px; font-size: 110%" class="btn btn">Tag</button>
 								<button id="btn_month" type="button" style="height: 50px; font-size: 110%" class="btn btn">Monat</button>
@@ -188,6 +158,8 @@
                 </div>
 
 				<div class="row">
+
+
 					<div class="col-md-3">
 						<div class="card card-stats">
 							<div class="card-header" style="background-color: var(--consumption-color);">
@@ -240,43 +212,27 @@
 							</div>
 						</div>
 					</div>
+
+
 				</div>
 			</div>
 
 			{%endblock%}
 
 			{% block body %}
-
-			<div class="content">
-			</div>
-
 			{% endblock %}
 		</div>
 	</div>
-
-
 </body>
 
 <!--   Core JS Files   -->
 <script src="{{ url_for('static', filename='js/material.min.js') }}" type="text/javascript"></script>
 
-<!--  Charts Plugin
-<script src="../assets/js/chartist.min.js"></script>
--->
-
 <!--  Notifications Plugin    -->
 <script src="{{ url_for('static', filename='js/bootstrap-notify.js') }}"></script>
 
-<!--  Google Maps Plugin    -->
-<!--<script type="text/javascript" src="https://maps.googleapis.com/maps/api/js"></script>-->
-
 <!-- Material Dashboard javascript methods -->
 <script src="{{ url_for('static', filename='js/material-dashboard.js') }}"></script>
-
-<!-- Material Dashboard DEMO methods, don't include it in your project!
-<script src="../assets/js/demo.js"></script>
--->
-
 
 <!-- Include Required Prerequisites -->
 <script type="text/javascript" src="https://cdn.jsdelivr.net/momentjs/latest/moment.min.js"></script>
@@ -291,27 +247,16 @@
 <script src="/static/js/base.js"></script>
 
 <script type="text/javascript">
+
+origin = '{{ origin }}';
+type = '{{ type }}';
+
 $( document ).ready(function() {
 	console.log( "Document ready. Loading period_json." );
 
 	$.getJSON( "/period_json", function( period_json ) {
 		update_ui(period_json);
 	});
-});
-
-$("#btn_day").click( function()
-{
-    get_form("{{ url_for('setResolution', resolution='minimal', origin=origin, type=type) }}");
-});
-
-$("#btn_month").click( function()
-{
-    get_form("{{ url_for('setResolution', resolution='daily', origin=origin, type=type) }}");
-});
-
-$("#btn_year").click( function()
-{
-    get_form("{{ url_for('setResolution', resolution='monthly', origin=origin, type=type) }}");
 });
 
 </script>
