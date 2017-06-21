@@ -72,7 +72,6 @@ function reload_details_chart(period_json)
     if (period_json.resolution == 'monthly')
     {
         details_chart_options.plotOptions.series.point.events.click = function() {
-                                                                            // location.href='/setDailyPeriod/' + this.index + '/' + origin + '/' + 'all';
                                                                             get_form('/setDailyPeriod/' + this.index + '/');
                                                                             };
     }
@@ -82,7 +81,6 @@ function reload_details_chart(period_json)
         details_chart_options.plotOptions.series.point.events.click = function() {
                                                                             // add up start of period and clicked day in month
                                                                             day = period_json.start + this.index;
-                                                                            // location.href='/setMinimalPeriod/' + day + '/' + origin + '/' + 'all';
                                                                             get_form('/setMinimalPeriod/' + day + '/');
                                                                             };
     }
@@ -98,7 +96,8 @@ function reload_details_chart(period_json)
         var categorized = period_json.categorized_connections;
 
 	var series = []
-	for (var key in categorized)
+	keys = {'self':0, 'local':1, 'grisons':2, 'other':3};
+	for (var key in keys)
 	{
 		var series_json = {};
 		var category_json = categorized[key];
