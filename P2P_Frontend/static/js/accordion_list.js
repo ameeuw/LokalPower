@@ -14,11 +14,13 @@ function reload_accordion_list(period_json)
             $('#local_header_table td').remove();
             $('#local_header_table').append( $('<td style="padding-right:5px;"></td>').html(period_json.categorized_deliveries.local.sum.toFixed(1) + ' kWh') );
             $('#local_header_table').append( $('<td></td>').html('(' + (period_json.categorized_deliveries.local.sum / period_json.sum_production * 100).toFixed(1) + ' %)') );
+            $('#local_s_title').text('Bezüger');
 
             $('#grisons_title').text('Einspeisung Graubünden');
             $('#grisons_header_table td').remove();
             $('#grisons_header_table').append( $('<td style="padding-right:5px;"></td>').html(period_json.categorized_deliveries.grisons.sum.toFixed(1) + ' kWh') );
             $('#grisons_header_table').append( $('<td></td>').html('(' + (period_json.categorized_deliveries.grisons.sum / period_json.sum_production * 100).toFixed(1) + ' %)') );
+            $('#grisons_s_title').text('Bezüger');
 
             $('#other_title').text('Einspeisung Schweiz');
             $('#other_header_table td').remove();
@@ -41,11 +43,13 @@ function reload_accordion_list(period_json)
             $('#local_header_table td').remove();
             $('#local_header_table').append( $('<td style="padding-right:5px;"></td>').html(period_json.categorized_connections.local.sum.toFixed(1) + ' kWh') );
             $('#local_header_table').append( $('<td></td>').html('(' + (period_json.categorized_connections.local.sum / period_json.sum_consumption * 100).toFixed(1) + ' %)') );
+            $('#local_s_title').text('Quelle');
 
             $('#grisons_title').text('Bezug Graubünden');
             $('#grisons_header_table td').remove();
             $('#grisons_header_table').append( $('<td style="padding-right:5px;"></td>').html(period_json.categorized_connections.grisons.sum.toFixed(1) + ' kWh') );
             $('#grisons_header_table').append( $('<td></td>').html('(' + (period_json.categorized_connections.grisons.sum / period_json.sum_consumption * 100).toFixed(1) + ' %)') );
+            $('#grisons_s_title').text('Quelle');
 
             $('#other_title').text('Bezug Schweiz');
             $('#other_header_table td').remove();

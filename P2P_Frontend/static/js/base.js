@@ -72,7 +72,9 @@ function get_form(url)
     $.get(url, function(data)
     {
         period_json = JSON.parse(data);
-        update_ui(period_json);
+        // update_ui(period_json);
+        reload_ui_elements(period_json);
+        update_data(period_json);
     });
 }
 
@@ -81,13 +83,52 @@ function post_form(url, payload)
     $.post(url, payload, function(data)
     {
         period_json = JSON.parse(data);
-        update_ui(period_json);
+        //update_ui(period_json);
+        reload_ui_elements(period_json);
+        update_data(period_json);
     });
+}
+
+function update_data(period_json)
+{
+    if (typeof reload_pie_charts_data === "function")
+    {
+        reload_pie_charts_data(period_json);
+    }
+
+
+    if (typeof reload_overview_chart === "function")
+    {
+        init_overview_chart(period_json);
+        reload_overview_chart(period_json);
+    }
+
+
+    if (typeof reload_accordion_list === "function")
+    {
+        reload_accordion_list(period_json);
+    }
+
+
+    if (typeof reload_details_chart === "function")
+    {
+        init_details_chart();
+        reload_details_chart(period_json);
+    }
+
+    if (typeof init_map === "function")
+    {
+        deinit_map();
+        $.getJSON( "/map_json/"+type, function( map_json ) {
+            build_map(map_json);
+        });
+    }
+
 }
 
 function update_ui(period_json)
 {
-    console.log("UI Update");
+    console.log("UI Init");
 
     reload_ui_elements(period_json);
 

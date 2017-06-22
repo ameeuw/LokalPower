@@ -67,6 +67,7 @@ function init_pie_charts()
 		}
 	};
 
+
 	pie_chart_deliveries_options =
 	{
 		chart: {
@@ -156,9 +157,28 @@ function build_tooltip(legend, keyword, text)
 	}
 }
 
+function reload_pie_charts_data(period_json)
+{
+    var data = [];
+	for (var key in period_json.categorized_connections)
+	{
+		var category_json = period_json.categorized_connections[key];
+		data.push(category_json.sum);
+	}
+	pie_chart_connections.series[0].setData(data);
+
+    var data = [];
+	for (var key in period_json.categorized_deliveries)
+	{
+		var category_json = period_json.categorized_deliveries[key];
+		data.push(category_json.sum);
+	}
+	pie_chart_deliveries.series[0].setData(data);
+}
+
 function reload_pie_charts(period_json)
 {
-	var data = []
+	var data = [];
 	for (var key in period_json.categorized_connections)
 	{
 		var data_json = {};
@@ -171,6 +191,7 @@ function reload_pie_charts(period_json)
 	}
 	pie_chart_connections_options.series[0].data = data;
 	pie_chart_connections_options.title.text = 'Verbrauch (' + numberWithCommas(period_json.sum_consumption.toFixed(1)) + ' kWh)';
+
 	pie_chart_connections = Highcharts.chart('pie_chart_connections', pie_chart_connections_options);
 
     build_tooltip(pie_chart_connections.legend, 'Selbstversorgung', text_self_consumption);
@@ -189,6 +210,7 @@ function reload_pie_charts(period_json)
 	}
 	pie_chart_deliveries_options.series[0].data = data;
 	pie_chart_deliveries_options.title.text = 'Produktion (' + numberWithCommas(period_json.sum_production.toFixed(1)) + ' kWh)';
+
 	pie_chart_deliveries = Highcharts.chart('pie_chart_deliveries', pie_chart_deliveries_options);
 
 	build_tooltip(pie_chart_deliveries.legend, 'Eigenverbrauch', text_autarky);

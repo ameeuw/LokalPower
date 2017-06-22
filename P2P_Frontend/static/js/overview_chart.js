@@ -133,6 +133,13 @@ function init_overview_chart(period_json)
 	};
 }
 
+function reload_overview_chart_data(period_json)
+{
+    overview_chart.series[0].setData(period_json.demand);
+    overview_chart.series[1].setData(period_json.production);
+    overview_chart.series[2].setData(period_json.self_consumption);
+}
+
 
 function reload_overview_chart(period_json)
 {
