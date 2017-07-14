@@ -57,7 +57,7 @@ function reload_accordion_list(period_json)
             $('#other_header_table').append( $('<td></td>').html('(' + (period_json.categorized_connections.other.sum / period_json.sum_consumption * 100).toFixed(1) + ' %)') );
 
 
-            if ( (period_json.categorized_connections.local.sum == 0) && (period_json.categorized_connections.local.sum == 0) )
+            if ( (period_json.categorized_connections.local.sum == 0) && (period_json.categorized_connections.grisons.sum > 0) )
             {
                 $("#collapse1").removeClass("in");
                 $("#collapse2").addClass("in");
