@@ -166,6 +166,7 @@ function reload_pie_charts_data(period_json)
 		data.push(category_json.sum);
 	}
 	pie_chart_connections.series[0].setData(data);
+	pie_chart_connections.setTitle({text: 'Verbrauch (' + numberWithCommas(period_json.sum_consumption.toFixed(1)) + ' kWh)'});
 
     var data = [];
 	for (var key in period_json.categorized_deliveries)
@@ -174,6 +175,7 @@ function reload_pie_charts_data(period_json)
 		data.push(category_json.sum);
 	}
 	pie_chart_deliveries.series[0].setData(data);
+	pie_chart_deliveries.setTitle({text: 'Produktion (' + numberWithCommas(period_json.sum_production.toFixed(1)) + ' kWh)'});
 }
 
 function reload_pie_charts(period_json)
@@ -191,6 +193,7 @@ function reload_pie_charts(period_json)
 	}
 	pie_chart_connections_options.series[0].data = data;
 	pie_chart_connections_options.title.text = 'Verbrauch (' + numberWithCommas(period_json.sum_consumption.toFixed(1)) + ' kWh)';
+	console.log(period_json.sum_consumption);
 
 	pie_chart_connections = Highcharts.chart('pie_chart_connections', pie_chart_connections_options);
 
