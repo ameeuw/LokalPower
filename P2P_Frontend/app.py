@@ -460,6 +460,14 @@ def add_header(response):
 def home():
     return render_template('dashboard.html', user=user, descriptions=descriptions, type='sources', origin='dashboard.html')
 
+@app.route("/mbs1")
+def mbs1():
+    return render_template('mbs1.html', user=user, descriptions=descriptions, type='sources', origin='dashboard.html')
+@app.route("/mbs2")
+def mbs2():
+    return render_template('mbs2.html', user=user, descriptions=descriptions, type='sources', origin='dashboard.html')
+
+
 
 @app.route("/osmaps/<string:type>/")
 def osmaps(type='sources'):
@@ -561,4 +569,4 @@ def move():
 
 if __name__ == "__main__":
     #setup_data()
-    app.run(threaded=True)
+    app.run(threaded=True, host='0.0.0.0')
