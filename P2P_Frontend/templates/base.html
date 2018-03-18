@@ -44,10 +44,10 @@
 	<div class="wrapper">
 
 		{% block sidebar %}
-		<div class="sidebar" data-color="purple" style="top: 1%; height: 94%;">
+		<div class="sidebar" data-color="white" style="top: 1%; height: 94%;">
 			<div class="logo">
 				<a href="" class="simple-text">
-					<img src="/static/img/logos/lokalpower.png" style="align-self: center; width: 170px">
+					<img src="/static/img/logos/lokalpower.png" style="align-self: center; width: 52%">
 				</a>
 			</div>
 
@@ -101,9 +101,9 @@
 
 
 
-			<div style="position: relative; left: 20px;">
+			<!-- <div style="position: relative; left: 20px;">
 				<a href="https://www.repower.com"><img src="/static/img/logos/repower.png" style="width: 200px"></a>
-			</div>
+			</div> -->
 			<div style="position: relative; left: 20px; top: 10px;">
 				<a href="https://unisg.ch/">
 					<img src="/static/img/logos/unisg.png" style="width: 200px">
@@ -115,24 +115,11 @@
 
 		{% endblock %}
 
-	    <div class="main-panel">
+	  <!-- <div class="main-panel"> -->
 			{% block navheader %}
-			<nav class="navbar navbar-transparent navbar-absolute">
-				<div class="container-fluid">
-					<div class="navbar-header">
-						<button type="button" class="navbar-toggle" data-toggle="collapse">
-							<span class="sr-only">Toggle navigation</span>
-							<span class="icon-bar"></span>
-							<span class="icon-bar"></span>
-							<span class="icon-bar"></span>
-						</button>
-					</div>
-				</div>
-			</nav>
+			<!-- <div class="container"> -->
 
-			<div class="container">
-
-				<div class="well">
+				<!-- <div class="well" style="">
                 	<div class="row">
 
 						<div class="col-md-3"></div>
@@ -161,15 +148,14 @@
 						</div>
 
 					</div>
-                </div>
+        </div> -->
 
-				<div class="row">
+				<!-- <div class="row" style="height:200px;"> -->
 
-
-					<div class="col-md-3">
-						<div class="card card-stats">
-							<div class="card-header" style="background-color: var(--consumption-color);">
-								<img src="/static/img/consumption.png" style="height: 50px; width: 50px;">
+					<!-- <div class="col col-sm-3 col-md-3">
+						<div class="card card-stats" style="height:40%; width: 100%;">
+							<div class="card-header" style="height:50%; width: 50%; background-color: var(--consumption-color);">
+								<img src="/static/img/consumption.png" style="">
 								<i class="" aria-hidden="true"></i>
 
 							</div>
@@ -178,12 +164,12 @@
 								<h4 class="title"><span id="sum_consumption"></span><small> kWh</small></h4>
 							</div>
 						</div>
-					</div>
+					</div> -->
 
 
-					<div class="col-md-3">
-						<div class="card card-stats">
-							<div class="card-header" style="background-color: var(--production-color);">
+					<!-- <div class="col col-sm-3 col-md-3">
+						<div class="card card-stats" style="height:40%; width: 100%;">
+							<div class="card-header" style="height:50%; width: 50%; background-color: var(--production-color);">
 								<img src="/static/img/production.png" style="height: 50px; width: 50px;">
 							</div>
 							<div class="card-content">
@@ -191,12 +177,12 @@
 								<h4 class="title"><span id="sum_production"></span><small> kWh</small></h4>
 							</div>
 						</div>
-					</div>
+					</div> -->
 
 
-					<div class="col-md-3">
-						<div class="card card-stats">
-							<div class="card-header" style="background-color: var(--self-consumption-color);">
+					<!-- <div class="col col-sm-3 col-md-3">
+						<div class="card card-stats" style="height:40%; width: 100%;">
+							<div class="card-header" style="height:50%; width: 50%; background-color: var(--self-consumption-color);">
 								<img src="/static/img/self_consumption.png" style="height: 50px; width: 50px;">
 							</div>
 							<div class="card-content">
@@ -204,10 +190,25 @@
 								<h4 class="title"><span id="self_consumption"></span><small> %</small></h4>
 							</div>
 						</div>
-					</div>
+					</div> -->
+
+					<!-- <div class="col col-sm-3 col-md-3">
+						<nav class="navbar navbar-transparent navbar-absolute">
+							<div class="container-fluid">
+								<div class="navbar-header">
+									<button type="button" class="navbar-toggle" data-toggle="collapse">
+										<span class="sr-only">Toggle navigation</span>
+										<span class="icon-bar"></span>
+										<span class="icon-bar"></span>
+										<span class="icon-bar"></span>
+									</button>
+								</div>
+							</div>
+						</nav>
+					</div> -->
 
 
-					<div class="col-md-3">
+					<!-- <div class="col-sm-1 col-md-3">
 						<div class="card card-stats">
 							<div class="card-header" style="background-color: var(--distance-color);">
 								<img src="/static/img/distance.png" style="height: 50px; width: 50px;">
@@ -217,17 +218,17 @@
 								<h4 class="title"><span id="mean_distance"></span><small> km</small></h4>
 							</div>
 						</div>
-					</div>
+					</div> -->
 
 
-				</div>
-			</div>
+				<!-- </div> -->
+			<!-- </div> -->
 
 			{%endblock%}
 
 			{% block body %}
 			{% endblock %}
-		</div>
+		<!-- </div> -->
 	</div>
 </body>
 

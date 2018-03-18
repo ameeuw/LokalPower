@@ -1,19 +1,27 @@
 {% extends "base.html" %}
 {% block title %}Dashboard{% endblock %}
 
-<div class="wrapper">
-	<div class="main-panel" style="">
-		<div class="content">
+<!-- <div class="wrapper"> -->
+	<!-- <div class="main-panel" style=""> -->
+		<!-- <div class="content"> -->
 		{% block body %}
+		<script src="/static/js/overview_chart.js"></script>
+			<!-- <div class="container"> -->
+				<!-- <div class="row embed-responsive embed-responsive-16by9" style=""> -->
 
-			<div class="container-fluid">
-				<div class="row embed-responsive embed-responsive-16by9" style="">
+					<!-- <div class="col-md-8 embed-responsive-item" style="width: 100%;"> -->
+						<!-- <div class="btn-group" role="group" aria-label="Resolution" style="height:50px; width:100%;">
+							<button id="btn_day" type="button" style="height: 30px; font-size: 110%" class="btn btn">Tag</button>
+							<button id="btn_month" type="button" style="height: 30px; font-size: 110%" class="btn btn">Monat</button>
+							<button id="btn_year" type="button" style="height: 30px; font-size: 110%" class="btn btn">Jahr</button>
+						</div> -->
+						<div class="well" id="overview_chart" style="height:100%"></div>
 
-					<div class="col-md-8 embed-responsive-item" style="width: 65%;">
-						<div class="well" id="overview_chart" style="height: 75%"></div>
-					</div>
+					<!-- <div class="row">
 
-					<div class="col-md-4 embed-responsive-item" style="left: 65%; max-width: 35%; max-height: 75%">
+					</div> -->
+
+					<!-- <div class="col-md-4 embed-responsive-item" style="left: 65%; max-width: 35%; max-height: 100%; visibility:hidden">
 						<div class="row" style="height: 100%;">
 							<div class="col-md-12" style="height: 100%">
 								<div class="well" style="height: 100%">
@@ -29,14 +37,16 @@
 								</div>
 							</div>
 						</div>
-					</div>
-				</div>
-			</div>
-		{% endblock %}
-		</div>
-	</div>
+					</div> -->
 
-{% block footer %}
-<script src="/static/js/pie_charts.js"></script>
-<script src="/static/js/overview_chart.js"></script>
-{% endblock %}
+
+				<!-- </div> -->
+			<!-- </div> -->
+		{% endblock %}
+		<!-- </div> -->
+	<!-- </div> -->
+
+<!-- {% block footer %} -->
+<!-- <script src="/static/js/pie_charts.js"></script> -->
+
+<!-- {% endblock %} -->

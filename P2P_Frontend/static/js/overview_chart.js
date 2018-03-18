@@ -2,8 +2,12 @@ function init_overview_chart(period_json)
 {
 	overview_chart_options =
 	{
+		exporting: { enabled: false },
+		credits: { enabled: false },
 		chart: {
-			backgroundColor: 'var(--chart-bg-color)'
+			backgroundColor: 'var(--chart-bg-color)',
+			// width: '100%',
+			height: '50%'
 		},
 
 		title: {
@@ -24,12 +28,12 @@ function init_overview_chart(period_json)
 			title: {
 				text: 'kWh',
 				style: {
-				    fontSize: '16px'
+				    fontSize: '14px'
 				}
 			},
 			labels: {
 			    style: {
-			        fontSize: '16px'
+			        fontSize: '14px'
 			    }
 			}
 		},
@@ -39,10 +43,17 @@ function init_overview_chart(period_json)
 			crosshair: true,
 			labels: {
 			    style: {
-			        fontSize: '16px'
+			        fontSize: '12px'
 			    }
 			}
 		},
+
+		legend: {
+        align: 'right',
+        verticalAlign: 'top',
+        layout: 'vertical',
+				floating: true
+    },
 
 		tooltip: {
 			shared: true,
@@ -148,6 +159,8 @@ function reload_overview_chart(period_json)
     else
         overview_chart_options.title.text = 'Verbrauch';
 
+		overview_chart_options.title.text = ''
+
     if (period_json.resolution == 'monthly')
     {
         overview_chart_options.plotOptions.series.point.events.click = function() {
@@ -166,7 +179,7 @@ function reload_overview_chart(period_json)
     }
     else if (period_json.resolution == 'minimal')
     {
-        overview_chart_options.xAxis.labels = {step: 4, rotation: 45};
+        overview_chart_options.xAxis.labels = {step: 8, rotation: -45};
         overview_chart_options.series[0].marker.enabled = false;
         overview_chart_options.series[1].marker.enabled = false;
         overview_chart_options.series[2].marker.enabled = false;
