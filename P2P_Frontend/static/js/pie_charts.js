@@ -2,12 +2,15 @@ function init_pie_charts()
 {
 	pie_chart_connections_options =
 	{
+		exporting: { enabled: false },
+		credits: { enabled: false },
 		chart: {
 			backgroundColor: 'var(--chart-bg-color)',
 			plotBackgroundColor: null,
 			plotBorderWidth: null,
 			plotShadow: false,
 			type: 'pie',
+			marginTop: 30,
 			marginBottom: 100
 		},
 		title: {
@@ -46,7 +49,7 @@ function init_pie_charts()
 			name: 'Anteil',
 			colorByPoint: true,
 			size: '100%',
-			innerSize: '60%',
+			innerSize: '40%',
 			data: []
 		}],
 		legend: {
@@ -71,16 +74,20 @@ function init_pie_charts()
 
 	pie_chart_deliveries_options =
 	{
+		exporting: { enabled: false },
+		credits: { enabled: false },
 		chart: {
 			backgroundColor: 'var(--chart-bg-color)',
 			plotBackgroundColor: null,
 			plotBorderWidth: null,
 			plotShadow: false,
-			type: 'pie'
+			type: 'pie',
+			marginTop: 30,
+			marginBottom: 100
 		},
 		title: {
 			text: 'Produktion',
-			align: 'left'
+			align: 'center'
 		},
 		tooltip: {
 			formatter: function() {
@@ -117,16 +124,16 @@ function init_pie_charts()
 			name: 'Anteil',
 			colorByPoint: true,
 			size: '100%',
-			innerSize: '60%',
+			innerSize: '40%',
 			data: []
 		}],
 		legend: {
 			itemStyle: {
-				fontSize:'13px'
+				fontSize:'12px'
 			},
 			layout: 'vertical',
-			align: 'right',
-			verticalAlign: 'middle',
+			align: 'center',
+			verticalAlign: 'bottom',
 			itemMarginTop: 8,
 			useHTML: true,
 			labelFormatter: function() {
@@ -186,7 +193,7 @@ function reload_pie_charts(period_json)
 	{
 		var data_json = {};
 		var category_json = period_json.categorized_connections[key];
-		data_json.name = key.replace("self", "Selbstversorgung").replace("local","Bezug Lokal (<10km)").replace("grisons","Bezug Graubünden").replace("other","Bezug Schweiz");
+		data_json.name = key.replace("self", "Selbstversorgung").replace("local","Bezug Partner").replace("grisons","Bezug St. Gallen").replace("other","Bezug Schweiz");
 		data_json.y = category_json.sum;
 		data_json.color = key.replace("self","var(--self-color)").replace("local","var(--local-color)").replace("grisons","var(--grisons-color)").replace("other","var(--other-color)");
 		data_json.legendIndex = key.replace("self","0").replace("local","1").replace("grisons","2").replace("other","3");
@@ -206,10 +213,10 @@ function reload_pie_charts(period_json)
 	{
 		var data_json = {};
 		var category_json = period_json.categorized_deliveries[key];
-		data_json.name = key.replace("self", "Eigenverbrauch").replace("local","Einspeisung Lokal (<10km)").replace("grisons","Einspeisung Graubünden").replace("other","Einspeisung Schweiz");
+		data_json.name = key.replace("self", "Eigenverbrauch").replace("local","Einspeisung zu Partnern").replace("other","Einspeisung St. Gallen").replace("grisons","Einspeisung Schweiz");
 		data_json.y = category_json.sum;
-		data_json.color = key.replace("self","var(--self-color)").replace("local","var(--local-color)").replace("grisons","var(--grisons-color)").replace("other","var(--other-color)");
-		data_json.legendIndex = key.replace("self","0").replace("local","1").replace("grisons","2").replace("other","3");
+		data_json.color = key.replace("self","var(--self-color)").replace("local","var(--local-color)").replace("grisons","var(--other-color)").replace("other","var(--grisons-color)");
+		data_json.legendIndex = key.replace("self","0").replace("local","1").replace("other","2").replace("grisons","3");
 		data.push(data_json);
 	}
 	pie_chart_deliveries_options.series[0].data = data;
