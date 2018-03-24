@@ -260,7 +260,9 @@ type = '{{ type }}';
 
 $( document ).ready(function() {
 	console.log( "Document ready. Loading period_json." );
-
+	document.ontouchmove = function(event) {
+    event.preventDefault();
+	}
 	$.getJSON( "/period_json", function( period_json ) {
 		update_ui(period_json);
 	});
