@@ -18,6 +18,8 @@
     --well-bg-color: rgb(240,240,240);
 
     --tooltip-title-color: rgb(200,200,200);
+
+    --btn-active-color: rgba(20,40,20,0.5);
 }
 
 .well {
@@ -53,7 +55,7 @@ div[comma-value] input{
 }
 
 .btn.active {
-    background-color: rgba(20,40,20,0.5);
+    background-color: var(--btn-active-color);
 }
 
 .map_polyline {
