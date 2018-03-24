@@ -7,7 +7,6 @@ function init_overview_chart(period_json)
 		chart: {
 			backgroundColor: 'var(--chart-bg-color)',
 			// width: '100%',
-			height: '50%'
 		},
 
 		title: {

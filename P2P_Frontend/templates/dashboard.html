@@ -10,12 +10,35 @@
 				<!-- <div class="row embed-responsive embed-responsive-16by9" style=""> -->
 
 					<!-- <div class="col-md-8 embed-responsive-item" style="width: 100%;"> -->
-						<!-- <div class="btn-group" role="group" aria-label="Resolution" style="height:50px; width:100%;">
-							<button id="btn_day" type="button" style="height: 30px; font-size: 110%" class="btn btn">Tag</button>
-							<button id="btn_month" type="button" style="height: 30px; font-size: 110%" class="btn btn">Monat</button>
-							<button id="btn_year" type="button" style="height: 30px; font-size: 110%" class="btn btn">Jahr</button>
-						</div> -->
-						<div class="well" id="overview_chart" style="height:100%"></div>
+					<div class="row" style="height:85%">
+						<div class="col-12" id="overview_chart" style="width:100%;height:100%"></div>
+					</div>
+					<div class="row" style="background-color:#777777;">
+						<div class="col-md-2" style="width:5%; align: center"></div>
+						<div class="col-md-5 col-sm-5" style="width:40%">
+							<div class="btn-group" role="group" aria-label="Resolution" style="align:center; height:50px; width:100%;">
+								<button id="btn_day" type="button" style="height: 40px; font-size: 100%; width:25%;" class="btn btn">Tag</button>
+								<button id="btn_month" type="button" style="height: 40px; font-size: 100%; width:50%;" class="btn btn">Monat</button>
+								<button id="btn_year" type="button" style="height: 40px; font-size: 100%; width:25%;" class="btn btn">Jahr</button>
+							</div>
+						</div>
+						<div class="col-md-5 col-sm-5" style="width:55%">
+							<center>
+								<div class="btn-group" role="group" ria-label="Resolution" style="height:80%; width:100%;">
+									<button id="btn_previous" class="btn btn-default btn-md" name="direction" value="previous" style="width: 15%; height: 40px">
+									  <span class="glyphicon glyphicon-chevron-left" aria-hidden="true"></span>
+									</button>
+
+									<button class="btn btn-default btn-md" id="period_name" name="direction" value="up" style="width: 70%; height: 40px; font-size: 110%"></button>
+
+									<button id="btn_next" class="btn btn-default btn-md" name="direction" value="next" style="width: 15%; height: 40px">
+									  <span class="glyphicon glyphicon-chevron-right" aria-hidden="true"></span>
+									</button>
+								</div>
+							</center>
+						</div>
+						<div class="col-md-1"></div>
+					</div>
 
 					<!-- <div class="row">
 

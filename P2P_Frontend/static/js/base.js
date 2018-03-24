@@ -21,7 +21,7 @@ function reload_ui_elements(period_json)
     $('#period_name').text(period_json.name);
 
     if (period_json.resolution == 'minimal')
-        $("#btn_day").addClass("active");
+        $("#btn_day").removeClass("active");
     else
         $("#btn_day").removeClass("active");
 
