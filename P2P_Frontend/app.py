@@ -169,7 +169,7 @@ def get_period(resolution='monthly', month_index=None, day_index=None):
         if month_index is None:
             month_index = 0
 
-        year = 2016
+        year = 2017
         day_index = 0
         month = month_index + 1
         last_day_in_month = calendar.monthrange(year, month)[1]
@@ -209,7 +209,7 @@ def get_period(resolution='monthly', month_index=None, day_index=None):
             day_index = 244
 
         day_in_year = day_index + 1
-        year = 2016
+        year = 2017
 
 
         start_date = datetime.strptime('{} {}'.format(day_in_year, year), '%j %Y')
@@ -253,7 +253,7 @@ def get_period(resolution='monthly', month_index=None, day_index=None):
         start = 0
         stop = 35136
         resolution = 'monthly'
-        name = 'Jahr 2016'
+        name = 'Jahr 2017'
         categories = ['Jan', 'Feb', 'Mar', 'Apr', 'Mai', 'Jun', 'Jul', 'Aug', 'Sep', 'Okt', 'Nov', 'Dez']
         demand = user.demand_by_month
         production = user.production_by_month

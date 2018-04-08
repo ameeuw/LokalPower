@@ -6,65 +6,35 @@
 		<!-- <div class="content"> -->
 		{% block body %}
 		<script src="/static/js/overview_chart.js"></script>
-			<!-- <div class="container"> -->
-				<!-- <div class="row embed-responsive embed-responsive-16by9" style=""> -->
+		<div class="row" style="height:85%">
+			<div class="col-12" id="overview_chart" style="width:100%;height:100%"></div>
+		</div>
+		<div class="row" style="background: linear-gradient(#777777, #999999, #777777);">
+			<div class="col-md-2" style="width:5%; align: center"></div>
+			<div class="col-md-5 col-sm-5" style="width:40%">
+				<div class="btn-group" role="group" aria-label="Resolution" style="align:center; height:50px; width:100%;">
+					<button id="btn_day" type="button" style="height: 40px; font-size: 100%; width:25%;" class="btn btn">Tag</button>
+					<button id="btn_month" type="button" style="height: 40px; font-size: 100%; width:50%;" class="btn btn">Monat</button>
+					<button id="btn_year" type="button" style="height: 40px; font-size: 100%; width:25%;" class="btn btn">Jahr</button>
+				</div>
+			</div>
+			<div class="col-md-5 col-sm-5" style="width:60%">
+				<center>
+					<div class="btn-group" role="group" ria-label="Resolution" style="height:80%; width:100%;">
+						<button id="btn_previous" class="btn btn-default btn-md" name="direction" value="previous" style="width: 10%; height: 40px">
+						  <span class="glyphicon glyphicon-chevron-left" aria-hidden="true"></span>
+						</button>
 
-					<!-- <div class="col-md-8 embed-responsive-item" style="width: 100%;"> -->
-					<div class="row" style="height:85%">
-						<div class="col-12" id="overview_chart" style="width:100%;height:100%"></div>
+						<button class="btn btn-default btn-md" id="period_name" name="direction" value="up" style="width: 80%; height: 40px; font-size: 110%"></button>
+
+						<button id="btn_next" class="btn btn-default btn-md" name="direction" value="next" style="width: 10%; height: 40px">
+						  <span class="glyphicon glyphicon-chevron-right" aria-hidden="true"></span>
+						</button>
 					</div>
-					<div class="row" style="background-color:#777777;">
-						<div class="col-md-2" style="width:5%; align: center"></div>
-						<div class="col-md-5 col-sm-5" style="width:40%">
-							<div class="btn-group" role="group" aria-label="Resolution" style="align:center; height:50px; width:100%;">
-								<button id="btn_day" type="button" style="height: 40px; font-size: 100%; width:25%;" class="btn btn">Tag</button>
-								<button id="btn_month" type="button" style="height: 40px; font-size: 100%; width:50%;" class="btn btn">Monat</button>
-								<button id="btn_year" type="button" style="height: 40px; font-size: 100%; width:25%;" class="btn btn">Jahr</button>
-							</div>
-						</div>
-						<div class="col-md-5 col-sm-5" style="width:55%">
-							<center>
-								<div class="btn-group" role="group" ria-label="Resolution" style="height:80%; width:100%;">
-									<button id="btn_previous" class="btn btn-default btn-md" name="direction" value="previous" style="width: 15%; height: 40px">
-									  <span class="glyphicon glyphicon-chevron-left" aria-hidden="true"></span>
-									</button>
-
-									<button class="btn btn-default btn-md" id="period_name" name="direction" value="up" style="width: 70%; height: 40px; font-size: 110%"></button>
-
-									<button id="btn_next" class="btn btn-default btn-md" name="direction" value="next" style="width: 15%; height: 40px">
-									  <span class="glyphicon glyphicon-chevron-right" aria-hidden="true"></span>
-									</button>
-								</div>
-							</center>
-						</div>
-						<div class="col-md-1"></div>
-					</div>
-
-					<!-- <div class="row">
-
-					</div> -->
-
-					<!-- <div class="col-md-4 embed-responsive-item" style="left: 65%; max-width: 35%; max-height: 100%; visibility:hidden">
-						<div class="row" style="height: 100%;">
-							<div class="col-md-12" style="height: 100%">
-								<div class="well" style="height: 100%">
-									<div id="pie_chart_connections" style="height: 100%"></div>
-								</div>
-							</div>
-						</div>
-
-						<div class="row" style="height: 100%;">
-							<div class="col-md-12" style="height: 100%; top: 8%">
-								<div class="well" style="height: 100%;">
-									<div id="pie_chart_deliveries" style="height: 100%"></div>
-								</div>
-							</div>
-						</div>
-					</div> -->
-
-
-				<!-- </div> -->
-			<!-- </div> -->
+				</center>
+			</div>
+			<div class="col-md-1"></div>
+		</div>
 		{% endblock %}
 		<!-- </div> -->
 	<!-- </div> -->

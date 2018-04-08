@@ -18,7 +18,7 @@ function reload_ui_elements(period_json)
     $('#self_consumption').text(numberWithCommas(period_json.kpi_self_consumption.toFixed(1)));
     $('#mean_distance').text(numberWithCommas(period_json.kpi_mean_distance.toFixed(1)));
 
-    $('#period_name').text(period_json.name);
+    $('#period_name').text(period_json.name.replace("2016", "2017"));
 
     if (period_json.resolution == 'minimal')
         $("#btn_day").removeClass("active");
