@@ -18,7 +18,13 @@ function init_pie_charts()
 			align: 'center',
 			style: {
 				"color": "#333333",
-				"fontSize": "14px"
+				"fontSize": "14px",
+				"font-family": "Raleway"
+			}
+		},
+		subtitle: {
+			style: {
+				"font-family": "Raleway"
 			}
 		},
 		tooltip: {
@@ -97,6 +103,11 @@ function init_pie_charts()
 			style: {
 				"color": "#333333",
 				"fontSize": "14px"
+			}
+		},
+		subtitle: {
+			style: {
+				"font-family": "Raleway"
 			}
 		},
 		tooltip: {
@@ -215,7 +226,6 @@ function reload_pie_charts(period_json)
 	pie_chart_connections_options.title.text = 'Verbrauch (' + numberWithCommas(period_json.sum_consumption.toFixed(1)) + ' kWh)';
 	console.log(period_json.sum_consumption);
 
-	pie_chart_connections_options.subtitle = {}
 	pie_chart_connections_options.subtitle.text = period_json.name.replace("2016", "2017")
 
 	if (document.getElementById('pie_chart_connections') !== null) {
@@ -237,7 +247,6 @@ function reload_pie_charts(period_json)
 	pie_chart_deliveries_options.series[0].data = data;
 	pie_chart_deliveries_options.title.text = 'Produktion (' + numberWithCommas(period_json.sum_production.toFixed(1)) + ' kWh)';
 
-	pie_chart_deliveries_options.subtitle = {}
 	pie_chart_deliveries_options.subtitle.text = period_json.name.replace("2016", "2017")
 
 	if (document.getElementById('pie_chart_deliveries') !== null) {
