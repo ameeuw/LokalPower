@@ -10,7 +10,7 @@ function init_pie_charts()
 			plotBorderWidth: null,
 			plotShadow: false,
 			type: 'pie',
-			marginTop: 30,
+			marginTop: 40,
 			marginBottom: 100
 		},
 		title: {
@@ -28,6 +28,7 @@ function init_pie_charts()
 		},
 		plotOptions: {
 			pie: {
+				animation: false,
 				allowPointSelect: true,
 				cursor: 'pointer',
 				align: 'left',
@@ -87,7 +88,7 @@ function init_pie_charts()
 			plotBorderWidth: null,
 			plotShadow: false,
 			type: 'pie',
-			marginTop: 30,
+			marginTop: 40,
 			marginBottom: 100
 		},
 		title: {
@@ -105,6 +106,7 @@ function init_pie_charts()
 		},
 		plotOptions: {
 			pie: {
+				animation: false,
 				allowPointSelect: true,
 				cursor: 'pointer',
 				align: 'left',
@@ -213,6 +215,9 @@ function reload_pie_charts(period_json)
 	pie_chart_connections_options.title.text = 'Verbrauch (' + numberWithCommas(period_json.sum_consumption.toFixed(1)) + ' kWh)';
 	console.log(period_json.sum_consumption);
 
+	pie_chart_connections_options.subtitle = {}
+	pie_chart_connections_options.subtitle.text = period_json.name.replace("2016", "2017")
+
 	if (document.getElementById('pie_chart_connections') !== null) {
 		pie_chart_connections = Highcharts.chart('pie_chart_connections', pie_chart_connections_options);
 		// build_tooltip(pie_chart_connections.legend, 'Selbstversorgung', text_self_consumption);
@@ -231,6 +236,9 @@ function reload_pie_charts(period_json)
 	}
 	pie_chart_deliveries_options.series[0].data = data;
 	pie_chart_deliveries_options.title.text = 'Produktion (' + numberWithCommas(period_json.sum_production.toFixed(1)) + ' kWh)';
+
+	pie_chart_deliveries_options.subtitle = {}
+	pie_chart_deliveries_options.subtitle.text = period_json.name.replace("2016", "2017")
 
 	if (document.getElementById('pie_chart_deliveries') !== null) {
 		pie_chart_deliveries = Highcharts.chart('pie_chart_deliveries', pie_chart_deliveries_options);
