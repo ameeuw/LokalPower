@@ -9,25 +9,25 @@
 		<div class="row" style="height:85%">
 			<div class="col-12" id="overview_chart" style="width:100%;height:100%"></div>
 		</div>
-		<div class="row" style="background: linear-gradient(#777777, #999999, #777777);">
+		<div class="row" style="background: linear-gradient(var(--grd-hi-color), var(--grd-lo-color), var(--grd-hi-color));">
 			<div class="col-md-2" style="width:5%; align: center"></div>
 			<div class="col-md-5 col-sm-5" style="width:40%">
-				<div class="btn-group" role="group" aria-label="Resolution" style="align:center; height:50px; width:100%;">
-					<button id="btn_day" type="button" style="height: 40px; font-size: 100%; width:25%;" class="btn btn">Tag</button>
-					<button id="btn_month" type="button" style="height: 40px; font-size: 100%; width:50%;" class="btn btn">Monat</button>
-					<button id="btn_year" type="button" style="height: 40px; font-size: 100%; width:25%;" class="btn btn">Jahr</button>
+				<div class="btn-group" role="group" aria-label="Resolution" style="align:center; height:50px; width:100%; font-family: raleway;">
+					<button id="btn_day" type="button" style="height: 40px; font-size: 100%; width:25%; background-color: var(--btn-color);" class="btn btn">Tag</button>
+					<button id="btn_month" type="button" style="height: 40px; font-size: 100%; width:50%; background-color: var(--btn-color);" class="btn btn">Monat</button>
+					<button id="btn_year" type="button" style="height: 40px; font-size: 100%; width:25%; background-color: var(--btn-color);" class="btn btn">Jahr</button>
 				</div>
 			</div>
 			<div class="col-md-5 col-sm-5" style="width:60%">
 				<center>
-					<div class="btn-group" role="group" ria-label="Resolution" style="height:80%; width:100%;">
-						<button id="btn_previous" class="btn btn-default btn-md" name="direction" value="previous" style="width: 10%; height: 40px">
+					<div class="btn-group" role="group" ria-label="Resolution" style="height:80%; width:100%; font-family: raleway;">
+						<button id="btn_previous" class="btn btn-default btn-md" name="direction" value="previous" style="width: 10%; height: 40px; background-color: var(--btn-color);">
 						  <span class="glyphicon glyphicon-chevron-left" aria-hidden="true"></span>
 						</button>
 
-						<button class="btn btn-default btn-md" id="period_name" name="direction" value="up" style="width: 80%; height: 40px; font-size: 110%"></button>
+						<button class="btn btn-default btn-md" id="period_name" name="direction" value="up" style="width: 80%; height: 40px; font-size: 110%; background-color: var(--btn-color);"></button>
 
-						<button id="btn_next" class="btn btn-default btn-md" name="direction" value="next" style="width: 10%; height: 40px">
+						<button id="btn_next" class="btn btn-default btn-md" name="direction" value="next" style="width: 10%; height: 40px; background-color: var(--btn-color);">
 						  <span class="glyphicon glyphicon-chevron-right" aria-hidden="true"></span>
 						</button>
 					</div>

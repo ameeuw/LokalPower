@@ -21,6 +21,9 @@
     --tooltip-title-color: rgb(200,200,200);
 
     --btn-active-color: rgba(20,40,20,0.5);
+    --btn-color: rgba(68, 154, 240, 0.8);
+    --grd-hi-color: rgba(21, 64, 148, .2);
+    --grd-lo-color: rgba(159, 184, 232, 1);
 }
 
 .well {

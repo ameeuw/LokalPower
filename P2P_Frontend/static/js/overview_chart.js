@@ -42,7 +42,8 @@ function init_overview_chart(period_json)
 			crosshair: true,
 			labels: {
 			    style: {
-			        fontSize: '12px'
+			        fontSize: '12px',
+							"font-family": 'raleway'
 			    }
 			}
 		},
@@ -51,7 +52,10 @@ function init_overview_chart(period_json)
         align: 'right',
         verticalAlign: 'top',
         layout: 'vertical',
-				floating: true
+				floating: true,
+				style: {
+					"font-family": "raleway"
+				}
     },
 
 		tooltip: {
@@ -60,7 +64,7 @@ function init_overview_chart(period_json)
 			borderColor: '#000000',
 
 			formatter: function() {
-			   var s = '<span style="font-size:14px">' + period_json.resolution.replace("daily", "Tag").replace("monthly", "Monat").replace("minimal", "Uhrzeit") + ' : ' + this.x +'</span><br><table>';
+			   var s = '<span style="font-size:14px; font-family:raleway;">' + period_json.resolution.replace("daily", "Tag").replace("monthly", "Monat").replace("minimal", "Uhrzeit") + ' : ' + this.x +'</span><br><table>';
 
 			   var sortedPoints = this.points.sort(function(a, b){
 					 return ((a.series.options.legendIndex < b.series.options.legendIndex) ? -1 : ((a.series.options.legendIndex > b.series.options.legendIndex) ? 1 : 0));
