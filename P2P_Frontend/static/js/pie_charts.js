@@ -215,7 +215,7 @@ function reload_pie_charts(period_json)
 
 	if (document.getElementById('pie_chart_connections') !== null) {
 		pie_chart_connections = Highcharts.chart('pie_chart_connections', pie_chart_connections_options);
-		build_tooltip(pie_chart_connections.legend, 'Selbstversorgung', text_self_consumption);
+		// build_tooltip(pie_chart_connections.legend, 'Selbstversorgung', text_self_consumption);
 	}
 
 	var data = []
@@ -234,7 +234,7 @@ function reload_pie_charts(period_json)
 
 	if (document.getElementById('pie_chart_deliveries') !== null) {
 		pie_chart_deliveries = Highcharts.chart('pie_chart_deliveries', pie_chart_deliveries_options);
-		build_tooltip(pie_chart_deliveries.legend, 'Eigenverbrauch', text_autarky);
+		// build_tooltip(pie_chart_deliveries.legend, 'Eigenverbrauch', text_autarky);
 	}
 
 	// $('#pie_chart_connections').highcharts(pie_chart_connections.options);
