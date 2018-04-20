@@ -102,7 +102,8 @@ function init_pie_charts()
 			align: 'center',
 			style: {
 				"color": "#333333",
-				"fontSize": "14px"
+				"fontSize": "14px",
+				"font-family": "Raleway"
 			}
 		},
 		subtitle: {
