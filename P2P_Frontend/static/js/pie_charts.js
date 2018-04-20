@@ -15,7 +15,11 @@ function init_pie_charts()
 		},
 		title: {
 			text: 'Verbrauch',
-			align: 'center'
+			align: 'center',
+			style: {
+				"color": "#333333",
+				"fontSize": "14px"
+			}
 		},
 		tooltip: {
 			formatter: function() {
@@ -53,6 +57,7 @@ function init_pie_charts()
 			data: []
 		}],
 		legend: {
+			enabled: false,
 			itemStyle: {
 				fontSize:'12px'
 			},
@@ -87,7 +92,11 @@ function init_pie_charts()
 		},
 		title: {
 			text: 'Produktion',
-			align: 'center'
+			align: 'center',
+			style: {
+				"color": "#333333",
+				"fontSize": "14px"
+			}
 		},
 		tooltip: {
 			formatter: function() {
@@ -128,6 +137,7 @@ function init_pie_charts()
 			data: []
 		}],
 		legend: {
+			enabled: false,
 			itemStyle: {
 				fontSize:'12px'
 			},
